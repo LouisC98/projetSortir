@@ -71,10 +71,7 @@ class SortieFixtures extends Fixture implements DependentFixtureInterface
             $sortie->setStartDateTime($startDate);
 
             // Durée entre 1h et 8h
-            $durationHours = $faker->numberBetween(1, 8);
-            $durationMinutes = $faker->randomElement([0, 15, 30, 45]);
-            $duration = new \DateTime();
-            $duration->setTime($durationHours, $durationMinutes);
+            $duration = $faker->numberBetween(5, 1440);
             $sortie->setDuration($duration);
 
             // Date limite d'inscription (1 à 7 jours avant la sortie)
