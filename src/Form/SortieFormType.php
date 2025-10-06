@@ -47,8 +47,18 @@ class SortieFormType extends AbstractType
             ])
             ->add('place', EntityType::class, [
                 'class' => Place::class,
+                'placeholder' => '-- Choisissez un lieu --',
                 'choice_label' => 'name',
-                'label' => 'Lieu de la sortie'
+                'label' => 'Lieu',
+                'choice_attr' => function(Place $place) {
+                    return [
+                        'data-street' => $place->getStreet(),
+                        'data-city' => $place->getCity()->getName(),
+                        'data-cp' => $place->getCity()->getPostalCode(),
+                        'data-latitude' => $place->getLatitude(),
+                        'data-longitude' => $place->getLongitude(),
+                    ];
+                },
             ])
         ;
     }
