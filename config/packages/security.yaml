@@ -14,20 +14,29 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
-            lazy: true
-            provider: app_user_provider
+          lazy: true
+          provider: app_user_provider
 
-            # activate different ways to authenticate
-            # https://symfony.com/doc/current/security.html#the-firewall
+          # Form login
+          form_login:
+            login_path: app_login
+            check_path: app_login
+            username_parameter: email
+            password_parameter: password
+            default_target_path: index
 
-            # https://symfony.com/doc/current/security/impersonating_user.html
-            # switch_user: true
+          logout:
+            path: app_logout
+            target: app_login
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+      # exemple : les pages /inscription, /login sont publiques
+      - { path: ^/inscription}
+      - { path: ^/login}
+      # tout le reste requiert au moins ROLE_USER
+      - { path: ^/, roles: ROLE_USER }
 
 when@test:
     security:
