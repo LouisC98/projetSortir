@@ -11,6 +11,8 @@ use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
 class PlaceFixtures extends Fixture implements DependentFixtureInterface
 {
+    public const PLACE_REFERENCE = 'place_';
+
     public function load(ObjectManager $manager): void
     {
         $faker = Factory::create('fr_FR');
@@ -31,6 +33,9 @@ class PlaceFixtures extends Fixture implements DependentFixtureInterface
 
 
             $manager->persist($place);
+
+            // Ajouter la référence pour pouvoir l'utiliser dans d'autres fixtures
+            $this->addReference(self::PLACE_REFERENCE . $i, $place);
         }
 
         $manager->flush();
