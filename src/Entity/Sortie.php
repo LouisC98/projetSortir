@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: SortieRepository::class)]
 class Sortie
@@ -21,12 +22,22 @@ class Sortie
     private ?string $name = null;
 
     #[ORM\Column]
+    #[Assert\GreaterThanOrEqual(
+        value: 'today',
+        message: 'La date doit être aujourd\'hui ou dans le futur'
+    )]
     private ?\DateTime $startDateTime = null;
 
-    #[ORM\Column(type: Types::TIME_MUTABLE)]
-    private ?\DateTime $duration = null;
+    #[ORM\Column]
+    #[Assert\Positive(message: 'La durée doit être positive')]
+    #[Assert\LessThan(value: 1440, message: 'La durée ne peut pas dépasser 24h')]
+    private ?int $duration = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Assert\GreaterThan(
+        value: 'today',
+        message: 'La date limite d\'inscription doit être postérieure à aujourd\'hui'
+    )]
     private ?\DateTime $registrationDeadline = null;
 
     #[ORM\Column]
@@ -89,12 +100,12 @@ class Sortie
         return $this;
     }
 
-    public function getDuration(): ?\DateTime
+    public function getDuration(): ?int
     {
         return $this->duration;
     }
 
-    public function setDuration(\DateTime $duration): static
+    public function setDuration(int $duration): static
     {
         $this->duration = $duration;
 

@@ -39,11 +39,16 @@ class SortieFormType extends AbstractType
             ->add('maxRegistration', NumberType::class, [
                 'label' => 'Nombre de places'
             ])
-            ->add('duration', TimeType::class, [
-                'label' => 'Durée'
+            ->add('duration', NumberType::class, [
+                'label' => 'Durée',
+                'attr' => [
+                    'min' => 5,
+                    'max' => 1440,
+                ],
             ])
             ->add('description', TextareaType::class, [
-                'label' => 'Description et infos'
+                'label' => 'Description et infos',
+                'required' => false
             ])
             ->add('place', EntityType::class, [
                 'class' => Place::class,
