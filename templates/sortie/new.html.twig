@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer une sortie | {{ parent() }}{% endblock %}
+
+{% block body %}
+<section>
+    <h1 class="text-2xl text-center my-5">Créer une sortie</h1>
+    {{ form_start(sortieForm) }}
+    <div class="max-w-2xl mx-auto p-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid gap-4 ">
+            <div class="grid">
+                {{ form_label(sortieForm.name) }}
+                {{ form_widget(sortieForm.name, { 'attr': {'class': 'border border-gray-400 rounded p-1'}}) }}
+                {{ form_errors(sortieForm.name) }}
+            </div>
+            <div class="grid">
+                {{ form_label(sortieForm.startDateTime) }}
+                {{ form_widget(sortieForm.startDateTime, { 'attr': {'class': 'border  border-gray-400 rounded max-w-50 p-1'}}) }}
+                {{ form_errors(sortieForm.startDateTime) }}
+            </div>
+            <div class="grid">
+                {{ form_label(sortieForm.registrationDeadline) }}
+                {{ form_widget(sortieForm.registrationDeadline, { 'attr': {'class': 'border border-gray-400 rounded max-w-50 p-1'}}) }}
+                {{ form_errors(sortieForm.registrationDeadline) }}
+            </div>
+            <div class="flex gap-4 items-center">
+                {{ form_label(sortieForm.maxRegistration) }}
+                {{ form_widget(sortieForm.maxRegistration, { 'attr': {'class': 'border border-gray-400 rounded max-w-15 p-1'}}) }}
+                {{ form_errors(sortieForm.maxRegistration) }}
+            </div>
+            <div class="grid">
+                {{ form_label(sortieForm.duration) }}
+                <div class="flex gap-1">
+                    {{ form_widget(sortieForm.duration.hour, { 'attr': {'class': 'border border-gray-400 rounded p-1'}}) }}
+                    {{ form_widget(sortieForm.duration.minute, { 'attr': {'class': 'border border-gray-400 rounded p-1'}}) }}
+                </div>
+                {{ form_errors(sortieForm.duration) }}
+            </div>
+            <div class="grid">
+                {{ form_label(sortieForm.description) }}
+                {{ form_widget(sortieForm.description, { 'attr': {'class': 'border border-gray-400 rounded p-1'}}) }}
+                {{ form_errors(sortieForm.description) }}
+            </div>
+        </div>
+        <div class="grid gap-4">
+            <div>
+                {{ form_label(sortieForm.place) }}
+                {{ form_widget(sortieForm.place, { 'attr': {'class': 'border border-gray-400 rounded p-1'}}) }}
+                {{ form_errors(sortieForm.place) }}
+            </div>
+        </div>
+        <div class="flex gap-4 mt-6 justify-center md:col-span-2">
+            <button type="submit" class="px-3 py-2 font-semibold text-md text-white bg-blue-400 rounded shadow-md text-shadow">Enregistrer</button>
+            <button class="px-3 py-2 font-semibold text-md text-white bg-green-600 rounded shadow-md text-shadow">Publier la sortie</button>
+            <button class="px-3 py-2 font-semibold text-md text-white bg-red-500 rounded shadow-md text-shadow">Annuler</button>
+        </div>
+    </div>
+    {{ form_end(sortieForm) }}
+</section>
+{% endblock %}
