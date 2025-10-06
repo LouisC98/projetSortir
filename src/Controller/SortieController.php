@@ -34,7 +34,7 @@ final class SortieController extends AbstractController
             $this->entityManager->flush();
 
             $this->addFlash("success","Sortie enregistré !");
-            return $this->redirectToRoute('app_sortie_new');
+            return $this->redirectToRoute('app_home');
         }
 
         return $this->render('sortie/new.html.twig', [

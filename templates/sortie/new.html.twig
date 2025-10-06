@@ -3,67 +3,64 @@
 {% block title %}Créer une sortie | {{ parent() }}{% endblock %}
 
 {% block body %}
-<section>
-    <h1 class="text-2xl text-center my-5">Créer une sortie</h1>
-    {{ form_start(sortieForm) }}
-    <div class="max-w-2xl mx-auto p-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="grid gap-4 ">
-            <div class="grid">
-                {{ form_label(sortieForm.name, null, { 'label_attr': {'class': 'font-semibold'}}) }}
-                {{ form_widget(sortieForm.name, { 'attr': {'class': 'border border-gray-400 rounded p-1'}}) }}
-                {{ form_errors(sortieForm.name) }}
-            </div>
-            <div class="grid">
-                {{ form_label(sortieForm.startDateTime, null, { 'label_attr': {'class': 'font-semibold'}}) }}
-                {{ form_widget(sortieForm.startDateTime, { 'attr': {'class': 'border  border-gray-400 rounded max-w-50 p-1'}}) }}
-                {{ form_errors(sortieForm.startDateTime) }}
-            </div>
-            <div class="grid">
-                {{ form_label(sortieForm.registrationDeadline, null, { 'label_attr': {'class': 'font-semibold'}}) }}
-                {{ form_widget(sortieForm.registrationDeadline, { 'attr': {'class': 'border border-gray-400 rounded max-w-50 p-1'}}) }}
-                {{ form_errors(sortieForm.registrationDeadline) }}
-            </div>
-            <div class="flex gap-4 items-center">
-                {{ form_label(sortieForm.maxRegistration, null, { 'label_attr': {'class': 'font-semibold'}}) }}
-                {{ form_widget(sortieForm.maxRegistration, { 'attr': {'class': 'border border-gray-400 rounded max-w-15 p-1'}}) }}
-                {{ form_errors(sortieForm.maxRegistration) }}
-            </div>
-            <div class="grid">
-                {{ form_label(sortieForm.duration, null, { 'label_attr': {'class': 'font-semibold'}}) }}
-                <div class="flex gap-1">
-                    {{ form_widget(sortieForm.duration.hour, { 'attr': {'class': 'border border-gray-400 rounded p-1'}}) }}
-                    {{ form_widget(sortieForm.duration.minute, { 'attr': {'class': 'border border-gray-400 rounded p-1'}}) }}
+    <section>
+        <h1 class="text-2xl text-center my-5">Créer une sortie</h1>
+        {{ form_start(sortieForm,{'attr': {'data-turbo': 'false'}}) }}
+        <div class="max-w-2xl mx-auto p-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid gap-4 ">
+                <div class="grid">
+                    {{ form_label(sortieForm.name, null, { 'label_attr': {'class': 'font-semibold'}}) }}
+                    {{ form_widget(sortieForm.name, { 'attr': {'class': 'border border-gray-400 rounded p-1'}}) }}
+                    <div class="text-red-500 font-semibold text-sm">{{ form_errors(sortieForm.name) }}</div>
                 </div>
-                {{ form_errors(sortieForm.duration) }}
+                <div class="grid">
+                    {{ form_label(sortieForm.startDateTime, null, { 'label_attr': {'class': 'font-semibold'}}) }}
+                    {{ form_widget(sortieForm.startDateTime, { 'attr': {'class': 'border  border-gray-400 rounded max-w-50 p-1'}}) }}
+                    <div class="text-red-500 font-semibold text-sm">{{ form_errors(sortieForm.startDateTime) }}</div>
+                </div>
+                <div class="grid">
+                    {{ form_label(sortieForm.registrationDeadline, null, { 'label_attr': {'class': 'font-semibold'}}) }}
+                    {{ form_widget(sortieForm.registrationDeadline, { 'attr': {'class': 'border border-gray-400 rounded max-w-50 p-1'}}) }}
+                    <div class="text-red-500 font-semibold text-sm">{{ form_errors(sortieForm.registrationDeadline) }}</div>
+                </div>
+                <div class="flex gap-4 items-center">
+                    {{ form_label(sortieForm.maxRegistration, null, { 'label_attr': {'class': 'font-semibold'}}) }}
+                    {{ form_widget(sortieForm.maxRegistration, { 'attr': {'class': 'border border-gray-400 rounded max-w-15 p-1'}}) }}
+                    <div class="text-red-500 font-semibold text-sm">{{ form_errors(sortieForm.maxRegistration) }}</div>
+                </div>
+                <div class="flex gap-4 items-center">
+                    {{ form_label(sortieForm.duration, null, { 'label_attr': {'class': 'font-semibold'}}) }}
+                    {{ form_widget(sortieForm.duration, { 'attr': {'class': 'border border-gray-400 rounded p-1 max-w-15'}}) }} minutes
+                    <div class="text-red-500 font-semibold text-sm">{{ form_errors(sortieForm.duration) }}</div>
+                </div>
+                <div class="grid">
+                    {{ form_label(sortieForm.description, null, { 'label_attr': {'class': 'font-semibold'}}) }}
+                    {{ form_widget(sortieForm.description, { 'attr': {'class': 'border border-gray-400 rounded p-1'}}) }}
+                    <div class="text-red-500 font-semibold text-sm">{{ form_errors(sortieForm.description) }}</div>
+                </div>
             </div>
-            <div class="grid">
-                {{ form_label(sortieForm.description, null, { 'label_attr': {'class': 'font-semibold'}}) }}
-                {{ form_widget(sortieForm.description, { 'attr': {'class': 'border border-gray-400 rounded p-1'}}) }}
-                {{ form_errors(sortieForm.description) }}
+            <div class="flex flex-col gap-4">
+                <div class="flex gap-4 items-center">
+                    {{ form_label(sortieForm.place, null, { 'label_attr': {'class': 'font-semibold'}}) }}
+                    {{ form_widget(sortieForm.place, { 'attr': {'class': 'border border-gray-400 rounded p-1'}}) }}
+                    <div class="text-red-500 font-semibold text-sm">{{ form_errors(sortieForm.place) }}</div>
+                </div>
+                <div id="place-details" class="gap-5 hidden my-auto md:ms-7">
+                    <p><span class="font-semibold">Ville :</span> <span id="place-city"></span></p>
+                    <p><span class="font-semibold">Rue :</span> <span id="place-street"></span></p>
+                    <p><span class="font-semibold">Code Postal :</span> <span id="place-cp"></span></p>
+                    <p><span class="font-semibold">Latitude :</span> <span id="place-latitude"></span></p>
+                    <p><span class="font-semibold">Longitude :</span> <span id="place-longitude"></span></p>
+                </div>
+            </div>
+            <div class="flex gap-4 mt-6 justify-center md:col-span-2 flex-wrap">
+                <button type="submit" class="px-3 py-2 font-semibold text-md text-white bg-blue-400 rounded shadow-md text-shadow">Enregistrer</button>
+                <button class="px-3 py-2 font-semibold text-md text-white bg-green-600 rounded shadow-md text-shadow">Publier la sortie</button>
+                <button class="px-3 py-2 font-semibold text-md text-white bg-red-500 rounded shadow-md text-shadow">Annuler</button>
             </div>
         </div>
-        <div class="flex flex-col gap-4">
-            <div class="flex gap-4 items-center">
-                {{ form_label(sortieForm.place, null, { 'label_attr': {'class': 'font-semibold'}}) }}
-                {{ form_widget(sortieForm.place, { 'attr': {'class': 'border border-gray-400 rounded p-1'}}) }}
-                {{ form_errors(sortieForm.place) }}
-            </div>
-            <div id="place-details" class="gap-5 hidden my-auto md:ms-7">
-                <p><span class="font-semibold">Ville :</span> <span id="place-city"></span></p>
-                <p><span class="font-semibold">Rue :</span> <span id="place-street"></span></p>
-                <p><span class="font-semibold">Code Postal :</span> <span id="place-cp"></span></p>
-                <p><span class="font-semibold">Latitude :</span> <span id="place-latitude"></span></p>
-                <p><span class="font-semibold">Longitude :</span> <span id="place-longitude"></span></p>
-            </div>
-        </div>
-        <div class="flex gap-4 mt-6 justify-center md:col-span-2 flex-wrap">
-            <button type="submit" class="px-3 py-2 font-semibold text-md text-white bg-blue-400 rounded shadow-md text-shadow">Enregistrer</button>
-            <button class="px-3 py-2 font-semibold text-md text-white bg-green-600 rounded shadow-md text-shadow">Publier la sortie</button>
-            <button class="px-3 py-2 font-semibold text-md text-white bg-red-500 rounded shadow-md text-shadow">Annuler</button>
-        </div>
-    </div>
-    {{ form_end(sortieForm) }}
-</section>
+        {{ form_end(sortieForm) }}
+    </section>
 {% endblock %}
 {% block javascripts %}
     {{ parent() }}
@@ -72,7 +69,13 @@
             const placeSelect = document.getElementById('sortie_form_place');
             const placeDetails = document.getElementById('place-details');
 
-            placeSelect.addEventListener('change', function() {
+            placeSelect.addEventListener('change', loadPlaceInfos);
+
+            if (placeSelect.value) {
+                loadPlaceInfos.call(placeSelect);
+            }
+
+            function loadPlaceInfos() {
                 const selectedOption = this.options[this.selectedIndex];
 
                 if (!this.value) {
@@ -80,7 +83,6 @@
                     return;
                 }
 
-                // Récupération directe depuis les data attributes
                 document.getElementById('place-street').textContent = selectedOption.dataset.street;
                 document.getElementById('place-city').textContent = selectedOption.dataset.city;
                 document.getElementById('place-cp').textContent = selectedOption.dataset.cp;
@@ -89,7 +91,7 @@
 
                 placeDetails.classList.remove('hidden');
                 placeDetails.classList.add('grid');
-            });
+            }
         });
     </script>
 {% endblock %}
