@@ -18,7 +18,7 @@ class RegistrationController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         UserPasswordHasherInterface $passwordHasher,
-        SiteRepository $siteRepo // pour le champ site (ManyToOne)
+        SiteRepository $siteRepo
     ): Response {
         if ($request->isMethod('POST')) {
             $pseudo = $request->request->get('pseudo');
@@ -26,12 +26,12 @@ class RegistrationController extends AbstractController
             $firstName = $request->request->get('firstName');
             $lastName = $request->request->get('lastName');
             $phone = $request->request->get('phone');
-            $password = $request->request->get('password');
             $siteId = $request->request->get('site');
 
             $password = $request->request->get('password');
             $passwordConfirm = $request->request->get('password_confirm');
 
+            $isAdmin = $request->request->get('is_admin', false);
 
             // vérification basique
             if (!$email || !$password || !$pseudo || !$siteId) {
@@ -64,11 +64,17 @@ class RegistrationController extends AbstractController
             $user->setSite($site);
             $user->setActive(true);
 
-
             // Vérifie que les mots de passe sont identiques
             if ($password !== $passwordConfirm) {
                 $this->addFlash('error', 'Les mots de passe ne correspondent pas.');
                 return $this->redirectToRoute('app_register');
+            }
+
+            // Gestion des rôles selon le checkbox
+            if ($isAdmin) {
+                $user->setRoles(['ROLE_ADMIN']);
+            } else {
+                $user->setRoles(['ROLE_USER']);
             }
 
             $hashedPassword = $passwordHasher->hashPassword($user, $password);

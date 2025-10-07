@@ -23,7 +23,7 @@ security:
             check_path: app_login
             username_parameter: email
             password_parameter: password
-            default_target_path: index
+
 
           logout:
             path: app_logout
@@ -36,7 +36,7 @@ security:
       - { path: ^/inscription}
       - { path: ^/login}
       # tout le reste requiert au moins ROLE_USER
-      - { path: ^/, roles: ROLE_USER }
+      - { path: ^/}
 
 when@test:
     security:
