@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Sortie;
 use App\Enum\State;
+use App\Form\CancelSortieFormType;
 use App\Form\SortieFormType;
 use App\Repository\SiteRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -40,6 +41,53 @@ final class SortieController extends AbstractController
         return $this->render('sortie/new.html.twig', [
             'controller_name' => 'SortieController',
             'sortieForm' => $sortieForm->createView(),
+        ]);
+    }
+
+    #[Route('/sortie/{id}/cancel', name: 'app_sortie_cancel', methods: ['GET', 'POST'])]
+    public function cancel(Sortie $sortie, Request $request): Response
+    {
+//        VERIF ORGANISATEUR
+        $user = $this->getUser();
+        $organisateur = $sortie->getOrganisateur();
+        if ($organisateur->getId() !== $user->getId()) {
+            $this->addFlash("danger","Vous n'êtes pas l'organisateur de la sortie");
+            return $this->redirectToRoute('app_home');
+        }
+
+//        VERIF DATE DE DEBUT
+        $startDateTime = $sortie->getStartDateTime();
+        $now = new \DateTime();
+        if ($startDateTime < $now) {
+            $this->addFlash("danger","Sortie déjà commencé");
+            return $this->redirectToRoute('app_home');
+        }
+
+        $cancelForm = $this->createForm(CancelSortieFormType::class);
+        $cancelForm->handleRequest($request);
+        if ($cancelForm->isSubmitted() && $cancelForm->isValid()) {
+            $sortie->setState(State::CANCELLED);
+
+//            AJOUT DU MOTIF DEVANT LA DESCRiPION
+            $motif = $cancelForm->get('motif')->getData();
+            $description = $sortie->getDescription();
+            $nouveauContenu = sprintf(
+                "=== SORTIE ANNULÉE ===\nMotif : %s\n\n==========\n%s",
+                $motif,
+                $description
+            );
+            $sortie->setDescription($nouveauContenu);
+
+
+            $this->entityManager->persist($sortie);
+            $this->entityManager->flush();
+
+            return $this->redirectToRoute('app_home');
+        }
+        return $this->render('sortie/cancel.html.twig', [
+            'controller_name' => 'SortieController',
+            'sortie' => $sortie,
+            'cancelForm' => $cancelForm->createView(),
         ]);
     }
 }
