@@ -3,47 +3,41 @@
 namespace App\Controller;
 
 use App\Entity\Sortie;
-use App\Enum\State;
+use App\Entity\User;
+use App\Exception\SortieException;
 use App\Form\CancelSortieFormType;
 use App\Form\SortieFormType;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\SortieService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted('ROLE_USER')]
 final class SortieController extends AbstractController
 {
-    public function __construct(private readonly EntityManagerInterface $entityManager)
+    public function __construct(private readonly SortieService $sortieService)
     {
     }
 
     #[Route('/sortie/new', name: 'app_sortie_new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
     {
+        /** @var User $user */
+        $user = $this->getUser();
         $sortie = new Sortie();
         $sortieForm = $this->createForm(SortieFormType::class, $sortie);
         $sortieForm->handleRequest($request);
 
         if ($sortieForm->isSubmitted() && $sortieForm->isValid()) {
-            // Vérification de la date limite d'inscription
-            if ($sortie->getRegistrationDeadline() > $sortie->getStartDateTime()) {
-                $this->addFlash("error", "La date limite d'inscription doit être avant la date de début de la sortie !");
-                return $this->render('sortie/new.html.twig', [
-                    'controller_name' => 'SortieController',
-                    'sortieForm' => $sortieForm->createView(),
-                ]);
+            try {
+                $this->sortieService->createSortie($sortie, $user);
+                $this->addFlash("success", "Sortie enregistré !");
+                return $this->redirectToRoute('home');
+            } catch (SortieException $e) {
+                $this->addFlash("error", $e->getMessage());
             }
-
-            $sortie->setState(State::CREATED);
-            $user = $this->getUser();
-            $sortie->setSite($user->getSite());
-            $sortie->setOrganisateur($user);
-            $this->entityManager->persist($sortie);
-            $this->entityManager->flush();
-
-            $this->addFlash("success","Sortie enregistré !");
-            return $this->redirectToRoute('home');
         }
 
         return $this->render('sortie/new.html.twig', [
@@ -52,50 +46,65 @@ final class SortieController extends AbstractController
         ]);
     }
 
+    #[Route('/sortie/{id}', name: 'app_sortie_show', methods: ['GET'])]
+    public function show(Sortie $sortie): Response
+    {
+        $user = $this->getUser();
+        $isParticipant = $sortie->getParticipants()->contains($user);
+        $isOrganisateur = $sortie->getOrganisateur() === $user;
+        $nombreParticipants = $sortie->getParticipants()->count();
+
+        return $this->render('sortie/show.html.twig', [
+            'sortie' => $sortie,
+            'isParticipant' => $isParticipant,
+            'isOrganisateur' => $isOrganisateur,
+            'nombreParticipants' => $nombreParticipants,
+        ]);
+    }
+
     #[Route('/sortie/{id}/cancel', name: 'app_sortie_cancel', methods: ['GET', 'POST'])]
     public function cancel(Sortie $sortie, Request $request): Response
     {
-//        VERIF ORGANISATEUR
+        /** @var User $user */
         $user = $this->getUser();
-        $organisateur = $sortie->getOrganisateur();
-        if ($organisateur->getId() !== $user->getId()) {
-            $this->addFlash("danger","Vous n'êtes pas l'organisateur de la sortie");
-            return $this->redirectToRoute('home');
-        }
-
-//        VERIF DATE DE DEBUT
-        $startDateTime = $sortie->getStartDateTime();
-        $now = new \DateTime();
-        if ($startDateTime < $now) {
-            $this->addFlash("danger","Sortie déjà commencé");
-            return $this->redirectToRoute('home');
-        }
-
         $cancelForm = $this->createForm(CancelSortieFormType::class);
         $cancelForm->handleRequest($request);
+
         if ($cancelForm->isSubmitted() && $cancelForm->isValid()) {
-            $sortie->setState(State::CANCELLED);
-
-//            AJOUT DU MOTIF DEVANT LA DESCRiPION
-            $motif = $cancelForm->get('motif')->getData();
-            $description = $sortie->getDescription();
-            $nouveauContenu = sprintf(
-                "=== SORTIE ANNULÉE ===\nMotif : %s\n\n==========\n%s",
-                $motif,
-                $description
-            );
-            $sortie->setDescription($nouveauContenu);
-
-
-            $this->entityManager->persist($sortie);
-            $this->entityManager->flush();
-
-            return $this->redirectToRoute('home');
+            try {
+                $motif = $cancelForm->get('motif')->getData();
+                $this->sortieService->cancel($sortie, $user, $motif);
+                $this->addFlash("success", "La sortie a été annulée");
+                return $this->redirectToRoute('home');
+            } catch (SortieException $e) {
+                $this->addFlash("error", $e->getMessage());
+            }
         }
         return $this->render('sortie/cancel.html.twig', [
             'controller_name' => 'SortieController',
             'sortie' => $sortie,
             'cancelForm' => $cancelForm->createView(),
         ]);
+    }
+
+    #[Route('/sortie/{id}/inscription', name: 'app_sortie_inscription', methods: ['POST'])]
+    public function inscription(Sortie $sortie, Request $request): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if (!$this->isCsrfTokenValid('inscription_' . $sortie->getId(), $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token CSRF invalide');
+            return $this->redirectToRoute('home');
+        }
+
+        try {
+            $this->sortieService->inscrire($sortie, $user);
+            $this->addFlash('success', 'Vous êtes inscrit à la sortie : ' . $sortie->getName());
+        } catch (SortieException $e) {
+            $this->addFlash("error", $e->getMessage());
+        }
+
+        return $this->redirectToRoute('home');
     }
 }
