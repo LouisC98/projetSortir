@@ -45,8 +45,12 @@ class SortieService
      * @throws SortieException
      */
     public function cancel(Sortie $sortie, User $user, string $motif): void {
-        if ($sortie->getOrganisateur()->getId() !== $user->getId()) {
-            throw new SortieException("Vous n'êtes pas l'organisateur de la sortie");
+
+        $isOrganisateur = $user->getId() === $sortie->getOrganisateur();
+        $isAdmin = in_array("ROLE_ADMIN", $user->getRoles());
+
+        if (!$isOrganisateur && !$isAdmin) {
+            throw new SortieException("Vous n'êtes pas autorisé à annuler cette sortie");
         }
 
         if ($sortie->getStartDateTime() < new \DateTime()) {
