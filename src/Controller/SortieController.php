@@ -6,7 +6,6 @@ use App\Entity\Sortie;
 use App\Enum\State;
 use App\Form\CancelSortieFormType;
 use App\Form\SortieFormType;
-use App\Repository\SiteRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,7 +19,7 @@ final class SortieController extends AbstractController
     }
 
     #[Route('/sortie/new', name: 'app_sortie_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, SiteRepository $siteRepository): Response
+    public function new(Request $request): Response
     {
         $sortie = new Sortie();
         $sortieForm = $this->createForm(SortieFormType::class, $sortie);
@@ -37,14 +36,14 @@ final class SortieController extends AbstractController
             }
 
             $sortie->setState(State::CREATED);
-//            A CHANGER APRES USER / CONNEXION / ETC
-            $sortie->setSite($siteRepository->findAll()[array_rand($siteRepository->findAll())]);
-//            A CHANGER APRES USER / CONNEXION / ETC
+            $user = $this->getUser();
+            $sortie->setSite($user->getSite());
+            $sortie->setOrganisateur($user);
             $this->entityManager->persist($sortie);
             $this->entityManager->flush();
 
             $this->addFlash("success","Sortie enregistré !");
-            return $this->redirectToRoute('app_home');
+            return $this->redirectToRoute('home');
         }
 
         return $this->render('sortie/new.html.twig', [
@@ -61,7 +60,7 @@ final class SortieController extends AbstractController
         $organisateur = $sortie->getOrganisateur();
         if ($organisateur->getId() !== $user->getId()) {
             $this->addFlash("danger","Vous n'êtes pas l'organisateur de la sortie");
-            return $this->redirectToRoute('app_home');
+            return $this->redirectToRoute('home');
         }
 
 //        VERIF DATE DE DEBUT
@@ -69,7 +68,7 @@ final class SortieController extends AbstractController
         $now = new \DateTime();
         if ($startDateTime < $now) {
             $this->addFlash("danger","Sortie déjà commencé");
-            return $this->redirectToRoute('app_home');
+            return $this->redirectToRoute('home');
         }
 
         $cancelForm = $this->createForm(CancelSortieFormType::class);
@@ -91,7 +90,7 @@ final class SortieController extends AbstractController
             $this->entityManager->persist($sortie);
             $this->entityManager->flush();
 
-            return $this->redirectToRoute('app_home');
+            return $this->redirectToRoute('home');
         }
         return $this->render('sortie/cancel.html.twig', [
             'controller_name' => 'SortieController',
