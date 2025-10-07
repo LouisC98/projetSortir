@@ -164,7 +164,7 @@
                         </svg>
                         Liste des participants ({{ nombreParticipants }})
                     </h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3" id="participants-list">
                         {% for participant in sortie.participants %}
                         <a href="{{ path('view_user_profil', {id: participant.id}) }}"
                            class="bg-gray-50 hover:bg-blue-50 rounded-lg p-3 flex items-center justify-between transition-colors duration-200 border border-transparent hover:border-blue-200">
