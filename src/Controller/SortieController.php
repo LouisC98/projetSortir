@@ -6,7 +6,6 @@ use App\Entity\Sortie;
 use App\Enum\State;
 use App\Form\CancelSortieFormType;
 use App\Form\SortieFormType;
-use App\Repository\SiteRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,7 +19,7 @@ final class SortieController extends AbstractController
     }
 
     #[Route('/sortie/new', name: 'app_sortie_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, SiteRepository $siteRepository): Response
+    public function new(Request $request): Response
     {
         $sortie = new Sortie();
         $sortieForm = $this->createForm(SortieFormType::class, $sortie);
@@ -37,9 +36,9 @@ final class SortieController extends AbstractController
             }
 
             $sortie->setState(State::CREATED);
-//            A CHANGER APRES USER / CONNEXION / ETC
-            $sortie->setSite($siteRepository->findAll()[array_rand($siteRepository->findAll())]);
-//            A CHANGER APRES USER / CONNEXION / ETC
+            $user = $this->getUser();
+            $sortie->setSite($user->getSite());
+            $sortie->setOrganisateur($user);
             $this->entityManager->persist($sortie);
             $this->entityManager->flush();
 

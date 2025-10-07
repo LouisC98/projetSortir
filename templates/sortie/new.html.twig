@@ -5,6 +5,18 @@
 {% block body %}
     <section>
         <h1 class="text-2xl text-center my-5">Créer une sortie</h1>
+        <div class="flex justify-center">
+            {% for flashError in app.flashes('error') %}
+                <div class="mb-4 p-3 bg-red-100 text-red-700 rounded">
+                    {{ flashError }}
+                </div>
+            {% endfor %}
+            {% for flashSuccess in app.flashes('success') %}
+                <div class="mb-4 p-3 bg-green-100 text-green-700 rounded">
+                    {{ flashSuccess }}
+                </div>
+            {% endfor %}
+        </div>
         {{ form_start(sortieForm,{'attr': {'data-turbo': 'false'}}) }}
         <div class="max-w-2xl mx-auto p-3 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="grid gap-4 ">
