@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ORM\Entity(repositoryClass: SortieRepository::class)]
 class Sortie
@@ -69,6 +70,18 @@ class Sortie
     public function __construct()
     {
         $this->participants = new ArrayCollection();
+    }
+
+    #[Assert\Callback]
+    public function validate(ExecutionContextInterface $context): void
+    {
+        if ($this->registrationDeadline && $this->startDateTime) {
+            if ($this->registrationDeadline > $this->startDateTime) {
+                $context->buildViolation('La date limite d\'inscription doit être avant la date de début')
+                    ->atPath('registrationDeadline')
+                    ->addViolation();
+            }
+        }
     }
 
     public function getId(): ?int
