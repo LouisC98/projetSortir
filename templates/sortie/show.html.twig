@@ -1,0 +1,212 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ sortie.name }} - Sortir.com{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- En-tête avec bouton retour -->
+        <div class="flex justify-between items-center mb-8">
+            <a href="{{ path('home') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                Retour à l'accueil
+            </a>
+
+            <div class="text-sm text-gray-500">
+                Détails de la sortie
+            </div>
+        </div>
+
+        <!-- Carte principale -->
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <!-- En-tête de la carte -->
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-2xl font-bold text-gray-900">{{ sortie.name }}</h1>
+                    {% if sortie.state %}
+                        {% set stateClass = '' %}
+                        {% if sortie.state.value == 'Ouverte' %}
+                            {% set stateClass = 'bg-green-100 text-green-800' %}
+                        {% elseif sortie.state.value == 'Créée' %}
+                            {% set stateClass = 'bg-blue-100 text-blue-800' %}
+                        {% elseif sortie.state.value == 'Clôturée' %}
+                            {% set stateClass = 'bg-orange-100 text-orange-800' %}
+                        {% elseif sortie.state.value == 'Activité en cours' %}
+                            {% set stateClass = 'bg-purple-100 text-purple-800' %}
+                        {% elseif sortie.state.value == 'Passée' %}
+                            {% set stateClass = 'bg-gray-100 text-gray-800' %}
+                        {% elseif sortie.state.value == 'Annulée' %}
+                            {% set stateClass = 'bg-red-100 text-red-800' %}
+                        {% endif %}
+                        <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full {{ stateClass }}">
+                            {{ sortie.state.value }}
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Contenu de la carte -->
+            <div class="p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Informations générales -->
+                    <div class="space-y-6">
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Informations générales
+                            </h2>
+                            <div class="bg-gray-50 rounded-lg p-4 space-y-3">
+                                <div class="flex justify-between">
+                                    <span class="text-sm font-medium text-gray-600">Date et heure de début :</span>
+                                    <span class="text-sm text-gray-900">{{ sortie.startDateTime|date('d/m/Y à H:i') }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm font-medium text-gray-600">Durée :</span>
+                                    <span class="text-sm text-gray-900">{{ sortie.duration }} minutes</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm font-medium text-gray-600">Date limite d'inscription :</span>
+                                    <span class="text-sm text-gray-900">{{ sortie.registrationDeadline|date('d/m/Y') }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm font-medium text-gray-600">Nombre d'inscrits :</span>
+                                    <span class="text-sm text-gray-900">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                            {{ nombreParticipants }} / {{ sortie.maxRegistration }}
+                                        </span>
+                                    </span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm font-medium text-gray-600">Organisateur :</span>
+                                    <span class="text-sm text-gray-900 font-medium">{{ sortie.organisateur.pseudo }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm font-medium text-gray-600">Site organisateur :</span>
+                                    <span class="text-sm text-gray-900">{{ sortie.site.name }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Informations du lieu -->
+                    <div class="space-y-6">
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                Lieu
+                            </h2>
+                            <div class="bg-gray-50 rounded-lg p-4 space-y-3">
+                                <div class="flex justify-between">
+                                    <span class="text-sm font-medium text-gray-600">Lieu :</span>
+                                    <span class="text-sm text-gray-900 font-medium">{{ sortie.place.name }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm font-medium text-gray-600">Rue :</span>
+                                    <span class="text-sm text-gray-900">{{ sortie.place.street }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm font-medium text-gray-600">Code postal :</span>
+                                    <span class="text-sm text-gray-900">{{ sortie.place.city.postalCode }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm font-medium text-gray-600">Ville :</span>
+                                    <span class="text-sm text-gray-900">{{ sortie.place.city.name }}</span>
+                                </div>
+                                {% if sortie.place.latitude and sortie.place.longitude %}
+                                <div class="flex justify-between">
+                                    <span class="text-sm font-medium text-gray-600">Coordonnées :</span>
+                                    <span class="text-sm text-gray-900">{{ sortie.place.latitude }}, {{ sortie.place.longitude }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if sortie.description %}
+                <!-- Description -->
+                <div class="mt-8">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Description
+                    </h2>
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div class="text-sm text-gray-800 whitespace-pre-line">{{ sortie.description }}</div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if sortie.participants|length > 0 %}
+                <!-- Liste des participants -->
+                <div class="mt-8">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                        </svg>
+                        Liste des participants ({{ nombreParticipants }})
+                    </h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                        {% for participant in sortie.participants %}
+                        <div class="bg-gray-50 rounded-lg p-3 flex items-center justify-between">
+                            <span class="text-sm font-medium text-gray-900">{{ participant.pseudo }}</span>
+                            {% if participant == sortie.organisateur %}
+                                <svg class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20" title="Organisateur">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.286 3.957c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.175 0l-3.37 2.448c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.049 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.957z"></path>
+                                </svg>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Pied de carte avec actions -->
+            <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-t border-gray-200">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="text-sm text-gray-600">
+                        Dernière mise à jour : {{ "now"|date('d/m/Y à H:i') }}
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        {% if isOrganisateur and sortie.state.value in ['Créée', 'Ouverte'] %}
+                            <a href="{{ path('app_sortie_cancel', {id: sortie.id}) }}"
+                               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                                Annuler la sortie
+                            </a>
+                        {% endif %}
+
+                        {% if not isParticipant and not isOrganisateur and sortie.state.value == 'Ouverte' and nombreParticipants < sortie.maxRegistration %}
+                            <button class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                S'inscrire
+                            </button>
+                        {% elseif isParticipant and sortie.state.value == 'Ouverte' %}
+                            <button class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                                </svg>
+                                Se désister
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
