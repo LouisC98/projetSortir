@@ -108,6 +108,26 @@ final class SortieController extends AbstractController
         return $this->redirectToRoute('app_sortie_show', ['id' => $sortie->getId()]);
     }
 
+    #[Route('/sortie/{id}/desinscrire', name: 'app_sortie_desinscrire', methods: ['POST'])]
+    public function desinscrire(Sortie $sortie, Request $request): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if (!$this->isCsrfTokenValid('desinscrire_' . $sortie->getId(), $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token CSRF invalide');
+        }
+
+        try {
+            $this->sortieService->desinscrire($sortie, $user);
+            $this->addFlash('success', 'Vous êtes désinscris de la sortie : ' . $sortie->getName());
+        } catch (SortieException $e) {
+            $this->addFlash("error", $e->getMessage());
+        }
+
+        return $this->redirectToRoute('app_sortie_show', ['id' => $sortie->getId()]);
+    }
+
     #[Route('/sortie/{id}/delete', name: 'app_sortie_delete', methods: ['POST'])]
     public function delete(Sortie $sortie, Request $request): Response
     {
