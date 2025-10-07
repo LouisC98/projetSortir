@@ -128,4 +128,25 @@ final class SortieController extends AbstractController
 
         return $this->redirectToRoute('home');
     }
+
+    #[Route('/sortie/{id}/publier', name: 'app_sortie_publier', methods: ['POST'])]
+    public function publier(Sortie $sortie, Request $request): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if (!$this->isCsrfTokenValid('publier_' . $sortie->getId(), $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token CSRF invalide');
+            return $this->redirectToRoute('home');
+        }
+
+        try {
+            $this->sortieService->publier($sortie, $user);
+            $this->addFlash('success', 'Vous avez publié la sortie : ' . $sortie->getName());
+        } catch (SortieException $e) {
+            $this->addFlash("error", $e->getMessage());
+        }
+
+        return $this->redirectToRoute('home');
+    }
 }

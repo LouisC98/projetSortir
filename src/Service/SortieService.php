@@ -97,4 +97,18 @@ class SortieService
         $this->entityManager->remove($sortie);
         $this->entityManager->flush();
     }
+
+    /**
+     * @throws SortieException
+     */
+    public function publier(Sortie $sortie, User $user): void
+    {
+        if ($sortie->getOrganisateur()->getId() !== $user->getId()) {
+            throw new SortieException("Vous n'êtes pas l'organisateur de la sortie");
+        }
+
+        $sortie->setState(State::OPEN);
+        $this->entityManager->flush();
+    }
+
 }
