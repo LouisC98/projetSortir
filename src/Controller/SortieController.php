@@ -35,7 +35,7 @@ final class SortieController extends AbstractController
                 $isActionPublish = $request->request->get('action') === 'publier';
                 $this->sortieService->createSortie($sortie, $user, $isActionPublish);
                 $this->addFlash("success", "Sortie enregistré !");
-                return $this->redirectToRoute('home');
+                return $this->redirectToRoute('app_sortie_show', ['id' => $sortie->getId()]);
             } catch (SortieException $e) {
                 $this->addFlash("error", $e->getMessage());
             }
