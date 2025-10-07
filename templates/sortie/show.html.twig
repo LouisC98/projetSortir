@@ -178,7 +178,7 @@
                     </div>
 
                     <div class="flex flex-col sm:flex-row gap-3">
-                        {% if isOrganisateur and sortie.state.value in ['Créée', 'Ouverte'] %}
+                        {% if (isOrganisateur and sortie.state.value in ['Créée', 'Ouverte']) or 'ROLE_ADMIN' in app.user.roles %}
                             <a href="{{ path('app_sortie_cancel', {id: sortie.id}) }}"
                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -188,13 +188,24 @@
                             </a>
                         {% endif %}
 
+                        {% if isOrganisateur and sortie.state.value == 'Créée' %}
+                            <form action="{{ path('app_sortie_publier', {id: sortie.id}) }}" method="post" class="inline-flex items-center px-8 py-3 font-semibold text-sm text-white bg-gradient-to-r from-green-500 to-green-600 rounded-lg shadow-md hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transform hover:-translate-y-0.5 transition-all duration-200">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <input type="hidden" value="{{ csrf_token('publier_' ~ sortie.id) }}" name="_token">
+                                <button type="submit">Publier la sortie</button>
+                            </form>
+                        {% endif %}
+
                         {% if not isParticipant and not isOrganisateur and sortie.state.value == 'Ouverte' and nombreParticipants < sortie.maxRegistration %}
-                            <button class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
+                            <form action="{{ path('app_sortie_inscription', {id : sortie.id}) }}" method="post" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                 </svg>
-                                S'inscrire
-                            </button>
+                                <input type="hidden" value="{{ csrf_token('inscription_' ~ sortie.id) }}" name="_token">
+                                <button type="submit">S'inscrire</button>
+                            </form>
                         {% elseif isParticipant and sortie.state.value == 'Ouverte' %}
                             <button class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

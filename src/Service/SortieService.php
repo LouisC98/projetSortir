@@ -73,9 +73,13 @@ class SortieService
     /**
      * @throws SortieException
      */
-    public function createSortie(Sortie $sortie, User $user): void
+    public function createSortie(Sortie $sortie, User $user, bool $isActionPublish): void
     {
-        $sortie->setState(State::CREATED);
+        if ($isActionPublish) {
+            $sortie->setState(State::OPEN);
+        } else {
+            $sortie->setState(State::CREATED);
+        }
         $sortie->setSite($user->getSite());
         $sortie->setOrganisateur($user);
         $this->entityManager->persist($sortie);

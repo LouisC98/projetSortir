@@ -32,7 +32,8 @@ final class SortieController extends AbstractController
 
         if ($sortieForm->isSubmitted() && $sortieForm->isValid()) {
             try {
-                $this->sortieService->createSortie($sortie, $user);
+                $isActionPublish = $request->request->get('action') === 'publier';
+                $this->sortieService->createSortie($sortie, $user, $isActionPublish);
                 $this->addFlash("success", "Sortie enregistré !");
                 return $this->redirectToRoute('home');
             } catch (SortieException $e) {
@@ -75,7 +76,7 @@ final class SortieController extends AbstractController
                 $motif = $cancelForm->get('motif')->getData();
                 $this->sortieService->cancel($sortie, $user, $motif);
                 $this->addFlash("success", "La sortie a été annulée");
-                return $this->redirectToRoute('home');
+                return $this->redirectToRoute('app_sortie_show', ['id' => $sortie->getId()]);
             } catch (SortieException $e) {
                 $this->addFlash("error", $e->getMessage());
             }
@@ -95,7 +96,6 @@ final class SortieController extends AbstractController
 
         if (!$this->isCsrfTokenValid('inscription_' . $sortie->getId(), $request->request->get('_token'))) {
             $this->addFlash('error', 'Token CSRF invalide');
-            return $this->redirectToRoute('home');
         }
 
         try {
@@ -105,7 +105,7 @@ final class SortieController extends AbstractController
             $this->addFlash("error", $e->getMessage());
         }
 
-        return $this->redirectToRoute('home');
+        return $this->redirectToRoute('app_sortie_show', ['id' => $sortie->getId()]);
     }
 
     #[Route('/sortie/{id}/delete', name: 'app_sortie_delete', methods: ['POST'])]
