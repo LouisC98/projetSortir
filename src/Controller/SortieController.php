@@ -32,7 +32,8 @@ final class SortieController extends AbstractController
 
         if ($sortieForm->isSubmitted() && $sortieForm->isValid()) {
             try {
-                $this->sortieService->createSortie($sortie, $user);
+                $isActionPublish = $request->request->get('action') === 'publier';
+                $this->sortieService->createSortie($sortie, $user, $isActionPublish);
                 $this->addFlash("success", "Sortie enregistré !");
                 return $this->redirectToRoute('home');
             } catch (SortieException $e) {
@@ -75,7 +76,7 @@ final class SortieController extends AbstractController
                 $motif = $cancelForm->get('motif')->getData();
                 $this->sortieService->cancel($sortie, $user, $motif);
                 $this->addFlash("success", "La sortie a été annulée");
-                return $this->redirectToRoute('home');
+                return $this->redirectToRoute('app_sortie_show', ['id' => $sortie->getId()]);
             } catch (SortieException $e) {
                 $this->addFlash("error", $e->getMessage());
             }
@@ -95,12 +96,53 @@ final class SortieController extends AbstractController
 
         if (!$this->isCsrfTokenValid('inscription_' . $sortie->getId(), $request->request->get('_token'))) {
             $this->addFlash('error', 'Token CSRF invalide');
-            return $this->redirectToRoute('home');
         }
 
         try {
             $this->sortieService->inscrire($sortie, $user);
             $this->addFlash('success', 'Vous êtes inscrit à la sortie : ' . $sortie->getName());
+        } catch (SortieException $e) {
+            $this->addFlash("error", $e->getMessage());
+        }
+
+        return $this->redirectToRoute('app_sortie_show', ['id' => $sortie->getId()]);
+    }
+
+    #[Route('/sortie/{id}/delete', name: 'app_sortie_delete', methods: ['POST'])]
+    public function delete(Sortie $sortie, Request $request): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if (!$this->isCsrfTokenValid('delete_' . $sortie->getId(), $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token CSRF invalide');
+            return $this->redirectToRoute('home');
+        }
+
+        try {
+            $this->sortieService->delete($sortie, $user);
+            $this->addFlash('success', 'Vous avez supprimé la sortie : ' . $sortie->getName());
+        } catch (SortieException $e) {
+            $this->addFlash("error", $e->getMessage());
+        }
+
+        return $this->redirectToRoute('home');
+    }
+
+    #[Route('/sortie/{id}/publier', name: 'app_sortie_publier', methods: ['POST'])]
+    public function publier(Sortie $sortie, Request $request): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if (!$this->isCsrfTokenValid('publier_' . $sortie->getId(), $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token CSRF invalide');
+            return $this->redirectToRoute('home');
+        }
+
+        try {
+            $this->sortieService->publier($sortie, $user);
+            $this->addFlash('success', 'Vous avez publié la sortie : ' . $sortie->getName());
         } catch (SortieException $e) {
             $this->addFlash("error", $e->getMessage());
         }

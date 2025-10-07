@@ -45,12 +45,16 @@ class SortieService
      * @throws SortieException
      */
     public function cancel(Sortie $sortie, User $user, string $motif): void {
-        if ($sortie->getOrganisateur()->getId() !== $user->getId()) {
-            throw new SortieException("Vous n'êtes pas l'organisateur de la sortie");
+
+        $isOrganisateur = $user->getId() === $sortie->getOrganisateur()->getId();
+        $isAdmin = in_array("ROLE_ADMIN", $user->getRoles(), true);
+
+        if (!$isOrganisateur && !$isAdmin) {
+            throw new SortieException("Vous n'êtes pas autorisé à annuler cette sortie");
         }
 
-        if ($sortie->getStartDateTime() < new \DateTime()) {
-            throw new SortieException("La sortie a déjà commencé");
+        if (in_array($sortie->getState(), [State::PASSED, State::CANCELLED], true)) {
+            throw new SortieException("Cette sortie ne peut plus être annulée");
         }
 
         $sortie->setState(State::CANCELLED);
@@ -69,17 +73,46 @@ class SortieService
     /**
      * @throws SortieException
      */
-    public function createSortie(Sortie $sortie, User $user): void
+    public function createSortie(Sortie $sortie, User $user, bool $isActionPublish): void
     {
-        // Vérification de la date limite d'inscription
-        if ($sortie->getRegistrationDeadline() > $sortie->getStartDateTime()) {
-            throw new SortieException("La date limite d'inscription doit être avant la date de début de la sortie !");
+        if ($isActionPublish) {
+            $sortie->setState(State::OPEN);
+        } else {
+            $sortie->setState(State::CREATED);
         }
-
-        $sortie->setState(State::CREATED);
         $sortie->setSite($user->getSite());
         $sortie->setOrganisateur($user);
         $this->entityManager->persist($sortie);
         $this->entityManager->flush();
     }
+
+    /**
+     * @throws SortieException
+     */
+    public function delete(Sortie $sortie, User $user): void {
+
+        $isOrganisateur = $user->getId() === $sortie->getOrganisateur()->getId();
+        $isAdmin = in_array("ROLE_ADMIN", $user->getRoles(), true);
+
+        if (!$isOrganisateur && !$isAdmin) {
+            throw new SortieException("Vous n'êtes pas autorisé à supprimer cette sortie");
+        }
+
+        $this->entityManager->remove($sortie);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * @throws SortieException
+     */
+    public function publier(Sortie $sortie, User $user): void
+    {
+        if ($sortie->getOrganisateur()->getId() !== $user->getId()) {
+            throw new SortieException("Vous n'êtes pas l'organisateur de la sortie");
+        }
+
+        $sortie->setState(State::OPEN);
+        $this->entityManager->flush();
+    }
+
 }
