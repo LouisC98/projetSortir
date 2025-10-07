@@ -46,7 +46,7 @@ class SortieService
      */
     public function cancel(Sortie $sortie, User $user, string $motif): void {
 
-        $isOrganisateur = $user->getId() === $sortie->getOrganisateur();
+        $isOrganisateur = $user->getId() === $sortie->getOrganisateur()->getId();
         $isAdmin = in_array("ROLE_ADMIN", $user->getRoles());
 
         if (!$isOrganisateur && !$isAdmin) {
