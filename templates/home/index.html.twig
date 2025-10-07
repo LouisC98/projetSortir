@@ -78,7 +78,7 @@
             <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                 {{ form_widget(filterForm.rechercher, {'attr': {'class': 'w-full sm:w-auto bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium py-2 px-6 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200'}}) }}
 
-                <a href="{{ path('app_home') }}" class="w-full sm:w-auto bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-6 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200 text-center">
+                <a href="{{ path('home') }}" class="w-full sm:w-auto bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-6 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200 text-center">
                     Réinitialiser
                 </a>
             </div>
@@ -178,7 +178,7 @@
             <!-- Mobile pagination -->
             <div class="flex-1 flex justify-between sm:hidden">
                 {% if pagination.hasPrev %}
-                    <a href="{{ path('app_home', currentFilters|merge({page: pagination.currentPage - 1})) }}"
+                    <a href="{{ path('home', currentFilters|merge({page: pagination.currentPage - 1})) }}"
                        class="relative inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -195,7 +195,7 @@
                 {% endif %}
 
                 {% if pagination.hasNext %}
-                    <a href="{{ path('app_home', currentFilters|merge({page: pagination.currentPage + 1})) }}"
+                    <a href="{{ path('home', currentFilters|merge({page: pagination.currentPage + 1})) }}"
                        class="ml-3 relative inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
                         Suivant
                         <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -229,7 +229,7 @@
                     <nav class="relative z-0 inline-flex rounded-xl shadow-lg bg-white border border-gray-200 overflow-hidden" aria-label="Pagination">
                         <!-- Bouton Précédent -->
                         {% if pagination.hasPrev %}
-                            <a href="{{ path('app_home', currentFilters|merge({page: pagination.currentPage - 1})) }}"
+                            <a href="{{ path('home', currentFilters|merge({page: pagination.currentPage - 1})) }}"
                                class="relative inline-flex items-center px-4 py-3 bg-white text-sm font-medium text-gray-600 hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 group">
                                 <span class="sr-only">Précédent</span>
                                 <svg class="h-5 w-5 group-hover:animate-pulse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -249,7 +249,7 @@
                         {% set endPage = min(pagination.totalPages, pagination.currentPage + 2) %}
 
                         {% if startPage > 1 %}
-                            <a href="{{ path('app_home', currentFilters|merge({page: 1})) }}"
+                            <a href="{{ path('home', currentFilters|merge({page: 1})) }}"
                                class="relative inline-flex items-center px-4 py-3 border-l border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 hover:border-blue-500">
                                 1
                             </a>
@@ -266,7 +266,7 @@
                                     {{ page }}
                                 </span>
                             {% else %}
-                                <a href="{{ path('app_home', currentFilters|merge({page: page})) }}"
+                                <a href="{{ path('home', currentFilters|merge({page: page})) }}"
                                    class="relative inline-flex items-center px-4 py-3 border-l border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 hover:border-blue-500 hover:shadow-md hover:-translate-y-0.5">
                                     {{ page }}
                                 </a>
@@ -279,7 +279,7 @@
                                     <span class="animate-pulse">...</span>
                                 </span>
                             {% endif %}
-                            <a href="{{ path('app_home', currentFilters|merge({page: pagination.totalPages})) }}"
+                            <a href="{{ path('home', currentFilters|merge({page: pagination.totalPages})) }}"
                                class="relative inline-flex items-center px-4 py-3 border-l border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 hover:border-blue-500">
                                 {{ pagination.totalPages }}
                             </a>
@@ -287,7 +287,7 @@
 
                         <!-- Bouton Suivant -->
                         {% if pagination.hasNext %}
-                            <a href="{{ path('app_home', currentFilters|merge({page: pagination.currentPage + 1})) }}"
+                            <a href="{{ path('home', currentFilters|merge({page: pagination.currentPage + 1})) }}"
                                class="relative inline-flex items-center px-4 py-3 border-l border-gray-200 bg-white text-sm font-medium text-gray-600 hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 group">
                                 <span class="sr-only">Suivant</span>
                                 <svg class="h-5 w-5 group-hover:animate-pulse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">

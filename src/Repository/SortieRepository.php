@@ -116,7 +116,8 @@ class SortieRepository extends ServiceEntityRepository
         if (isset($filters['sortiesPassees']) && $filters['sortiesPassees']) {
             // Afficher UNIQUEMENT les sorties passées (par date ou par état)
             $now = new \DateTime();
-            $qb->andWhere('(s.state = :passedState)')
+            $qb->andWhere('(s.startDateTime < :now OR s.state = :passedState)')
+               ->setParameter('now', $now)
                ->setParameter('passedState', State::PASSED->value);
         } else {
             // Par défaut, ne pas afficher les sorties passées et annulées

@@ -12,7 +12,7 @@ use App\Repository\SortieRepository;
 
 final class HomeController extends AbstractController
 {
-    #[Route('/', name: 'app_home')]
+    #[Route('/', name: 'home')]
     public function index(Request $request, SortieRepository $sortieRepository, SiteRepository $siteRepository): Response
     {
         // Paramètres de pagination

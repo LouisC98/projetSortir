@@ -44,7 +44,7 @@ final class SortieController extends AbstractController
             $this->entityManager->flush();
 
             $this->addFlash("success","Sortie enregistré !");
-            return $this->redirectToRoute('app_home');
+            return $this->redirectToRoute('home');
         }
 
         return $this->render('sortie/new.html.twig', [
@@ -61,7 +61,7 @@ final class SortieController extends AbstractController
         $organisateur = $sortie->getOrganisateur();
         if ($organisateur->getId() !== $user->getId()) {
             $this->addFlash("danger","Vous n'êtes pas l'organisateur de la sortie");
-            return $this->redirectToRoute('app_home');
+            return $this->redirectToRoute('home');
         }
 
 //        VERIF DATE DE DEBUT
@@ -69,7 +69,7 @@ final class SortieController extends AbstractController
         $now = new \DateTime();
         if ($startDateTime < $now) {
             $this->addFlash("danger","Sortie déjà commencé");
-            return $this->redirectToRoute('app_home');
+            return $this->redirectToRoute('home');
         }
 
         $cancelForm = $this->createForm(CancelSortieFormType::class);
@@ -91,7 +91,7 @@ final class SortieController extends AbstractController
             $this->entityManager->persist($sortie);
             $this->entityManager->flush();
 
-            return $this->redirectToRoute('app_home');
+            return $this->redirectToRoute('home');
         }
         return $this->render('sortie/cancel.html.twig', [
             'controller_name' => 'SortieController',
