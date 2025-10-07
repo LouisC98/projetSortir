@@ -199,7 +199,7 @@
                             </a>
                         {% endif %}
 
-                        {% if not isParticipant and not isOrganisateur and sortie.state.value == 'Ouverte' and nombreParticipants < sortie.maxRegistration %}
+                        {% if not isParticipant and not isOrganisateur and sortie.state.value == 'Ouverte' and nombreParticipants < sortie.maxRegistration and not inscriptionsCloturees %}
                             <form action="{{ path('app_sortie_inscription', {id: sortie.id}) }}" method="post" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
                                 <svg class="w-4 h-4 mr-2" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -207,6 +207,13 @@
                                 <input type="hidden" name="_token" value="{{ csrf_token('inscription_' ~ sortie.id) }}">
                                 <button type="submit">S'inscrire</button>
                             </form>
+                        {% elseif not isParticipant and not isOrganisateur and sortie.state.value == 'Ouverte' and inscriptionsCloturees %}
+                            <div class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-500 bg-gray-100 cursor-not-allowed">
+                                <svg class="w-4 h-4 mr-2" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Inscriptions clôturées
+                            </div>
                         {% elseif isParticipant and sortie.state.value == 'Ouverte' %}
                             <form action="{{ path('app_sortie_desinscrire', {id: sortie.id}) }}" method="post" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
                                 <svg class="w-4 h-4 mr-2" stroke="currentColor" viewBox="0 0 24 24">

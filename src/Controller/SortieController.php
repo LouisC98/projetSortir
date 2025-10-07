@@ -8,6 +8,7 @@ use App\Exception\SortieException;
 use App\Form\CancelSortieFormType;
 use App\Form\SortieFormType;
 use App\Service\SortieService;
+use App\Service\StateUpdateService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -48,18 +49,26 @@ final class SortieController extends AbstractController
     }
 
     #[Route('/sortie/{id}', name: 'app_sortie_show', methods: ['GET'])]
-    public function show(Sortie $sortie): Response
+    public function show(Sortie $sortie, StateUpdateService $stateUpdateService): Response
     {
+        // Mise à jour automatique du statut de cette sortie
+        $stateUpdateService->updateSortieState($sortie);
+
         $user = $this->getUser();
         $isParticipant = $sortie->getParticipants()->contains($user);
         $isOrganisateur = $sortie->getOrganisateur() === $user;
         $nombreParticipants = $sortie->getParticipants()->count();
+
+        // Vérifier si la date de clôture des inscriptions est dépassée
+        $now = new \DateTime();
+        $inscriptionsCloturees = $sortie->getRegistrationDeadline() < $now;
 
         return $this->render('sortie/show.html.twig', [
             'sortie' => $sortie,
             'isParticipant' => $isParticipant,
             'isOrganisateur' => $isOrganisateur,
             'nombreParticipants' => $nombreParticipants,
+            'inscriptionsCloturees' => $inscriptionsCloturees,
         ]);
     }
 
