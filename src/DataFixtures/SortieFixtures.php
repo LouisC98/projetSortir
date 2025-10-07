@@ -102,7 +102,7 @@ class SortieFixtures extends Fixture implements DependentFixtureInterface
             $sortie->setPlace($place);
 
             // Assigner un organisateur (référence depuis UserFixtures)
-            $organizerIndex = $faker->numberBetween(0, 19); // 20 utilisateurs dans UserFixtures
+            $organizerIndex = $faker->numberBetween(0, 17); // 18 utilisateurs aléatoires dans UserFixtures
             $organizer = $this->getReference(UserFixtures::USER_REFERENCE . $organizerIndex, User::class);
             $sortie->setOrganisateur($organizer);
 
@@ -111,7 +111,7 @@ class SortieFixtures extends Fixture implements DependentFixtureInterface
             $participantsAdded = [];
 
             for ($j = 0; $j < $numParticipants; $j++) {
-                $participantIndex = $faker->numberBetween(0, 19);
+                $participantIndex = $faker->numberBetween(0, 17);
                 if (!in_array($participantIndex, $participantsAdded)) {
                     $participant = $this->getReference(UserFixtures::USER_REFERENCE . $participantIndex, User::class);
                     $sortie->addParticipant($participant);

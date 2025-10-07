@@ -4,6 +4,13 @@
 
 {% block body %}
 <div class="container mx-auto px-4 py-8">
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="mb-4 px-4 py-3 rounded-lg {% if type == 'success' %}bg-green-100 border border-green-400 text-green-700{% elseif type == 'error' %}bg-red-100 border border-red-400 text-red-700{% else %}bg-blue-100 border border-blue-400 text-blue-700{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
     <div class="max-w-6xl mx-auto">
         <!-- En-tête avec bouton retour -->
         <div class="flex justify-between items-center mb-8">
@@ -82,7 +89,10 @@
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-sm font-medium text-gray-600">Organisateur :</span>
-                                    <span class="text-sm text-gray-900 font-medium">{{ sortie.organisateur.pseudo }}</span>
+                                    <a href="{{ path('view_user_profil', {id: sortie.organisateur.id}) }}"
+                                       class="text-sm text-blue-600 hover:text-blue-800 hover:underline font-medium transition-colors duration-200">
+                                        {{ sortie.organisateur.pseudo }}
+                                    </a>
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-sm font-medium text-gray-600">Site organisateur :</span>
@@ -140,7 +150,7 @@
                         Description
                     </h2>
                     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <div class="text-sm text-gray-800 whitespace-pre-line">{{ sortie.description }}</div>
+                        <div class="text-sm text-gray-800 whitespace-pre-line sortie-description">{{ sortie.description }}</div>
                     </div>
                 </div>
                 {% endif %}
@@ -156,14 +166,15 @@
                     </h2>
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                         {% for participant in sortie.participants %}
-                        <div class="bg-gray-50 rounded-lg p-3 flex items-center justify-between">
-                            <span class="text-sm font-medium text-gray-900">{{ participant.pseudo }}</span>
+                        <a href="{{ path('view_user_profil', {id: participant.id}) }}"
+                           class="bg-gray-50 hover:bg-blue-50 rounded-lg p-3 flex items-center justify-between transition-colors duration-200 border border-transparent hover:border-blue-200">
+                            <span class="text-sm font-medium text-blue-600 hover:text-blue-800">{{ participant.pseudo }}</span>
                             {% if participant == sortie.organisateur %}
-                                <svg class="w-4 h-4 text-yellow-500" viewBox="0 0 20 20" title="Organisateur">
+                                <svg class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20" title="Organisateur">
                                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.286 3.957c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.175 0l-3.37 2.448c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.049 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.957z"></path>
                                 </svg>
                             {% endif %}
-                        </div>
+                        </a>
                         {% endfor %}
                     </div>
                 </div>
@@ -188,20 +199,29 @@
                             </a>
                         {% endif %}
 
-                        {% if not isParticipant and not isOrganisateur and sortie.state.value == 'Ouverte' and nombreParticipants < sortie.maxRegistration %}
-                            <button class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
+                        {% if not isParticipant and not isOrganisateur and sortie.state.value == 'Ouverte' and nombreParticipants < sortie.maxRegistration and not inscriptionsCloturees %}
+                            <form action="{{ path('app_sortie_inscription', {id: sortie.id}) }}" method="post" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
                                 <svg class="w-4 h-4 mr-2" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                 </svg>
-                                S'inscrire
-                            </button>
+                                <input type="hidden" name="_token" value="{{ csrf_token('inscription_' ~ sortie.id) }}">
+                                <button type="submit">S'inscrire</button>
+                            </form>
+                        {% elseif not isParticipant and not isOrganisateur and sortie.state.value == 'Ouverte' and inscriptionsCloturees %}
+                            <div class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-500 bg-gray-100 cursor-not-allowed">
+                                <svg class="w-4 h-4 mr-2" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Inscriptions clôturées
+                            </div>
                         {% elseif isParticipant and sortie.state.value == 'Ouverte' %}
-                            <button class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
+                            <form action="{{ path('app_sortie_desinscrire', {id: sortie.id}) }}" method="post" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
                                 <svg class="w-4 h-4 mr-2" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
                                 </svg>
-                                Se désister
-                            </button>
+                                <input type="hidden" name="_token" value="{{ csrf_token('desinscrire_' ~ sortie.id) }}">
+                                <button type="submit">Se désister</button>
+                            </form>
                         {% endif %}
                     </div>
                 </div>

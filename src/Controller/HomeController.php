@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Form\SortieFilterType;
 use App\Repository\SiteRepository;
+use App\Service\StateUpdateService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,8 +14,16 @@ use App\Repository\SortieRepository;
 final class HomeController extends AbstractController
 {
     #[Route('/', name: 'home')]
-    public function index(Request $request, SortieRepository $sortieRepository, SiteRepository $siteRepository): Response
+    public function index(
+        Request $request,
+        SortieRepository $sortieRepository,
+        SiteRepository $siteRepository,
+        StateUpdateService $stateUpdateService
+    ): Response
     {
+        // Mise à jour automatique des statuts des sorties
+        $stateUpdateService->updateAllStates();
+
         // Paramètres de pagination
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;

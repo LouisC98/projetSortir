@@ -25,10 +25,42 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
     {
         $faker = Factory::create('fr_FR');
 
-        // Créer 20 utilisateurs
-        for ($i = 0; $i < 20; $i++) {
-            $user = new User();
+        // --- Création d'un utilisateur ADMIN prévisible ---
+        $adminUser = new User();
+        $adminUser->setFirstName('Admin');
+        $adminUser->setLastName('User');
+        $adminUser->setPseudo('admin');
+        $adminUser->setEmail('admin@test.com');
+        $adminUser->setPhone('0102030405');
+        $adminUser->setActive(true);
+        $adminUser->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
+        $hashedPassword = $this->passwordHasher->hashPassword($adminUser, 'password123');
+        $adminUser->setPassword($hashedPassword);
+        $site = $this->getReference(SiteFixtures::SITE_REFERENCE . 0, Site::class);
+        $adminUser->setSite($site);
+        $manager->persist($adminUser);
+        $this->addReference('admin_user', $adminUser);
 
+        // --- Création d'un utilisateur USER prévisible pour les tests ---
+        $testUser = new User();
+        $testUser->setFirstName('Test');
+        $testUser->setLastName('User');
+        $testUser->setPseudo('testuser');
+        $testUser->setEmail('user@test.com'); // Email utilisé dans le test fonctionnel
+        $testUser->setPhone('0601020304');
+        $testUser->setActive(true);
+        $testUser->setRoles(['ROLE_USER']);
+        $hashedPassword = $this->passwordHasher->hashPassword($testUser, 'password123');
+        $testUser->setPassword($hashedPassword);
+        $site = $this->getReference(SiteFixtures::SITE_REFERENCE . 1, Site::class);
+        $testUser->setSite($site);
+        $manager->persist($testUser);
+        $this->addReference('test_user', $testUser);
+
+
+        // --- Création de 18 autres utilisateurs aléatoires ---
+        for ($i = 0; $i < 18; $i++) {
+            $user = new User();
             $firstName = $faker->firstName();
             $lastName = $faker->lastName();
 

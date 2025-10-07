@@ -8,6 +8,7 @@ use App\Exception\SortieException;
 use App\Form\CancelSortieFormType;
 use App\Form\SortieFormType;
 use App\Service\SortieService;
+use App\Service\StateUpdateService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,7 +36,7 @@ final class SortieController extends AbstractController
                 $isActionPublish = $request->request->get('action') === 'publier';
                 $this->sortieService->createSortie($sortie, $user, $isActionPublish);
                 $this->addFlash("success", "Sortie enregistré !");
-                return $this->redirectToRoute('home');
+                return $this->redirectToRoute('app_sortie_show', ['id' => $sortie->getId()]);
             } catch (SortieException $e) {
                 $this->addFlash("error", $e->getMessage());
             }
@@ -48,18 +49,26 @@ final class SortieController extends AbstractController
     }
 
     #[Route('/sortie/{id}', name: 'app_sortie_show', methods: ['GET'])]
-    public function show(Sortie $sortie): Response
+    public function show(Sortie $sortie, StateUpdateService $stateUpdateService): Response
     {
+        // Mise à jour automatique du statut de cette sortie
+        $stateUpdateService->updateSortieState($sortie);
+
         $user = $this->getUser();
         $isParticipant = $sortie->getParticipants()->contains($user);
         $isOrganisateur = $sortie->getOrganisateur() === $user;
         $nombreParticipants = $sortie->getParticipants()->count();
+
+        // Vérifier si la date de clôture des inscriptions est dépassée
+        $now = new \DateTime();
+        $inscriptionsCloturees = $sortie->getRegistrationDeadline() < $now;
 
         return $this->render('sortie/show.html.twig', [
             'sortie' => $sortie,
             'isParticipant' => $isParticipant,
             'isOrganisateur' => $isOrganisateur,
             'nombreParticipants' => $nombreParticipants,
+            'inscriptionsCloturees' => $inscriptionsCloturees,
         ]);
     }
 
@@ -101,6 +110,26 @@ final class SortieController extends AbstractController
         try {
             $this->sortieService->inscrire($sortie, $user);
             $this->addFlash('success', 'Vous êtes inscrit à la sortie : ' . $sortie->getName());
+        } catch (SortieException $e) {
+            $this->addFlash("error", $e->getMessage());
+        }
+
+        return $this->redirectToRoute('app_sortie_show', ['id' => $sortie->getId()]);
+    }
+
+    #[Route('/sortie/{id}/desinscrire', name: 'app_sortie_desinscrire', methods: ['POST'])]
+    public function desinscrire(Sortie $sortie, Request $request): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if (!$this->isCsrfTokenValid('desinscrire_' . $sortie->getId(), $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token CSRF invalide');
+        }
+
+        try {
+            $this->sortieService->desinscrire($sortie, $user);
+            $this->addFlash('success', 'Vous êtes désinscris de la sortie : ' . $sortie->getName());
         } catch (SortieException $e) {
             $this->addFlash("error", $e->getMessage());
         }
