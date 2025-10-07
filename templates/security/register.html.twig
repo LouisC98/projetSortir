@@ -1,0 +1,79 @@
+{% extends './base.html.twig' %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block body %}
+    <div class="min-h-screen flex items-center justify-center bg-gray-100">
+        <div class="max-w-md w-full bg-white p-8 rounded shadow">
+            <h1 class="text-2xl font-bold mb-6">Créer un compte</h1>
+
+            {% for flashError in app.flashes('error') %}
+                <div class="mb-4 p-3 bg-red-100 text-red-700 rounded">
+                    {{ flashError }}
+                </div>
+            {% endfor %}
+            {% for flashSuccess in app.flashes('success') %}
+                <div class="mb-4 p-3 bg-green-100 text-green-700 rounded">
+                    {{ flashSuccess }}
+                </div>
+            {% endfor %}
+
+            <form action="{{ path('app_register') }}" method="post" class="space-y-4">
+                <div>
+                    <label for="pseudo" class="block text-sm font-medium">Pseudo *</label>
+                    <input type="text" name="pseudo" id="pseudo" required class="w-full border border-gray-300 rounded px-3 py-2">
+                </div>
+
+                <div>
+                    <label for="email" class="block text-sm font-medium">Email *</label>
+                    <input type="email" name="email" id="email" required class="w-full border border-gray-300 rounded px-3 py-2">
+                </div>
+
+                <div>
+                    <label for="firstName" class="block text-sm font-medium">Prénom</label>
+                    <input type="text" name="firstName" id="firstName" class="w-full border border-gray-300 rounded px-3 py-2">
+                </div>
+
+                <div>
+                    <label for="lastName" class="block text-sm font-medium">Nom</label>
+                    <input type="text" name="lastName" id="lastName" class="w-full border border-gray-300 rounded px-3 py-2">
+                </div>
+
+                <div>
+                    <label for="phone" class="block text-sm font-medium">Téléphone</label>
+                    <input type="text" name="phone" id="phone" maxlength="10" class="w-full border border-gray-300 rounded px-3 py-2">
+                </div>
+
+                <div>
+                    <label for="site" class="block text-sm font-medium">Site *</label>
+                    <select name="site" id="site" required class="w-full border border-gray-300 rounded px-3 py-2">
+                        <option value="">-- Choisir un site --</option>
+                        {% for site in sites %}
+                            <option value="{{ site.id }}">{{ site.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="password" class="block text-sm font-medium">Mot de passe *</label>
+                    <input type="password" name="password" id="password" required class="w-full border border-gray-300 rounded px-3 py-2">
+                </div>
+
+                <div>
+                    <label for="password_confirm" class="block text-sm font-medium">Confirmer le mot de passe *</label>
+                    <input type="password" name="password_confirm" id="password_confirm" required class="w-full border border-gray-300 rounded px-3 py-2">
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" name="is_admin" id="is_admin" class="h-4 w-4 text-green-600 border-gray-300 rounded">
+                    <label for="is_admin" class="text-sm font-medium text-gray-700">Demander un accès administrateur</label>
+                </div>
+
+                <div>
+                    <button type="submit" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">
+                        S'inscrire
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,51 @@
+<nav class="bg-white shadow">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+        <!-- Logo -->
+        <a href="{{ path('home') }}" class="text-2xl font-bold text-blue-600 hover:text-blue-800">
+            MonSite
+        </a>
+
+        <!-- Menu principal (desktop) -->
+        <div class="hidden md:flex items-center space-x-4">
+            <a href="{{ path('home') }}" class="text-gray-700 hover:text-blue-600">Accueil</a>
+
+            {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                <span class="ml-4 text-gray-700">👋 Bonjour, {{ app.user.pseudo }}</span>
+                <a href="{{ path('app_logout') }}"
+                   class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded transition">Déconnexion</a>
+            {% else %}
+                <a href="{{ path('app_login') }}"
+                   class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition">Connexion</a>
+                <a href="{{ path('app_register') }}"
+                   class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded transition">Inscription</a>
+            {% endif %}
+        </div>
+
+        <!-- Bouton mobile -->
+        <button id="menu-toggle" class="md:hidden focus:outline-none text-gray-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Menu mobile -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
+        <div class="flex flex-col px-4 py-2 space-y-2">
+            <a href="{{ path('home') }}" class="text-gray-700 hover:text-blue-600">Accueil</a>
+
+
+            {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                <span class="text-gray-700">Bonjour, {{ app.user.pseudo }}</span>
+                <a href="{{ path('app_logout') }}"
+                   class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded transition">Déconnexion</a>
+            {% else %}
+                <a href="{{ path('app_login') }}"
+                   class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition">Connexion</a>
+                <a href="{{ path('app_register') }}"
+                   class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded transition">Inscription</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
