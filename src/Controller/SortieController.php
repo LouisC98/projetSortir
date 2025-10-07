@@ -46,6 +46,22 @@ final class SortieController extends AbstractController
         ]);
     }
 
+    #[Route('/sortie/{id}', name: 'app_sortie_show', methods: ['GET'])]
+    public function show(Sortie $sortie): Response
+    {
+        $user = $this->getUser();
+        $isParticipant = $sortie->getParticipants()->contains($user);
+        $isOrganisateur = $sortie->getOrganisateur() === $user;
+        $nombreParticipants = $sortie->getParticipants()->count();
+
+        return $this->render('sortie/show.html.twig', [
+            'sortie' => $sortie,
+            'isParticipant' => $isParticipant,
+            'isOrganisateur' => $isOrganisateur,
+            'nombreParticipants' => $nombreParticipants,
+        ]);
+    }
+
     #[Route('/sortie/{id}/cancel', name: 'app_sortie_cancel', methods: ['GET', 'POST'])]
     public function cancel(Sortie $sortie, Request $request): Response
     {

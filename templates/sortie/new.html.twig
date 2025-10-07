@@ -1,79 +1,218 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Créer une sortie | {{ parent() }}{% endblock %}
+{% block title %}Créer une sortie - Sortir.com{% endblock %}
 
 {% block body %}
-    <section>
-        <h1 class="text-2xl text-center my-5">Créer une sortie</h1>
-        <div class="flex justify-center">
-            {% for flashError in app.flashes('error') %}
-                <div class="mb-4 p-3 bg-red-100 text-red-700 rounded">
-                    {{ flashError }}
-                </div>
-            {% endfor %}
-            {% for flashSuccess in app.flashes('success') %}
-                <div class="mb-4 p-3 bg-green-100 text-green-700 rounded">
-                    {{ flashSuccess }}
-                </div>
-            {% endfor %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- En-tête avec bouton retour -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Créer une sortie</h1>
+                <p class="text-gray-600">Proposez une nouvelle activité à votre groupe</p>
+            </div>
+            <a href="{{ path('home') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                Retour
+            </a>
         </div>
-        {{ form_start(sortieForm,{'attr': {'data-turbo': 'false'}}) }}
-        <div class="max-w-2xl mx-auto p-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="grid gap-4 ">
-                <div class="grid">
-                    {{ form_label(sortieForm.name, null, { 'label_attr': {'class': 'font-semibold'}}) }}
-                    {{ form_widget(sortieForm.name, { 'attr': {'class': 'border border-gray-400 rounded p-1'}}) }}
-                    <div class="text-red-500 font-semibold text-sm">{{ form_errors(sortieForm.name) }}</div>
-                </div>
-                <div class="grid">
-                    {{ form_label(sortieForm.startDateTime, null, { 'label_attr': {'class': 'font-semibold'}}) }}
-                    {{ form_widget(sortieForm.startDateTime, { 'attr': {'class': 'border  border-gray-400 rounded max-w-50 p-1'}}) }}
-                    <div class="text-red-500 font-semibold text-sm">{{ form_errors(sortieForm.startDateTime) }}</div>
-                </div>
-                <div class="grid">
-                    {{ form_label(sortieForm.registrationDeadline, null, { 'label_attr': {'class': 'font-semibold'}}) }}
-                    {{ form_widget(sortieForm.registrationDeadline, { 'attr': {'class': 'border border-gray-400 rounded max-w-50 p-1'}}) }}
-                    <div class="text-red-500 font-semibold text-sm">{{ form_errors(sortieForm.registrationDeadline) }}</div>
-                </div>
-                <div class="flex gap-4 items-center">
-                    {{ form_label(sortieForm.maxRegistration, null, { 'label_attr': {'class': 'font-semibold'}}) }}
-                    {{ form_widget(sortieForm.maxRegistration, { 'attr': {'class': 'border border-gray-400 rounded max-w-15 p-1'}}) }}
-                    <div class="text-red-500 font-semibold text-sm">{{ form_errors(sortieForm.maxRegistration) }}</div>
-                </div>
-                <div class="flex gap-4 items-center">
-                    {{ form_label(sortieForm.duration, null, { 'label_attr': {'class': 'font-semibold'}}) }}
-                    {{ form_widget(sortieForm.duration, { 'attr': {'class': 'border border-gray-400 rounded p-1 max-w-15'}}) }} minutes
-                    <div class="text-red-500 font-semibold text-sm">{{ form_errors(sortieForm.duration) }}</div>
-                </div>
-                <div class="grid">
-                    {{ form_label(sortieForm.description, null, { 'label_attr': {'class': 'font-semibold'}}) }}
-                    {{ form_widget(sortieForm.description, { 'attr': {'class': 'border border-gray-400 rounded p-1'}}) }}
-                    <div class="text-red-500 font-semibold text-sm">{{ form_errors(sortieForm.description) }}</div>
-                </div>
+
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    Informations de la sortie
+                </h2>
             </div>
-            <div class="flex flex-col gap-4">
-                <div class="flex gap-4 items-center">
-                    {{ form_label(sortieForm.place, null, { 'label_attr': {'class': 'font-semibold'}}) }}
-                    {{ form_widget(sortieForm.place, { 'attr': {'class': 'border border-gray-400 rounded p-1'}}) }}
-                    <div class="text-red-500 font-semibold text-sm">{{ form_errors(sortieForm.place) }}</div>
+
+            <div class="p-8">
+                <div class="mb-6">
+                    {% for flashError in app.flashes('error') %}
+                        <div class="mb-3 bg-red-50 border border-red-200 rounded-lg p-4 flex items-start">
+                            <svg class="w-5 h-5 text-red-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="text-sm text-red-700">{{ flashError }}</span>
+                        </div>
+                    {% endfor %}
+                    {% for flashSuccess in app.flashes('success') %}
+                        <div class="mb-3 bg-green-50 border border-green-200 rounded-lg p-4 flex items-start">
+                            <svg class="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="text-sm text-green-700">{{ flashSuccess }}</span>
+                        </div>
+                    {% endfor %}
                 </div>
-                <div id="place-details" class="gap-5 hidden my-auto md:ms-7">
-                    <p><span class="font-semibold">Ville :</span> <span id="place-city"></span></p>
-                    <p><span class="font-semibold">Rue :</span> <span id="place-street"></span></p>
-                    <p><span class="font-semibold">Code Postal :</span> <span id="place-cp"></span></p>
-                    <p><span class="font-semibold">Latitude :</span> <span id="place-latitude"></span></p>
-                    <p><span class="font-semibold">Longitude :</span> <span id="place-longitude"></span></p>
+
+                {{ form_start(sortieForm, {'attr': {'data-turbo': 'false', 'class': 'space-y-8'}}) }}
+
+                <!-- Section Informations générales -->
+                <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Informations générales
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                </svg>
+                                Nom de la sortie *
+                            </label>
+                            {{ form_widget(sortieForm.name, {'attr': {'class': 'w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:ring-2 transition-all duration-200 py-3 px-4 text-base', 'placeholder': 'Ex: Randonnée en forêt'}}) }}
+                            {{ form_errors(sortieForm.name) }}
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                Date et heure de début *
+                            </label>
+                            {{ form_widget(sortieForm.startDateTime, {'attr': {'class': 'w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:ring-2 transition-all duration-200 py-3 px-4 text-base'}}) }}
+                            {{ form_errors(sortieForm.startDateTime) }}
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Durée (minutes) *
+                            </label>
+                            {{ form_widget(sortieForm.duration, {'attr': {'class': 'w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:ring-2 transition-all duration-200 py-3 px-4 text-base', 'placeholder': '120'}}) }}
+                            {{ form_errors(sortieForm.duration) }}
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Date limite d'inscription *
+                            </label>
+                            {{ form_widget(sortieForm.registrationDeadline, {'attr': {'class': 'w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:ring-2 transition-all duration-200 py-3 px-4 text-base'}}) }}
+                            {{ form_errors(sortieForm.registrationDeadline) }}
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                </svg>
+                                Nombre maximum de participants *
+                            </label>
+                            {{ form_widget(sortieForm.maxRegistration, {'attr': {'class': 'w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:ring-2 transition-all duration-200 py-3 px-4 text-base', 'placeholder': '10'}}) }}
+                            {{ form_errors(sortieForm.maxRegistration) }}
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                                </svg>
+                                Description
+                            </label>
+                            {{ form_widget(sortieForm.description, {'attr': {'class': 'w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:ring-2 transition-all duration-200 py-3 px-4 text-base', 'rows': '4', 'placeholder': 'Décrivez votre sortie...'}}) }}
+                            {{ form_errors(sortieForm.description) }}
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="flex gap-4 mt-6 justify-center md:col-span-2 flex-wrap">
-                <button type="submit" class="px-3 py-2 font-semibold text-md text-white bg-blue-400 rounded shadow-md text-shadow">Enregistrer</button>
-                <button class="px-3 py-2 font-semibold text-md text-white bg-green-600 rounded shadow-md text-shadow">Publier la sortie</button>
-                <button class="px-3 py-2 font-semibold text-md text-white bg-red-500 rounded shadow-md text-shadow">Annuler</button>
+
+                <!-- Section Lieu -->
+                <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        Lieu de la sortie
+                    </h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                </svg>
+                                Sélectionner un lieu *
+                            </label>
+                            {{ form_widget(sortieForm.place, {'attr': {'class': 'w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:ring-2 transition-all duration-200 py-3 px-4 text-base'}}) }}
+                            {{ form_errors(sortieForm.place) }}
+                        </div>
+
+                        <div id="place-details" class="hidden bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <h4 class="text-sm font-semibold text-blue-900 mb-3 flex items-center">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Détails du lieu
+                            </h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                                <div class="flex items-start">
+                                    <span class="font-medium text-gray-700 min-w-[100px]">Ville :</span>
+                                    <span id="place-city" class="text-gray-900"></span>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="font-medium text-gray-700 min-w-[100px]">Code Postal :</span>
+                                    <span id="place-cp" class="text-gray-900"></span>
+                                </div>
+                                <div class="flex items-start sm:col-span-2">
+                                    <span class="font-medium text-gray-700 min-w-[100px]">Rue :</span>
+                                    <span id="place-street" class="text-gray-900"></span>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="font-medium text-gray-700 min-w-[100px]">Latitude :</span>
+                                    <span id="place-latitude" class="text-gray-900"></span>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="font-medium text-gray-700 min-w-[100px]">Longitude :</span>
+                                    <span id="place-longitude" class="text-gray-900"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Boutons d'action -->
+                <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg p-6 border border-gray-200">
+                    <div class="flex gap-4 justify-center flex-wrap">
+                        <button type="submit" class="inline-flex items-center px-8 py-3 font-semibold text-base text-white bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg shadow-md hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform hover:-translate-y-0.5 transition-all duration-200">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                            </svg>
+                            Enregistrer
+                        </button>
+                        <button type="button" class="inline-flex items-center px-8 py-3 font-semibold text-base text-white bg-gradient-to-r from-green-500 to-green-600 rounded-lg shadow-md hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transform hover:-translate-y-0.5 transition-all duration-200">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Publier la sortie
+                        </button>
+                        <a href="{{ path('home') }}" class="inline-flex items-center px-8 py-3 font-semibold text-base text-white bg-gradient-to-r from-red-500 to-red-600 rounded-lg shadow-md hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transform hover:-translate-y-0.5 transition-all duration-200">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            Annuler
+                        </a>
+                    </div>
+                </div>
+
+                {{ form_end(sortieForm) }}
             </div>
         </div>
-        {{ form_end(sortieForm) }}
-    </section>
+    </div>
+</div>
 {% endblock %}
+
 {% block javascripts %}
     {{ parent() }}
     <script>
@@ -95,14 +234,14 @@
                     return;
                 }
 
-                document.getElementById('place-street').textContent = selectedOption.dataset.street;
-                document.getElementById('place-city').textContent = selectedOption.dataset.city;
-                document.getElementById('place-cp').textContent = selectedOption.dataset.cp;
-                document.getElementById('place-latitude').textContent = selectedOption.dataset.latitude;
-                document.getElementById('place-longitude').textContent = selectedOption.dataset.longitude;
+                document.getElementById('place-street').textContent = selectedOption.dataset.street || 'N/A';
+                document.getElementById('place-city').textContent = selectedOption.dataset.city || 'N/A';
+                document.getElementById('place-cp').textContent = selectedOption.dataset.cp || 'N/A';
+                document.getElementById('place-latitude').textContent = selectedOption.dataset.latitude || 'N/A';
+                document.getElementById('place-longitude').textContent = selectedOption.dataset.longitude || 'N/A';
 
                 placeDetails.classList.remove('hidden');
-                placeDetails.classList.add('grid');
+                placeDetails.classList.add('animate-fadeIn');
             }
         });
     </script>
