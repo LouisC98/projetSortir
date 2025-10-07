@@ -26,6 +26,15 @@ final class SortieController extends AbstractController
         $sortieForm->handleRequest($request);
 
         if ($sortieForm->isSubmitted() && $sortieForm->isValid()) {
+            // Vérification de la date limite d'inscription
+            if ($sortie->getRegistrationDeadline() > $sortie->getStartDateTime()) {
+                $this->addFlash("error", "La date limite d'inscription doit être avant la date de début de la sortie !");
+                return $this->render('sortie/new.html.twig', [
+                    'controller_name' => 'SortieController',
+                    'sortieForm' => $sortieForm->createView(),
+                ]);
+            }
+
             $sortie->setState(State::CREATED);
 //            A CHANGER APRES USER / CONNEXION / ETC
             $sortie->setSite($siteRepository->findAll()[array_rand($siteRepository->findAll())]);
