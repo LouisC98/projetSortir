@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Mon site{% endblock %}</title>
+    <title>{% block title %}Mon Site{% endblock %}</title>
 
     {% block stylesheets %}
         <link rel="stylesheet" href="{{ asset('build/app.css') }}">
@@ -10,25 +10,25 @@
 </head>
 <body class="bg-gray-100 text-gray-800">
 
-<nav class="bg-white shadow mb-8">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-        <a href="{{ path('home') }}" class="text-xl font-bold">MonSite</a>
-        <div>
-            {% if is_granted('IS_AUTHENTICATED_FULLY') %}
-                <span class="mr-4">Bonjour, {{ app.user.pseudo }}</span>
-                <a href="{{ path('app_logout') }}" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded">Se déconnecter</a>
-            {% else %}
-                <a href="{{ path('app_login') }}" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded">Connexion</a>
-                <a href="{{ path('app_register') }}" class="ml-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded">Inscription</a>
-            {% endif %}
-        </div>
-    </div>
-</nav>
+{% include 'partials/_navbar.html.twig' %}
 
-<main class="max-w-md mx-auto px-4">
+<main class="max-w-7xl mx-auto px-4 py-6">
     {% block body %}{% endblock %}
 </main>
 
-{% block javascripts %}{% endblock %}
+{% block javascripts %}
+    <script>
+        // Toggle menu mobile
+        document.addEventListener('DOMContentLoaded', () => {
+            const btn = document.querySelector('#menu-toggle');
+            const menu = document.querySelector('#mobile-menu');
+            if (btn && menu) {
+                btn.addEventListener('click', () => {
+                    menu.classList.toggle('hidden');
+                });
+            }
+        });
+    </script>
+{% endblock %}
 </body>
 </html>
