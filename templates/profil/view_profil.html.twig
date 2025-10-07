@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Profil{% endblock %}
+
+{% block body %}
+    <div class="min-h-screen flex items-center justify-center bg-gray-100">
+        <div class="max-w-md w-full bg-white p-8 rounded shadow">
+
+            <h1 class="text-2xl font-bold mb-6 text-center">Mon profil</h1>
+
+            {% for message in app.flashes('success') %}
+                <div class="mb-4 p-3 bg-green-100 text-green-700 rounded">{{ message }}</div>
+            {% endfor %}
+            {% for message in app.flashes('error') %}
+                <div class="mb-4 p-3 bg-red-100 text-red-700 rounded">{{ message }}</div>
+            {% endfor %}
+
+            {{ form_start(form, { 'attr': { 'class': 'space-y-4' } }) }}
+            {{ form_row(form.pseudo) }}
+            {{ form_row(form.email) }}
+            {{ form_row(form.firstName) }}
+            {{ form_row(form.lastName) }}
+            {{ form_row(form.phone) }}
+
+            <hr class="my-6">
+
+            <h2 class="text-lg font-semibold mb-2">Changer le mot de passe</h2>
+            {{ form_row(form.oldPassword) }}
+            {{ form_row(form.newPassword) }}
+            {{ form_row(form.confirmPassword) }}
+
+            <button type="submit" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">
+                Sauvegarder les modifications
+            </button>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}
