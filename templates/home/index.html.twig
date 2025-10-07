@@ -1,21 +1,5 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>{% block title %}Mon Site{% endblock %}</title>
-
-    {% block stylesheets %}
-        <link rel="stylesheet" href="{{ asset('build/app.css') }}">
-    {% endblock %}
-</head>
-<body class="bg-gray-100 text-gray-800">
-
-{% include 'partials/_navbar.html.twig' %}
-
-<main class="max-w-7xl mx-auto px-4 py-6">
-    {% block body %}{% endblock %}
-</main>
-
+{% extends 'base.html.twig' %}
+{% block title %}Acceuil | {{ parent() }}{% endblock %}
 {% block javascripts %}
     <script>
         // Toggle menu mobile
@@ -30,5 +14,3 @@
         });
     </script>
 {% endblock %}
-</body>
-</html>
