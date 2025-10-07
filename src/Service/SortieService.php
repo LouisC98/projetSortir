@@ -44,6 +44,29 @@ class SortieService
     /**
      * @throws SortieException
      */
+    public function desinscrire(Sortie $sortie, User $user): void
+    {
+        if (!$sortie->getParticipants()->contains($user)) {
+            throw new SortieException('Vous n\'êtes pas inscrit à cette sortie');
+        }
+
+        $now = new \DateTimeImmutable();
+        if ($sortie->getStartDateTime() <= $now) {
+            throw new SortieException('Impossible de se désister, la sortie a déjà commencé');
+        }
+
+        if (in_array($sortie->getState(), [State::IN_PROGRESS, State::PASSED, State::CANCELLED])) {
+            throw new SortieException('Impossible de se désister : ' . $sortie->getState()->value);
+        }
+
+        // Désinscription
+        $sortie->removeParticipant($user);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * @throws SortieException
+     */
     public function cancel(Sortie $sortie, User $user, string $motif): void {
 
         $isOrganisateur = $user->getId() === $sortie->getOrganisateur()->getId();
