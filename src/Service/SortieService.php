@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Enum\State;
 use App\Exception\SortieException;
 use Doctrine\ORM\EntityManagerInterface;
+use function Webmozart\Assert\Tests\StaticAnalysis\contains;
 
 class SortieService
 {
@@ -82,4 +83,18 @@ class SortieService
         $this->entityManager->persist($sortie);
         $this->entityManager->flush();
     }
+
+    /**
+     * @throws SortieException
+     */
+    public function publier(Sortie $sortie, User $user): void
+    {
+        if ($sortie->getOrganisateur()->getId() !== $user->getId()) {
+            throw new SortieException("Vous n'êtes pas l'organisateur de la sortie");
+        }
+
+        $sortie->setState(State::OPEN);
+        $this->entityManager->flush();
+    }
+
 }
