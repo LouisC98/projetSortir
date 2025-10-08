@@ -43,9 +43,6 @@ class AdminController extends AbstractController
 
         return $this->render('admin/user_import.html.twig', [
             'form' => $form->createView(),
-        ], new Response(
-            null,
-            $form->isSubmitted() && !$form->isValid() ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK,
-        ));
+        ]);
     }
 }
