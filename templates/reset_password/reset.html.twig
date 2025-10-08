@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Réinitialiser votre mot de passe{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-md mx-auto">
+        <!-- En-tête -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Créez votre nouveau mot de passe</h1>
+            <p class="text-gray-600">Votre nouveau mot de passe doit être différent de l'ancien.</p>
+        </div>
+
+        <!-- Carte principale -->
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+                    </svg>
+                    Nouveau mot de passe
+                </h2>
+            </div>
+
+            <div class="p-8">
+                {{ form_start(resetForm, {'attr': {'class': 'space-y-6'}}) }}
+                    <div class="space-y-2">
+                        {{ form_label(resetForm.plainPassword.first, 'Nouveau mot de passe *', {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                        {{ form_widget(resetForm.plainPassword.first, {'attr': {'class': 'w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:ring-2 transition-all duration-200 py-3 px-4 text-base', 'placeholder': '••••••••'}}) }}
+                        <div class="text-red-600 font-semibold text-sm">{{ form_errors(resetForm.plainPassword.first) }}</div>
+                    </div>
+                    <div class="space-y-2">
+                        {{ form_label(resetForm.plainPassword.second, 'Confirmer le mot de passe *', {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                        {{ form_widget(resetForm.plainPassword.second, {'attr': {'class': 'w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:ring-2 transition-all duration-200 py-3 px-4 text-base', 'placeholder': '••••••••'}}) }}
+                        <div class="text-red-600 font-semibold text-sm">{{ form_errors(resetForm.plainPassword.second) }}</div>
+                    </div>
+
+                    <div class="pt-4">
+                        <button class="w-full inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
+                            <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                            </svg>
+                            Réinitialiser le mot de passe
+                        </button>
+                    </div>
+                {{ form_end(resetForm) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
