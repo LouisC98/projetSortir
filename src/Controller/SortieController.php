@@ -31,14 +31,24 @@ final class SortieController extends AbstractController
         $sortieForm = $this->createForm(SortieFormType::class, $sortie);
         $sortieForm->handleRequest($request);
 
-        if ($sortieForm->isSubmitted() && $sortieForm->isValid()) {
-            try {
-                $isActionPublish = $request->request->get('action') === 'publier';
-                $this->sortieService->createSortie($sortie, $user, $isActionPublish);
-                $this->addFlash("success", "Sortie enregistré !");
-                return $this->redirectToRoute('app_sortie_show', ['id' => $sortie->getId()]);
-            } catch (SortieException $e) {
-                $this->addFlash("error", $e->getMessage());
+        if ($sortieForm->isSubmitted()) {
+            if (!$sortieForm->isValid()) {
+                // Afficher les erreurs du formulaire
+                foreach ($sortieForm->getErrors(true) as $error) {
+                    $this->addFlash("error", $error->getMessage());
+                }
+            } else {
+                try {
+                    $isActionPublish = $request->request->get('action') === 'publier';
+                    $this->sortieService->createSortie($sortie, $user, $isActionPublish);
+                    $message = $isActionPublish ? "Sortie publiée avec succès !" : "Sortie enregistrée !";
+                    $this->addFlash("success", $message);
+                    return $this->redirectToRoute('app_sortie_show', ['id' => $sortie->getId()]);
+                } catch (SortieException $e) {
+                    $this->addFlash("error", $e->getMessage());
+                } catch (\Exception $e) {
+                    $this->addFlash("error", "Erreur lors de la création : " . $e->getMessage());
+                }
             }
         }
 
