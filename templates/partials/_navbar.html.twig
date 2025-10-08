@@ -14,6 +14,12 @@
                 <span class="relative z-10">Accueil</span>
                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-600 rounded-md opacity-0 group-hover:opacity-10 transition-opacity duration-200"></div>
             </a>
+            {% if is_granted('ROLE_ADMIN') %}
+            <a href="{{ path('admin_users_import') }}" class="relative text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 group">
+                <span class="relative z-10">Importer des utilisateurs</span>
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-600 rounded-md opacity-0 group-hover:opacity-10 transition-opacity duration-200"></div>
+            </a>
+            {% endif %}
 
             {% if is_granted('IS_AUTHENTICATED_FULLY') %}
                 <div class="flex items-center space-x-4">
@@ -60,6 +66,9 @@
     <div id="mobile-menu" class="hidden md:hidden bg-white bg-opacity-95 backdrop-blur-sm border-t border-blue-200 shadow-inner">
         <div class="flex flex-col px-4 py-4 space-y-3">
             <a href="{{ path('home') }}" class="text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-lg transition-all duration-200">Accueil</a>
+            {% if is_granted('ROLE_ADMIN') %}
+            <a href="{{ path('admin_users_import') }}" class="text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-lg transition-all duration-200">Importer des utilisateurs</a>
+            {% endif %}
 
             {% if is_granted('IS_AUTHENTICATED_FULLY') %}
                 <a href="{{ path('view_profil') }}" class="flex items-center bg-blue-50 border border-blue-200 rounded-lg p-3 hover:bg-blue-100 transition">
