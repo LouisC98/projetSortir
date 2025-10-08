@@ -1,0 +1,6 @@
+email,pseudo,nom,prenom,telephone,site_nom
+alice.dupont@example.com,adupont,Dupont,Alice,0612345678,Rennes
+bob.martin@example.com,bmartin,Martin,Bob,0687654321,Nantes
+claire.leroy@example.com,cleroy,Leroy,Claire,0611223344,Paris
+david.moreau@example.com,dmoreau,Moreau,David,0655667788,Lyon
+elise.petit@example.com,epetit,Petit,Elise,0699887766,Bordeaux

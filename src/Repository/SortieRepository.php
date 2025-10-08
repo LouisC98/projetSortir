@@ -113,22 +113,10 @@ class SortieRepository extends ServiceEntityRepository
         }
 
         // Filtre sorties passées
-        if (isset($filters['sortiesPassees']) && $filters['sortiesPassees']) {
-            // Afficher UNIQUEMENT les sorties passées (par date ou par état)
-            $now = new \DateTime();
-            $qb->andWhere('(s.startDateTime < :now OR s.state = :passedState)')
-               ->setParameter('now', $now)
-               ->setParameter('passedState', State::PASSED->value);
-        } else {
-            // Par défaut, ne pas afficher les sorties passées et annulées
-            $now = new \DateTime();
-            $qb->andWhere('(s.startDateTime >= :now OR s.state IN (:activeStates))')
-               ->setParameter('now', $now)
-               ->setParameter('activeStates', [
-                   State::OPEN->value,
-                   State::CLOSED->value,
-                   State::IN_PROGRESS->value
-               ]);
+        if (!isset($filters['sortiesPassees']) || !$filters['sortiesPassees']) {
+            // Exclure uniquement les sorties archivées par défaut
+            $qb->andWhere('s.state != :archived')
+                ->setParameter('archived', State::ARCHIVED->value);
         }
 
         // Éviter les doublons dus aux jointures
@@ -212,22 +200,10 @@ class SortieRepository extends ServiceEntityRepository
         }
 
         // Filtre sorties passées
-        if (isset($filters['sortiesPassees']) && $filters['sortiesPassees']) {
-            // Afficher UNIQUEMENT les sorties passées (par date ou par état)
-            $now = new \DateTime();
-            $qb->andWhere('(s.startDateTime < :now OR s.state = :passedState)')
-               ->setParameter('now', $now)
-               ->setParameter('passedState', State::PASSED->value);
-        } else {
-            // Par défaut, ne pas afficher les sorties passées et annulées
-            $now = new \DateTime();
-            $qb->andWhere('(s.startDateTime >= :now OR s.state IN (:activeStates))')
-               ->setParameter('now', $now)
-               ->setParameter('activeStates', [
-                   State::OPEN->value,
-                   State::CLOSED->value,
-                   State::IN_PROGRESS->value
-               ]);
+        if (!isset($filters['sortiesPassees']) || !$filters['sortiesPassees']) {
+            // Exclure uniquement les sorties archivées par défaut
+            $qb->andWhere('s.state != :archived')
+                ->setParameter('archived', State::ARCHIVED->value);
         }
 
         return $qb->getQuery()->getSingleScalarResult();

@@ -24,8 +24,8 @@ class Sortie
 
     #[ORM\Column]
     #[Assert\GreaterThanOrEqual(
-        value: 'today',
-        message: 'La date doit être aujourd\'hui ou dans le futur'
+        value: 'now',
+        message: 'La date et l\'heure doivent être dans le futur'
     )]
     private ?\DateTime $startDateTime = null;
 
@@ -35,9 +35,9 @@ class Sortie
     private ?int $duration = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    #[Assert\GreaterThan(
-        value: 'today',
-        message: 'La date limite d\'inscription doit être postérieure à aujourd\'hui'
+    #[Assert\LessThan(
+        propertyPath: 'startDateTime',
+        message: 'La date limite d\'inscription doit être avant la date de début de la sortie'
     )]
     private ?\DateTime $registrationDeadline = null;
 
