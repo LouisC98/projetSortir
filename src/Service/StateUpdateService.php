@@ -24,12 +24,14 @@ class StateUpdateService
         $now = new \DateTime();
         $updatedCount = 0;
 
-        // Récupérer toutes les sorties non annulées et non passées définitivement
+        // Récupérer toutes les sorties non annulées, non passées définitivement et non archivées
         $sorties = $this->sortieRepository->createQueryBuilder('s')
             ->where('s.state != :cancelled')
             ->andWhere('s.state != :passed')
+            ->andWhere('s.state != :archived')
             ->setParameter('cancelled', State::CANCELLED)
             ->setParameter('passed', State::PASSED)
+            ->setParameter('archived', State::ARCHIVED)
             ->getQuery()
             ->getResult();
 
@@ -57,9 +59,9 @@ class StateUpdateService
     {
         $currentState = $sortie->getState();
 
-        // Si la sortie est annulée, on ne change pas son état
-        if ($currentState === State::CANCELLED) {
-            return State::CANCELLED;
+        // Si la sortie est annulée ou archivée, on ne change pas son état
+        if ($currentState === State::CANCELLED || $currentState === State::ARCHIVED) {
+            return $currentState;
         }
 
         $registrationDeadline = $sortie->getRegistrationDeadline();
@@ -68,9 +70,14 @@ class StateUpdateService
         // Calculer la date de fin de la sortie
         $endDateTime = (clone $startDateTime)->modify('+' . $sortie->getDuration() . ' minutes');
 
-        // La sortie est passée si la date de fin est dépassée + 1 mois
+        // La sortie est archivée si la date de fin est dépassée + 1 mois
         $archiveDate = (clone $endDateTime)->modify('+1 month');
         if ($now >= $archiveDate) {
+            return State::ARCHIVED;
+        }
+
+        // La sortie est passée si la date de fin est dépassée
+        if ($now >= $endDateTime) {
             return State::PASSED;
         }
 
@@ -85,13 +92,13 @@ class StateUpdateService
             return State::CLOSED;
         }
 
-        // Si la sortie est créée et que la date limite n'est pas dépassée,
-        // elle reste créée (l'organisateur doit la publier manuellement)
-        if ($currentState === State::CREATED) {
+        // Si la sortie est créée (non publiée), elle reste créée
+        // L'organisateur doit la publier manuellement
+        if ($currentState === State::CREATED && $now < $registrationDeadline) {
             return State::CREATED;
         }
 
-        // Sinon, la sortie est ouverte (avant la date limite d'inscription)
+        // Si la sortie est ouverte ou si elle devrait l'être (avant la date limite d'inscription)
         if ($now < $registrationDeadline) {
             return State::OPEN;
         }
@@ -118,4 +125,3 @@ class StateUpdateService
         return false;
     }
 }
-
