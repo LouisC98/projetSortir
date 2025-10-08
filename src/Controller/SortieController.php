@@ -87,6 +87,9 @@ final class SortieController extends AbstractController
     {
         /** @var User $user */
         $user = $this->getUser();
+        $isOrganisateur = $sortie->getOrganisateur() === $user;
+        $isAdmin = in_array('ROLE_ADMIN', $user->getRoles(), true);
+
         $cancelForm = $this->createForm(CancelSortieFormType::class);
         $cancelForm->handleRequest($request);
 
@@ -104,6 +107,8 @@ final class SortieController extends AbstractController
             'controller_name' => 'SortieController',
             'sortie' => $sortie,
             'cancelForm' => $cancelForm->createView(),
+            'isOrganisateur' => $isOrganisateur,
+            'isAdmin' => $isAdmin,
         ]);
     }
 
