@@ -22,6 +22,8 @@ class UserImportFormType extends AbstractType
                         'maxSize' => '1024k',
                         'mimeTypes' => [
                             'text/csv',
+                            'text/plain',
+                            'application/csv',
                         ],
                         'mimeTypesMessage' => 'Veuillez téléverser un fichier CSV valide.',
                     ])
