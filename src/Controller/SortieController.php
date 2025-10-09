@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Sortie;
 use App\Entity\User;
+use App\Entity\City;
 use App\Exception\SortieException;
 use App\Form\CancelSortieFormType;
 use App\Form\SortieFormType;
@@ -13,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('ROLE_USER')]
@@ -193,4 +195,27 @@ final class SortieController extends AbstractController
 
         return $this->redirectToRoute('home');
     }
+
+    #[Route('/places/by-city/{id}', name: 'places_by_city', methods: ['GET'])]
+    public function getPlacesByCity(City $city): JsonResponse
+    {
+        $places = $city->getPlaces();
+        $data = [];
+
+        foreach ($places as $place) {
+            $data[] = [
+                'id' => $place->getId(),
+                'name' => $place->getName(),
+                'street' => $place->getStreet(),
+                'latitude' => $place->getLatitude(),
+                'longitude' => $place->getLongitude(),
+                // Champs nécessaires au front
+                'cityName' => $place->getCity() ? $place->getCity()->getName() : null,
+                'postalCode' => $place->getCity() ? $place->getCity()->getPostalCode() : null,
+            ];
+        }
+
+        return $this->json($data);
+    }
+
 }
