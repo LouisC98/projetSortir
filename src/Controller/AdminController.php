@@ -129,9 +129,12 @@ class AdminController extends AbstractController
                         foreach ($result['errors'] as $error) {
                             $this->addFlash('danger', $error);
                         }
-                    } else {
+                    }
+
+                    if (!empty($result['successful'])) {
                         $this->addFlash('success', sprintf('%d utilisateurs ont été importés avec succès.', $result['successful']));
                     }
+
                 } catch (\Exception $e) {
                     $this->addFlash('danger', 'Une erreur est survenue lors du traitement du fichier : ' . $e->getMessage());
                 }
