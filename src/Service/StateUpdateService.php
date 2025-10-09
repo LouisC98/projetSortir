@@ -86,9 +86,12 @@ class StateUpdateService
             return State::IN_PROGRESS;
         }
 
+        $nowDate = $now->format('Y-m-d');
+        $deadlineDate = $registrationDeadline->format('Y-m-d');
+
         // La sortie est clôturée si la date limite d'inscription est dépassée
         // mais que la sortie n'a pas encore commencé
-        if ($now >= $registrationDeadline && $now < $startDateTime) {
+        if ($nowDate > $deadlineDate && $now < $startDateTime) {
             return State::CLOSED;
         }
 

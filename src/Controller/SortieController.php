@@ -98,16 +98,27 @@ final class SortieController extends AbstractController
         }
 
         $sortieForm = $this->createForm(SortieFormType::class, $sortie);
+        if ($sortie->getPlace() && $sortie->getPlace()->getCity()) {
+            $sortieForm->get('city')->setData($sortie->getPlace()->getCity());
+        }
+
         $sortieForm->handleRequest($request);
 
-        if ($sortieForm->isSubmitted() && $sortieForm->isValid()) {
-            try {
-                $this->sortieService->edit($sortie, $user);
-                $this->addFlash("success", "Sortie modifié avec succès");
-                return $this->redirectToRoute('app_sortie_show', ['id' => $sortie->getId()]);
-            } catch (SortieException $e) {
-                $this->addFlash("error", $e->getMessage());
-                return $this->redirectToRoute('app_sortie_show', ['id' => $sortie->getId()]);
+        if ($sortieForm->isSubmitted()) {
+            if (!$sortieForm->isValid()) {
+                foreach ($sortieForm->getErrors(true) as $error) {
+                    $this->addFlash("error", $error->getMessage());
+                    return $this->redirectToRoute('app_sortie_edit', ['id' => $sortie->getId()]);
+                }
+            } else {
+                try {
+                    $this->sortieService->edit($sortie, $user);
+                    $this->addFlash("success", "Sortie modifié avec succès");
+                    return $this->redirectToRoute('app_sortie_show', ['id' => $sortie->getId()]);
+                } catch (SortieException $e) {
+                    $this->addFlash("error", $e->getMessage());
+                    return $this->redirectToRoute('app_sortie_edit', ['id' => $sortie->getId()]);
+                }
             }
         }
 
@@ -216,7 +227,7 @@ final class SortieController extends AbstractController
 
         if (!$this->isCsrfTokenValid('publier_' . $sortie->getId(), $request->request->get('_token'))) {
             $this->addFlash('error', 'Token CSRF invalide');
-            return $this->redirectToRoute('home');
+            return $this->redirectToRoute('app_sortie_show', ['id' => $sortie->getId()]);
         }
 
         try {
@@ -226,7 +237,7 @@ final class SortieController extends AbstractController
             $this->addFlash("error", $e->getMessage());
         }
 
-        return $this->redirectToRoute('home');
+        return $this->redirectToRoute('app_sortie_show', ['id' => $sortie->getId()]);
     }
 
     #[Route('/places/by-city/{id}', name: 'places_by_city', methods: ['GET'])]

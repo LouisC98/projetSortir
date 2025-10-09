@@ -84,8 +84,6 @@
                                 Nom de la sortie *
                             </label>
                             {{ form_widget(sortieForm.name, {'attr': {'class': 'w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:ring-2 transition-all duration-200 py-3 px-4 text-base', 'placeholder': 'Ex: Randonnée en forêt'}}) }}
-                            <div class="text-red-600 font-semibold text-sm mt-2">{{ form_errors(sortieForm.name) }}</div>
-
                         </div>
 
                         <div>
@@ -96,7 +94,6 @@
                                 Date et heure de début *
                             </label>
                             {{ form_widget(sortieForm.startDateTime, {'attr': {'class': 'w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:ring-2 transition-all duration-200 py-3 px-4 text-base'}}) }}
-                            <div class="text-red-600 font-semibold text-sm mt-2">{{ form_errors(sortieForm.startDateTime) }}</div>
                         </div>
 
                         <div>
@@ -107,7 +104,6 @@
                                 Durée (minutes) *
                             </label>
                             {{ form_widget(sortieForm.duration, {'attr': {'class': 'w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:ring-2 transition-all duration-200 py-3 px-4 text-base', 'placeholder': '120'}}) }}
-                            <div class="text-red-600 font-semibold text-sm mt-2">{{ form_errors(sortieForm.duration) }}</div>
                         </div>
 
                         <div>
@@ -118,7 +114,6 @@
                                 Date limite d'inscription *
                             </label>
                             {{ form_widget(sortieForm.registrationDeadline, {'attr': {'class': 'w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:ring-2 transition-all duration-200 py-3 px-4 text-base'}}) }}
-                            <div class="text-red-600 font-semibold text-sm mt-2">{{ form_errors(sortieForm.registrationDeadline) }}</div>
                         </div>
 
                         <div>
@@ -129,7 +124,6 @@
                                 Nombre maximum de participants *
                             </label>
                             {{ form_widget(sortieForm.maxRegistration, {'attr': {'class': 'w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:ring-2 transition-all duration-200 py-3 px-4 text-base', 'placeholder': '10'}}) }}
-                            <div class="text-red-600 font-semibold text-sm mt-2">{{ form_errors(sortieForm.maxRegistration) }}</div>
                         </div>
 
                         <div class="md:col-span-2">
@@ -140,7 +134,6 @@
                                 Description
                             </label>
                             {{ form_widget(sortieForm.description, {'attr': {'class': 'w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:ring-2 transition-all duration-200 py-3 px-4 text-base', 'rows': '4', 'placeholder': 'Décrivez votre sortie...'}}) }}
-                            <div class="text-red-600 font-semibold text-sm mt-2">{{ form_errors(sortieForm.description) }}</div>
                         </div>
                     </div>
                 </div>
@@ -229,7 +222,6 @@
                             </button>
                         </div>
                         {{ form_widget(sortieForm.place, {'attr': {'class': 'w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:ring-2 transition-all duration-200 py-3 px-4 text-base'}}) }}
-                        <div class="text-red-600 font-semibold text-sm mt-2">{{ form_errors(sortieForm.place) }}</div>
 
                         <!-- Modal pour ajouter un lieu -->
                         <div id="place-modal-overlay" class="hidden fixed inset-0 bg-black/30 backdrop-blur-sm z-40"></div>

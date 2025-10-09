@@ -57,7 +57,6 @@ class SortieFormType extends AbstractType
                 'choice_label' => 'name',
                 'label' => 'Ville',
                 'mapped' => false,
-                'required' => false,
                 'choice_attr' => function(City $city) {
                     return [
                         'data-postal-code' => $city->getPostalCode(),
@@ -69,7 +68,6 @@ class SortieFormType extends AbstractType
                 'placeholder' => '-- Choisissez d\'abord une ville --',
                 'choice_label' => 'name',
                 'label' => 'Lieu',
-                'choices' => [],
                 'choice_attr' => function(Place $place) {
                     return [
                         'data-street' => $place->getStreet(),

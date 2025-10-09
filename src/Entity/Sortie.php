@@ -35,9 +35,9 @@ class Sortie
     private ?int $duration = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    #[Assert\LessThan(
-        propertyPath: 'startDateTime',
-        message: 'La date limite d\'inscription doit être avant la date de début de la sortie'
+    #[Assert\GreaterThanOrEqual(
+        value: 'today',
+        message: 'La date limite doit être dans le futur ou aujourd\'hui'
     )]
     private ?\DateTime $registrationDeadline = null;
 
@@ -76,8 +76,11 @@ class Sortie
     public function validate(ExecutionContextInterface $context): void
     {
         if ($this->registrationDeadline && $this->startDateTime) {
-            if ($this->registrationDeadline > $this->startDateTime) {
-                $context->buildViolation('La date limite d\'inscription doit être avant la date de début')
+            $registrationDate = $this->registrationDeadline->format('Y-m-d');
+            $startDate = $this->startDateTime->format('Y-m-d');
+
+            if ($registrationDate > $startDate) {
+                $context->buildViolation('La date limite d\'inscription doit être avant ou le jour de la date de début')
                     ->atPath('registrationDeadline')
                     ->addViolation();
             }
