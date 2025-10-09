@@ -6,9 +6,7 @@ security:
     providers:
         # used to reload user from session & other features (e.g. switch_user)
         app_user_provider:
-            entity:
-                class: App\Entity\User
-                property: email
+          id: App\Security\UserProvider
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -17,6 +15,10 @@ security:
           lazy: true
           provider: app_user_provider
           user_checker: App\Security\UserChecker
+
+          remember_me:
+            secret: '%kernel.secret%'
+            lifetime: 604800 # 7 jours
 
           # Form login
           form_login:
