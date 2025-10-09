@@ -93,9 +93,6 @@ class SortieService
         $this->entityManager->flush();
     }
 
-    /**
-     * @throws SortieException
-     */
     public function createSortie(Sortie $sortie, User $user, bool $isActionPublish): void
     {
         if ($isActionPublish) {
@@ -138,4 +135,19 @@ class SortieService
         $this->entityManager->flush();
     }
 
+    /**
+     * @throws SortieException
+     */
+    public function edit(Sortie $sortie, User $user): void
+    {
+        if ($sortie->getOrganisateur()->getId() !== $user->getId()) {
+            throw new SortieException("Vous n'êtes pas l'organisateur de la sortie");
+        }
+
+        if (!in_array($sortie->getState(), [State::CREATED, State::OPEN, State::CLOSED], true)) {
+            throw new SortieException("Vous ne pouvez plus modifier cette sortie (activité en cours, passée, annulée ou archivée)");
+        }
+
+        $this->entityManager->flush();
+    }
 }
