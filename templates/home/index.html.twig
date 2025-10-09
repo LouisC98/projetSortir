@@ -63,20 +63,26 @@
 
         <!-- Checkboxes -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            {% if filterForm.mesSorties is defined %}
             <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                 {{ form_widget(filterForm.mesSorties, {'attr': {'class': 'h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded'}}) }}
                 {{ form_label(filterForm.mesSorties, null, {'label_attr': {'class': 'text-sm font-medium text-gray-700 cursor-pointer'}}) }}
             </div>
+            {% endif %}
 
+            {% if filterForm.sortiesInscrit is defined %}
             <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                 {{ form_widget(filterForm.sortiesInscrit, {'attr': {'class': 'h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded'}}) }}
                 {{ form_label(filterForm.sortiesInscrit, null, {'label_attr': {'class': 'text-sm font-medium text-gray-700 cursor-pointer'}}) }}
             </div>
+            {% endif %}
 
+            {% if filterForm.sortiesNonInscrit is defined %}
             <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                 {{ form_widget(filterForm.sortiesNonInscrit, {'attr': {'class': 'h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded'}}) }}
                 {{ form_label(filterForm.sortiesNonInscrit, null, {'label_attr': {'class': 'text-sm font-medium text-gray-700 cursor-pointer'}}) }}
             </div>
+            {% endif %}
 
             <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                 {{ form_widget(filterForm.sortiesPassees, {'attr': {'class': 'h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded'}}) }}

@@ -4,21 +4,24 @@ namespace App\Controller;
 
 use App\Entity\Sortie;
 use App\Entity\User;
+use App\Entity\City;
 use App\Exception\SortieException;
 use App\Form\CancelSortieFormType;
 use App\Form\SortieFormType;
 use App\Service\SortieService;
 use App\Service\StateUpdateService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('ROLE_USER')]
 final class SortieController extends AbstractController
 {
-    public function __construct(private readonly SortieService $sortieService)
+    public function __construct(private readonly SortieService $sortieService, private readonly EntityManagerInterface $entityManager)
     {
     }
 
@@ -44,8 +47,6 @@ final class SortieController extends AbstractController
                     $message = $isActionPublish ? "Sortie publiée avec succès !" : "Sortie enregistrée !";
                     $this->addFlash("success", $message);
                     return $this->redirectToRoute('app_sortie_show', ['id' => $sortie->getId()]);
-                } catch (SortieException $e) {
-                    $this->addFlash("error", $e->getMessage());
                 } catch (\Exception $e) {
                     $this->addFlash("error", "Erreur lors de la création : " . $e->getMessage());
                 }
@@ -79,6 +80,40 @@ final class SortieController extends AbstractController
             'isOrganisateur' => $isOrganisateur,
             'nombreParticipants' => $nombreParticipants,
             'inscriptionsCloturees' => $inscriptionsCloturees,
+        ]);
+    }
+
+    #[Route('/sortie/{id}/edit', name: 'app_sortie_edit', methods: ['GET', 'POST'])]
+    public function edit(Sortie $sortie, StateUpdateService $stateUpdateService, Request $request): Response
+    {
+        // Mise à jour automatique du statut de cette sortie
+        $stateUpdateService->updateSortieState($sortie);
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if ($sortie->getOrganisateur() !== $user) {
+            $this->addFlash("error", "Vous n'êtes pas l'organisateur de cette sortie");
+            return $this->redirectToRoute('app_sortie_show', ['id' => $sortie->getId()]);
+        }
+
+        $sortieForm = $this->createForm(SortieFormType::class, $sortie);
+        $sortieForm->handleRequest($request);
+
+        if ($sortieForm->isSubmitted() && $sortieForm->isValid()) {
+            try {
+                $this->sortieService->edit($sortie, $user);
+                $this->addFlash("success", "Sortie modifié avec succès");
+                return $this->redirectToRoute('app_sortie_show', ['id' => $sortie->getId()]);
+            } catch (SortieException $e) {
+                $this->addFlash("error", $e->getMessage());
+                return $this->redirectToRoute('app_sortie_show', ['id' => $sortie->getId()]);
+            }
+        }
+
+        return $this->render('sortie/new.html.twig', [
+            'sortie' => $sortie,
+            'sortieForm' => $sortieForm->createView(),
         ]);
     }
 
@@ -193,4 +228,27 @@ final class SortieController extends AbstractController
 
         return $this->redirectToRoute('home');
     }
+
+    #[Route('/places/by-city/{id}', name: 'places_by_city', methods: ['GET'])]
+    public function getPlacesByCity(City $city): JsonResponse
+    {
+        $places = $city->getPlaces();
+        $data = [];
+
+        foreach ($places as $place) {
+            $data[] = [
+                'id' => $place->getId(),
+                'name' => $place->getName(),
+                'street' => $place->getStreet(),
+                'latitude' => $place->getLatitude(),
+                'longitude' => $place->getLongitude(),
+                // Champs nécessaires au front
+                'cityName' => $place->getCity() ? $place->getCity()->getName() : null,
+                'postalCode' => $place->getCity() ? $place->getCity()->getPostalCode() : null,
+            ];
+        }
+
+        return $this->json($data);
+    }
+
 }

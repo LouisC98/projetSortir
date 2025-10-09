@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use App\Entity\City;
 use App\Entity\Place;
 use App\Entity\Site;
 use App\Entity\Sortie;
@@ -50,11 +51,25 @@ class SortieFormType extends AbstractType
                 'label' => 'Description et infos',
                 'required' => false
             ])
+            ->add('city', EntityType::class, [
+                'class' => City::class,
+                'placeholder' => '-- Choisissez une ville --',
+                'choice_label' => 'name',
+                'label' => 'Ville',
+                'mapped' => false,
+                'required' => false,
+                'choice_attr' => function(City $city) {
+                    return [
+                        'data-postal-code' => $city->getPostalCode(),
+                    ];
+                },
+            ])
             ->add('place', EntityType::class, [
                 'class' => Place::class,
-                'placeholder' => '-- Choisissez un lieu --',
+                'placeholder' => '-- Choisissez d\'abord une ville --',
                 'choice_label' => 'name',
                 'label' => 'Lieu',
+                'choices' => [],
                 'choice_attr' => function(Place $place) {
                     return [
                         'data-street' => $place->getStreet(),
