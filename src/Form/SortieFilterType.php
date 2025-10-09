@@ -16,6 +16,8 @@ class SortieFilterType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $isAuthenticated = $options['is_authenticated'];
+
         $builder
             ->add('site', EntityType::class, [
                 'class' => Site::class,
@@ -49,28 +51,35 @@ class SortieFilterType extends AbstractType
                 'attr' => [
                     'class' => 'form-input rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500'
                 ]
-            ])
-            ->add('mesSorties', CheckboxType::class, [
-                'label' => 'Mes sorties organisées',
-                'required' => false,
-                'attr' => [
-                    'class' => 'form-checkbox rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50'
-                ]
-            ])
-            ->add('sortiesInscrit', CheckboxType::class, [
-                'label' => 'Sorties auxquelles je suis inscrit(e)',
-                'required' => false,
-                'attr' => [
-                    'class' => 'form-checkbox rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50'
-                ]
-            ])
-            ->add('sortiesNonInscrit', CheckboxType::class, [
-                'label' => 'Sorties auxquelles je ne suis pas inscrit(e)',
-                'required' => false,
-                'attr' => [
-                    'class' => 'form-checkbox rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50'
-                ]
-            ])
+            ]);
+
+        // Ajouter les filtres utilisateur uniquement si connecté
+        if ($isAuthenticated) {
+            $builder
+                ->add('mesSorties', CheckboxType::class, [
+                    'label' => 'Mes sorties organisées',
+                    'required' => false,
+                    'attr' => [
+                        'class' => 'form-checkbox rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50'
+                    ]
+                ])
+                ->add('sortiesInscrit', CheckboxType::class, [
+                    'label' => 'Sorties auxquelles je suis inscrit(e)',
+                    'required' => false,
+                    'attr' => [
+                        'class' => 'form-checkbox rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50'
+                    ]
+                ])
+                ->add('sortiesNonInscrit', CheckboxType::class, [
+                    'label' => 'Sorties auxquelles je ne suis pas inscrit(e)',
+                    'required' => false,
+                    'attr' => [
+                        'class' => 'form-checkbox rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50'
+                    ]
+                ]);
+        }
+
+        $builder
             ->add('sortiesPassees', CheckboxType::class, [
                 'label' => 'Sorties passées',
                 'required' => false,
@@ -91,6 +100,7 @@ class SortieFilterType extends AbstractType
         $resolver->setDefaults([
             'method' => 'GET',
             'csrf_protection' => false,
+            'is_authenticated' => false,
         ]);
     }
 
