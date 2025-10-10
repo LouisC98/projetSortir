@@ -43,17 +43,17 @@
             <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-6 border-b border-gray-200">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        {% if user.photoFilename %}
-                            <img src="{{ asset('uploads/photos/' ~ user.photoFilename) }}"
-                                 alt="Photo de profil"
-                                 class="w-20 h-20 rounded-full object-cover shadow-lg border-2 border-white">
-                        {% else %}
-                            <div class="w-20 h-20 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
-                                <img src="{{ asset('uploads/photos/Avatar.png') }}"
-                                     alt="Photo de profil"
+                        <div>
+                            {% if user.photoFilename %}
+                                <img src="{{ asset('uploads/photos/' ~ user.photoFilename) }}"
+                                     alt="Photo actuelle"
                                      class="w-20 h-20 rounded-full object-cover shadow-lg border-2 border-white">
-                            </div>
-                        {% endif %}
+                            {% else %}
+                                <img src="{{ asset('uploads/photos/Avatar.png') }}"
+                                     alt="Avatar par défaut"
+                                     class="w-20 h-20 rounded-full object-cover shadow-lg border-2 border-white">
+                            {% endif %}
+                        </div>
                     </div>
                     <div class="ml-6">
                         <h1 class="text-3xl font-bold text-gray-900">Modifier mon profil</h1>
@@ -65,6 +65,44 @@
             <!-- Formulaire d'édition -->
             <div class="p-6">
                 {{ form_start(form, {'attr': {'class': 'space-y-8'}}) }}
+
+                <div class="mb-8">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-blue-600" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2H5zm7 4a5 5 0 110 10 5 5 0 010-10z" />
+                        </svg>
+                        Photo de profil
+                    </h2>
+
+                    <div class="flex items-center space-x-6">
+                        <div>
+                            {% if user.photoFilename %}
+                                <img src="{{ asset('uploads/photos/' ~ user.photoFilename) }}"
+                                     alt="Photo actuelle"
+                                     class="w-20 h-20 rounded-full object-cover shadow-lg border-2 border-white"
+                                     id="preview-image">
+                            {% else %}
+                                <img src="{{ asset('uploads/photos/Avatar.png') }}"
+                                     alt="Avatar par défaut"
+                                     class="w-20 h-20 rounded-full object-cover shadow-lg border-2 border-white"
+                                     id="preview-image">
+                            {% endif %}
+                        </div>
+
+                        <div class="flex-1">
+                            {{ form_label(form.photoFile, 'Changer la photo', {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-1'}}) }}
+                            {{ form_widget(form.photoFile, {
+                                'attr': {
+                                    'id': 'photo-input',
+                                    'class': 'block w-30 text-sm text-gray-700 border border-gray-300 rounded-lg p-2 bg-white cursor-pointer hover:bg-gray-50 transition-all duration-150',
+                                    'accept': 'image/*'
+                                }
+                            }) }}
+                            {{ form_errors(form.photoFile) }}
+                            <p class="text-xs text-gray-500 mt-1">Formats acceptés : JPG, PNG, WEBP — taille max : 4 Mo.</p>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Informations personnelles -->
@@ -238,3 +276,49 @@
     </div>
 </div>
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+        (function () {
+            function setupAvatarPreview() {
+                const input = document.getElementById('photo-input')
+                    || document.querySelector('input[type="file"][name$="[photoFile]"]')
+                    || document.querySelector('input[type="file"]');
+                const preview = document.getElementById('preview-image')
+                    || document.querySelector('img[data-avatar-preview]');
+
+
+                if (input._avatarPreviewAttached) return;
+                input._avatarPreviewAttached = true;
+
+                input.addEventListener('change', function (e) {
+                    const file = input.files && input.files[0];
+                    if (!file) return;
+
+                    try { preview.removeAttribute('srcset'); } catch (err) { /* noop */ }
+                    const url = URL.createObjectURL(file);
+
+                    preview.style.transition = 'opacity .18s ease';
+                    preview.style.opacity = 0;
+
+                    preview.onload = function () {
+                        URL.revokeObjectURL(url);
+                        preview.style.opacity = 1;
+                    };
+
+                    preview.src = url;
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', setupAvatarPreview);
+            // Turbo (Hotwire) : se déclenche à chaque navigation "turbo"
+            document.addEventListener('turbo:load', setupAvatarPreview);
+        })();
+    </script>
+{% endblock %}
+
+
+
+

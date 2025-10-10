@@ -77,10 +77,18 @@
                         <tr class="hover:bg-gray-50 transition-colors duration-150">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-10 w-10">
-                                        <div class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-400 to-indigo-500 flex items-center justify-center text-white font-bold">
-                                            {{ user.pseudo|slice(0, 1)|upper }}
-                                        </div>
+                                    <div >
+                                        {% if user.photoFilename %}
+                                            <img src="{{ asset('uploads/photos/' ~ user.photoFilename) }}"
+                                                 alt="Photo actuelle"
+                                                 class="w-20 h-20 rounded-full object-cover shadow-lg border-2 border-white"
+                                                 id="preview-image">
+                                        {% else %}
+                                            <img src="{{ asset('uploads/photos/Avatar.png') }}"
+                                                 alt="Avatar par défaut"
+                                                 class="w-20 h-20 rounded-full object-cover shadow-lg border-2 border-white"
+                                                 id="preview-image">
+                                        {% endif %}
                                     </div>
                                     <div class="ml-4">
                                         <div class="text-sm font-medium text-gray-900">{{ user.pseudo }}</div>

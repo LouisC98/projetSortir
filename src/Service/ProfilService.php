@@ -5,13 +5,16 @@ namespace App\Service;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 class ProfilService
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly UserPasswordHasherInterface $passwordHasher
+        private readonly UserPasswordHasherInterface $passwordHasher,
+        private readonly SluggerInterface $slugger
     ) {
     }
 
@@ -57,17 +60,46 @@ class ProfilService
     }
 
     /**
-     * Traite la modification du profil avec gestion du mot de passe
+     * Traite la modification du profil avec gestion du mot de passe et de la photo
      */
     public function processProfilUpdate(User $user, FormInterface $form): array
     {
         $errors = [];
 
+        /**
+         * 🔹 Gestion de la photo de profil
+         */
+        if ($form->has('photoFile')) {
+            $photoFile = $form->get('photoFile')->getData();
+
+            if ($photoFile) {
+                $safeFilename = $this->slugger->slug(pathinfo($photoFile->getClientOriginalName(), PATHINFO_FILENAME));
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $photoFile->guessExtension();
+
+                $uploadDir = __DIR__ . '/../../public/uploads/photos/';
+
+                try {
+                    $photoFile->move($uploadDir, $newFilename);
+
+                    // Supprime l'ancienne photo si elle existe
+                    if ($user->getPhotoFilename() && file_exists($uploadDir . $user->getPhotoFilename())) {
+                        @unlink($uploadDir . $user->getPhotoFilename());
+                    }
+
+                    $user->setPhotoFilename($newFilename);
+                } catch (FileException $e) {
+                    $errors[] = "Erreur lors de l’upload de la photo : " . $e->getMessage();
+                }
+            }
+        }
+
+        /**
+         * 🔹 Gestion du mot de passe
+         */
         $oldPassword = $form->get('oldPassword')->getData();
         $newPassword = $form->get('newPassword')->getData();
         $confirmPassword = $form->get('confirmPassword')->getData();
 
-        // Si des champs de mot de passe sont remplis, valider et mettre à jour
         if ($oldPassword || $newPassword || $confirmPassword) {
             $errors = $this->validatePasswordChange($user, $oldPassword, $newPassword, $confirmPassword);
 
@@ -78,7 +110,9 @@ class ProfilService
             }
         }
 
-        // Sauvegarder les modifications (profil et/ou mot de passe)
+        /**
+         * 🔹 Sauvegarde finale
+         */
         $this->saveProfil($user);
 
         return $errors;
