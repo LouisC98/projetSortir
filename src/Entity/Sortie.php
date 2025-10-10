@@ -54,6 +54,7 @@ class Sortie
     private Collection $participants;
 
     #[ORM\ManyToOne(inversedBy: 'sortiesOrganisees')]
+    #[ORM\JoinColumn(onDelete: 'CASCADE')]
     private ?User $organisateur = null;
 
     #[ORM\ManyToOne(inversedBy: 'sorties')]

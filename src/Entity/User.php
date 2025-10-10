@@ -65,7 +65,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, Sortie>
      */
-    #[ORM\OneToMany(targetEntity: Sortie::class, mappedBy: 'organisateur')]
+    #[ORM\OneToMany(targetEntity: Sortie::class, mappedBy: 'organisateur', cascade: ['remove'], orphanRemoval: true)]
     private Collection $sortiesOrganisees;
 
     #[ORM\Column(length: 50)]
