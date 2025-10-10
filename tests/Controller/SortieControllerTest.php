@@ -147,7 +147,7 @@ class SortieControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful("Impossible de charger la page d'annulation.");
 
         $motif = "Annulation pour cause de mauvais temps.";
-        $this->client->submitForm('Enregistrer', [
+        $this->client->submitForm('Confirmer l\'annulation', [
             'cancel_sortie_form' => [
                 'motif' => $motif,
             ]
