@@ -3,10 +3,15 @@
 namespace App\Controller;
 
 use App\Entity\Site;
+use App\Exception\SiteException;
+use App\Exception\SortieException;
 use App\Form\SiteFormType;
 use App\Repository\SiteRepository;
+use App\Service\SiteService;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -16,15 +21,15 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[Route('/admin/site')]
 final class SiteController extends AbstractController
 {
-    public function __construct(private readonly SiteRepository $siteRepository, private readonly EntityManagerInterface $entityManager)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly SiteService $siteService)
     {
     }
 
     #[Route('/', name: 'app_site_list', methods: ['GET'])]
-    public function index(): Response
+    public function index(SiteRepository $siteRepository): Response
     {
         return $this->render('site/list.html.twig', [
-            'sites' => $this->siteRepository->findAll(),
+            'sites' => $siteRepository->findAll(),
         ]);
     }
 
@@ -54,7 +59,6 @@ final class SiteController extends AbstractController
         $siteForm->handleRequest($request);
 
         if ($siteForm->isSubmitted() && $siteForm->isValid()) {
-            $this->entityManager->persist($site);
             $this->entityManager->flush();
             $this->addFlash("success", "Site modifié avec succès");
             return $this->redirectToRoute('app_site_list');
@@ -70,13 +74,14 @@ final class SiteController extends AbstractController
     public function delete(Site $site, Request $request): Response
     {
         if ($this->isCsrfTokenValid('delete_'.$site->getId(), $request->request->get('_token'))) {
-            $this->entityManager->remove($site);
-            $this->entityManager->flush();
-            $this->addFlash("success", "Site supprimé avec succès");
-            return $this->redirectToRoute('app_site_list');
+            try {
+                $this->siteService->delete($site);
+                $this->addFlash("success", "Site supprimé avec succès");
+            } catch (SiteException|SortieException $e) {
+                $this->addFlash("error", $e->getMessage());
+            }
         }
 
-        $this->addFlash("error", "Erreur lors de la suppression");
         return $this->redirectToRoute('app_site_list');
     }
 

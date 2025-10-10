@@ -3,6 +3,7 @@
 namespace App\Tests\Controller;
 
 use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -27,6 +28,13 @@ class AdminControllerTest extends WebTestCase
     public function testImportUsersWithValidCsv(): void
     {
         $client = static::createClient();
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->createQuery(
+            'DELETE FROM App\Entity\User u WHERE u.email IN (:emails)'
+        )
+            ->setParameter('emails', ['import1@example.com', 'import2@example.com'])
+            ->execute();
+
         $this->loginAsAdmin($client);
 
         $csvContent = "email,pseudo,nom,prenom,telephone,site_nom\n";

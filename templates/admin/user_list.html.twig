@@ -139,15 +139,14 @@
                                     </svg>
                                     Éditer
                                 </a>
-                                <form method="post" action="{{ path('admin_users_delete', {id: user.id}) }}" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
-                                    <button type="submit" class="text-red-600 hover:text-red-900 inline-flex items-center">
-                                        <svg class="w-4 h-4 mr-1" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                        </svg>
-                                        Supprimer
-                                    </button>
-                                </form>
+                                <button type="button"
+                                        onclick="openDeleteUserModal('{{ user.id }}', '{{ user.pseudo|e('js') }}', '{{ csrf_token('delete' ~ user.id) }}')"
+                                        class="text-red-600 hover:text-red-900 inline-flex items-center">
+                                    <svg class="w-4 h-4 mr-1" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                    Supprimer
+                                </button>
                             </td>
                         </tr>
                         {% else %}
@@ -169,5 +168,136 @@
         </div>
     </div>
 </div>
-{% endblock %}
 
+<!-- Modal de confirmation de suppression d'utilisateur -->
+<div id="deleteUserModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 transition-opacity backdrop-blur-md"
+             style="background: rgba(0, 0, 0, 0.4);"
+             aria-hidden="true"
+             onclick="closeDeleteUserModal()"></div>
+
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                        <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">
+                            Supprimer l'utilisateur
+                        </h3>
+                        <div class="mt-2">
+                            <p class="text-sm text-gray-500">
+                                Êtes-vous sûr de vouloir supprimer l'utilisateur <strong id="userName" class="text-gray-900"></strong> ?
+                            </p>
+                            <p class="text-sm text-gray-500 mt-2">
+                                Cette action est irréversible. L'utilisateur sera définitivement supprimé ainsi que toutes ses données associées (sorties organisées, inscriptions, etc.).
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+                <form id="deleteUserForm" method="post" action="" class="inline">
+                    <input type="hidden" name="_token" id="deleteUserToken" value="">
+                    <button type="submit"
+                            class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-base font-medium text-white hover:from-red-700 hover:to-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm transition-all duration-200">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        Supprimer définitivement
+                    </button>
+                </form>
+                <button type="button"
+                        onclick="closeDeleteUserModal()"
+                        class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm transition-all duration-200">
+                    Annuler
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    #deleteUserModal:not(.hidden) .inline-block {
+        animation: modalSlideIn 0.3s ease-out forwards;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(1rem) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @supports (backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px)) {
+        #deleteUserModal .backdrop-blur-md {
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+        }
+    }
+</style>
+
+<script>
+    function openDeleteUserModal(userId, userPseudo, userToken) {
+        const modal = document.getElementById('deleteUserModal');
+        const form = document.getElementById('deleteUserForm');
+        const nameElement = document.getElementById('userName');
+        const tokenInput = document.getElementById('deleteUserToken');
+
+        nameElement.textContent = userPseudo;
+        // Construire l'URL directement avec l'ID
+        form.action = '/admin/users/' + userId + '/delete';
+
+        // Utiliser le token CSRF fourni
+        tokenInput.value = userToken;
+
+        modal.classList.remove('hidden');
+    }
+
+    function closeDeleteUserModal() {
+        const modal = document.getElementById('deleteUserModal');
+        const modalContent = modal.querySelector('.inline-block');
+
+        modalContent.style.animation = 'modalSlideOut 0.3s ease-in forwards';
+
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modalContent.style.animation = '';
+        }, 300);
+    }
+
+    const styleDeleteUser = document.createElement('style');
+    styleDeleteUser.textContent = `
+        @keyframes modalSlideOut {
+            from {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(1rem) scale(0.95);
+            }
+        }
+    `;
+    document.head.appendChild(styleDeleteUser);
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const modal = document.getElementById('deleteUserModal');
+            if (!modal.classList.contains('hidden')) {
+                closeDeleteUserModal();
+            }
+        }
+    });
+</script>
+{% endblock %}
