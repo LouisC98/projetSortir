@@ -79,17 +79,25 @@
                             {% if user.photoFilename %}
                                 <img src="{{ asset('uploads/photos/' ~ user.photoFilename) }}"
                                      alt="Photo actuelle"
-                                     class="w-20 h-20 rounded-full object-cover shadow-lg border-2 border-white">
+                                     class="w-20 h-20 rounded-full object-cover shadow-lg border-2 border-white"
+                                     id="preview-image">
                             {% else %}
                                 <img src="{{ asset('uploads/photos/Avatar.png') }}"
                                      alt="Avatar par défaut"
-                                     class="w-20 h-20 rounded-full object-cover shadow-lg border-2 border-white">
+                                     class="w-20 h-20 rounded-full object-cover shadow-lg border-2 border-white"
+                                     id="preview-image">
                             {% endif %}
                         </div>
 
                         <div class="flex-1">
                             {{ form_label(form.photoFile, 'Changer la photo', {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-1'}}) }}
-                            {{ form_widget(form.photoFile, {'attr': {'class': 'block w-30 text-sm text-gray-700 border border-gray-300 rounded-lg p-2 bg-white cursor-pointer hover:bg-gray-50 transition-all duration-150', 'accept': 'image/*'}}) }}
+                            {{ form_widget(form.photoFile, {
+                                'attr': {
+                                    'id': 'photo-input',
+                                    'class': 'block w-30 text-sm text-gray-700 border border-gray-300 rounded-lg p-2 bg-white cursor-pointer hover:bg-gray-50 transition-all duration-150',
+                                    'accept': 'image/*'
+                                }
+                            }) }}
                             {{ form_errors(form.photoFile) }}
                             <p class="text-xs text-gray-500 mt-1">Formats acceptés : JPG, PNG, WEBP — taille max : 4 Mo.</p>
                         </div>
@@ -268,3 +276,54 @@
     </div>
 </div>
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+        (function () {
+            function setupAvatarPreview() {
+                const input = document.getElementById('photo-input')
+                    || document.querySelector('input[type="file"][name$="[photoFile]"]')
+                    || document.querySelector('input[type="file"]');
+                const preview = document.getElementById('preview-image')
+                    || document.querySelector('img[data-avatar-preview]');
+
+                if (!input || !preview) {
+                    console.log('[avatar-preview] input ou preview non trouvés', { input, preview });
+                    return;
+                }
+
+                if (input._avatarPreviewAttached) return;
+                input._avatarPreviewAttached = true;
+
+                input.addEventListener('change', function (e) {
+                    const file = input.files && input.files[0];
+                    if (!file) return;
+
+                    try { preview.removeAttribute('srcset'); } catch (err) { /* noop */ }
+                    const url = URL.createObjectURL(file);
+
+                    preview.style.transition = 'opacity .18s ease';
+                    preview.style.opacity = 0;
+
+                    preview.onload = function () {
+                        URL.revokeObjectURL(url);
+                        preview.style.opacity = 1;
+                    };
+
+                    preview.src = url;
+                    console.log('[avatar-preview] aperçu appliqué:', file.name);
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', setupAvatarPreview);
+            // Turbo (Hotwire) : se déclenche à chaque navigation "turbo"
+            document.addEventListener('turbo:load', setupAvatarPreview);
+        })();
+    </script>
+{% endblock %}
+
+
+
+
