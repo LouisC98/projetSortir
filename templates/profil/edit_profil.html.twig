@@ -289,10 +289,6 @@
                 const preview = document.getElementById('preview-image')
                     || document.querySelector('img[data-avatar-preview]');
 
-                if (!input || !preview) {
-                    console.log('[avatar-preview] input ou preview non trouvés', { input, preview });
-                    return;
-                }
 
                 if (input._avatarPreviewAttached) return;
                 input._avatarPreviewAttached = true;
@@ -313,7 +309,6 @@
                     };
 
                     preview.src = url;
-                    console.log('[avatar-preview] aperçu appliqué:', file.name);
                 });
             }
 
