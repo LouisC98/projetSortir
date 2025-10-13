@@ -6,8 +6,6 @@ use App\Entity\User;
 use App\Repository\SiteRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Random\RandomException;
-use RuntimeException;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -33,13 +31,13 @@ class UserImportService
      * @return array{successful: int, errors: array<string>}
      *               Tableau contenant le nombre d'utilisateurs créés et la liste des erreurs
      *
-     * @throws RuntimeException|RandomException Si le fichier ne peut pas être ouvert
+     * @throws \RuntimeException|\Random\RandomException Si le fichier ne peut pas être ouvert
      */
     public function importUsers(File $file): array
     {
         $handle = fopen($file->getPathname(), 'r');
         if (!$handle) {
-            throw new RuntimeException('Impossible d\'ouvrir le fichier CSV.');
+            throw new \RuntimeException('Impossible d\'ouvrir le fichier CSV.');
         }
 
         // Lire l\'en-tête pour avoir des clés associatives
