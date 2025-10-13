@@ -29,10 +29,16 @@ final class SortieController extends AbstractController
     public function new(Request $request): Response
     {
         /** @var User $user */
+        $userAgent = $request->headers->get('User-Agent');
         $user = $this->getUser();
         $sortie = new Sortie();
         $sortieForm = $this->createForm(SortieFormType::class, $sortie);
         $sortieForm->handleRequest($request);
+
+        if (preg_match('/Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i', $userAgent)) {
+            $this->addFlash('danger', 'La création de sortie n\'est pas disponible sur mobile.');
+            return $this->redirectToRoute('home');
+        }
 
         if ($sortieForm->isSubmitted()) {
             if (!$sortieForm->isValid()) {
