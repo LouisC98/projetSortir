@@ -12,6 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -31,6 +32,7 @@ class ResetPasswordController extends AbstractController
         private readonly ResetPasswordHelperInterface $resetPasswordHelper,
         private readonly EntityManagerInterface $entityManager,
         private readonly UserRepository $userRepository,
+        private readonly MailerInterface $mailer,
     ) {
     }
 
@@ -54,25 +56,28 @@ class ResetPasswordController extends AbstractController
             if ($user) {
                 try {
                     $resetToken = $this->resetPasswordHelper->generateResetToken($user);
-                } catch (ResetPasswordExceptionInterface $e) {
-                    $this->addFlash('error', $e->getReason());
-                    return $this->redirectToRoute('app_forgot_password_request');
+                    $resetUrl = $this->generateUrl('app_reset_password', [
+                        'token' => $resetToken->getToken(),
+                    ], UrlGeneratorInterface::ABSOLUTE_URL);
+
+                    $email = (new TemplatedEmail())
+                        ->from('noreply@sortir.com')
+                        ->to($user->getEmail())
+                        ->subject('Réinitialisation de votre mot de passe')
+                        ->htmlTemplate('emails/reset_password.html.twig')
+                        ->context([
+                            'resetUrl' => $resetUrl,
+                            'expiresAt' => $resetToken->getExpiresAt(),
+                            'user' => $user,
+                        ]);
+
+                    $this->mailer->send($email);
+
+                } catch (ResetPasswordExceptionInterface | TransportExceptionInterface $e) {
                 }
-
-                $resetUrl = $this->generateUrl('app_reset_password', [
-                    'token' => $resetToken->getToken(),
-                ], UrlGeneratorInterface::ABSOLUTE_URL);
-
-                return $this->render('reset_password/link_display.html.twig', [
-                    'resetUrl' => $resetUrl,
-                    'resetToken' => $resetToken
-                ]);
             }
 
-            return $this->render('reset_password/link_display.html.twig', [
-                'resetUrl' => null,
-                'resetToken' => null
-            ]);
+            return $this->render('reset_password/check_email.html.twig');
         }
         return $this->render('reset_password/request.html.twig', [
             'requestForm' => $form,

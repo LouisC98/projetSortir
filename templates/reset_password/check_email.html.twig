@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Lien de réinitialisation envoyé{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="bg-gradient-to-r from-green-50 to-teal-50 px-6 py-4 border-b border-gray-200">
+                <h1 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-green-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 9v.906a2.25 2.25 0 01-1.183 1.981l-6.478 3.488M2.25 9v.906a2.25 2.25 0 001.183 1.981l6.478 3.488m6.478-3.488l6.478 3.488m0 0a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25m0 0V9m19.5 0a2.25 2.25 0 00-2.25-2.25h-15a2.25 2.25 0 00-2.25 2.25m15 0l-5.106-2.272a2.25 2.25 0 00-2.788 0L2.25 9" />
+                    </svg>
+                    Vérifiez votre boîte de réception
+                </h1>
+            </div>
+            <div class="p-8">
+                <p class="text-gray-700 mb-4">
+                    Si un compte correspondant à votre adresse e-mail existe, un e-mail vient d'être envoyé contenant un lien pour réinitialiser votre mot de passe.
+                </p>
+                <p class="text-gray-600">
+                    Ce lien expirera dans <span class="font-semibold text-gray-800">1 heure</span>.
+                </p>
+                <p class="text-sm text-gray-500 mt-6">
+                    Si vous ne recevez pas d'e-mail, veuillez vérifier votre dossier de courrier indésirable (spam) ou <a href="{{ path('app_forgot_password_request') }}" class="text-blue-600 hover:underline">réessayer votre demande</a>.
+                </p>
+            </div>
+            <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-t border-gray-200 text-center">
+                <a href="{{ path('home') }}" class="font-medium text-blue-600 hover:text-blue-500 hover:underline transition-colors duration-200">
+                    Retour à la page d'accueil
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
