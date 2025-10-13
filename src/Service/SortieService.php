@@ -15,11 +15,21 @@ class SortieService
     }
 
     /**
-     * @throws SortieException
+     * Inscrit un utilisateur à une sortie
+     *
+     * Vérifie que l'utilisateur n'est pas déjà inscrit, que la sortie n'est pas complète,
+     * que la date limite d'inscription n'est pas dépassée et que la sortie est ouverte.
+     *
+     * @param Sortie $sortie La sortie concernée
+     * @param User $user L'utilisateur à inscrire
+     *
+     * @return void
+     *
+     * @throws SortieException Si l'utilisateur est déjà inscrit, la sortie est complète,
+     *                         la date limite est dépassée ou la sortie n'est pas ouverte
      */
     public function inscrire(Sortie $sortie, User $user): void
     {
-        // Vérifications métier
         if ($sortie->getParticipants()->contains($user)) {
             throw new SortieException('Vous êtes déjà inscrit à cette sortie');
         }
@@ -36,13 +46,23 @@ class SortieService
             throw new SortieException('Cette sortie n\'est pas ouverte aux inscriptions');
         }
 
-        // Inscription
         $sortie->addParticipant($user);
         $this->entityManager->flush();
     }
 
     /**
-     * @throws SortieException
+     * Désinscrit un utilisateur d'une sortie
+     *
+     * Vérifie que l'utilisateur est bien inscrit et que la sortie n'a pas encore commencé
+     * avant de procéder à la désinscription.
+     *
+     * @param Sortie $sortie La sortie concernée
+     * @param User $user L'utilisateur à désinscrire
+     *
+     * @return void
+     *
+     * @throws SortieException Si l'utilisateur n'est pas inscrit, la sortie a déjà commencé
+     *                         ou son état ne permet pas la désinscription
      */
     public function desinscrire(Sortie $sortie, User $user): void
     {
@@ -59,13 +79,24 @@ class SortieService
             throw new SortieException('Impossible de se désister : ' . $sortie->getState()->value);
         }
 
-        // Désinscription
         $sortie->removeParticipant($user);
         $this->entityManager->flush();
     }
 
     /**
-     * @throws SortieException
+     * Annule une sortie avec un motif
+     *
+     * Vérifie que l'utilisateur est l'organisateur ou un administrateur avant d'annuler
+     * la sortie. Le motif d'annulation est ajouté à la description.
+     *
+     * @param Sortie $sortie La sortie à annuler
+     * @param User $user L'utilisateur demandant l'annulation
+     * @param string $motif Le motif de l'annulation
+     *
+     * @return void
+     *
+     * @throws SortieException Si l'utilisateur n'est pas autorisé ou si la sortie
+     *                         est déjà passée ou annulée
      */
     public function cancel(Sortie $sortie, User $user, string $motif): void {
 
@@ -93,6 +124,18 @@ class SortieService
         $this->entityManager->flush();
     }
 
+    /**
+     * Crée une nouvelle sortie
+     *
+     * Initialise la sortie avec le bon état (CRÉÉE ou OUVERTE selon l'action),
+     * associe le site de l'organisateur et persiste en base de données.
+     *
+     * @param Sortie $sortie La sortie à créer
+     * @param User $user L'utilisateur organisateur
+     * @param bool $isActionPublish True pour publier directement, false pour garder en brouillon
+     *
+     * @return void
+     */
     public function createSortie(Sortie $sortie, User $user, bool $isActionPublish): void
     {
         if ($isActionPublish) {
@@ -107,7 +150,17 @@ class SortieService
     }
 
     /**
-     * @throws SortieException
+     * Supprime une sortie
+     *
+     * Vérifie que l'utilisateur est l'organisateur ou un administrateur
+     * avant de supprimer définitivement la sortie.
+     *
+     * @param Sortie $sortie La sortie à supprimer
+     * @param User $user L'utilisateur demandant la suppression
+     *
+     * @return void
+     *
+     * @throws SortieException Si l'utilisateur n'est pas autorisé à supprimer cette sortie
      */
     public function delete(Sortie $sortie, User $user): void {
 
@@ -123,7 +176,17 @@ class SortieService
     }
 
     /**
-     * @throws SortieException
+     * Publie une sortie en brouillon
+     *
+     * Change l'état d'une sortie de CRÉÉE à OUVERTE pour la rendre visible
+     * et accessible aux inscriptions.
+     *
+     * @param Sortie $sortie La sortie à publier
+     * @param User $user L'utilisateur demandant la publication
+     *
+     * @return void
+     *
+     * @throws SortieException Si l'utilisateur n'est pas l'organisateur
      */
     public function publier(Sortie $sortie, User $user): void
     {
@@ -136,7 +199,18 @@ class SortieService
     }
 
     /**
-     * @throws SortieException
+     * Modifie une sortie existante
+     *
+     * Vérifie que l'utilisateur est l'organisateur et que la sortie est dans un état
+     * modifiable (CRÉÉE, OUVERTE ou CLÔTURÉE) avant de persister les modifications.
+     *
+     * @param Sortie $sortie La sortie à modifier
+     * @param User $user L'utilisateur demandant la modification
+     *
+     * @return void
+     *
+     * @throws SortieException Si l'utilisateur n'est pas l'organisateur ou si l'état
+     *                         de la sortie ne permet pas la modification
      */
     public function edit(Sortie $sortie, User $user): void
     {

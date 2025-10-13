@@ -15,8 +15,17 @@ class SiteService
     }
 
     /**
-     * @throws SortieException
-     * @throws SiteException
+     * Supprime un site après vérification des dépendances
+     *
+     * Vérifie qu'aucune sortie n'est prévue sur ce site et qu'aucun participant
+     * n'y est rattaché avant de procéder à la suppression.
+     *
+     * @param Site $site Le site à supprimer
+     *
+     * @return void
+     *
+     * @throws SortieException Si des sorties sont encore prévues sur ce site
+     * @throws SiteException Si des participants sont encore rattachés à ce site
      */
     public function delete(Site $site): void
     {

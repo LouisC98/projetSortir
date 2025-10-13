@@ -20,6 +20,16 @@ class ProfilService
 
     /**
      * Valide le changement de mot de passe
+     *
+     * Vérifie que l'ancien mot de passe est correct et que les nouveaux
+     * mots de passe correspondent.
+     *
+     * @param User $user L'utilisateur concerné
+     * @param string|null $oldPassword L'ancien mot de passe
+     * @param string|null $newPassword Le nouveau mot de passe
+     * @param string|null $confirmPassword La confirmation du nouveau mot de passe
+     *
+     * @return array<string> Tableau des erreurs de validation (vide si aucune erreur)
      */
     public function validatePasswordChange(User $user, ?string $oldPassword, ?string $newPassword, ?string $confirmPassword): array
     {
@@ -44,6 +54,13 @@ class ProfilService
 
     /**
      * Met à jour le mot de passe de l'utilisateur
+     *
+     * Hash le nouveau mot de passe et l'associe à l'utilisateur.
+     *
+     * @param User $user L'utilisateur concerné
+     * @param string $newPassword Le nouveau mot de passe en clair
+     *
+     * @return void
      */
     public function updatePassword(User $user, string $newPassword): void
     {
@@ -53,6 +70,12 @@ class ProfilService
 
     /**
      * Sauvegarde les modifications du profil
+     *
+     * Persiste les changements de l'utilisateur en base de données.
+     *
+     * @param User $user L'utilisateur à sauvegarder
+     *
+     * @return void
      */
     public function saveProfil(User $user): void
     {
@@ -61,13 +84,21 @@ class ProfilService
 
     /**
      * Traite la modification du profil avec gestion du mot de passe et de la photo
+     *
+     * Gère l'upload de la photo de profil, la validation et la mise à jour du mot de passe,
+     * puis sauvegarde les modifications.
+     *
+     * @param User $user L'utilisateur concerné
+     * @param FormInterface $form Le formulaire de modification du profil
+     *
+     * @return array<string> Tableau des erreurs rencontrées (vide si succès)
      */
     public function processProfilUpdate(User $user, FormInterface $form): array
     {
         $errors = [];
 
         /**
-         * 🔹 Gestion de la photo de profil
+         * Gestion de la photo de profil
          */
         if ($form->has('photoFile')) {
             $photoFile = $form->get('photoFile')->getData();
@@ -81,7 +112,6 @@ class ProfilService
                 try {
                     $photoFile->move($uploadDir, $newFilename);
 
-                    // Supprime l'ancienne photo si elle existe
                     if ($user->getPhotoFilename() && file_exists($uploadDir . $user->getPhotoFilename())) {
                         @unlink($uploadDir . $user->getPhotoFilename());
                     }
@@ -94,7 +124,7 @@ class ProfilService
         }
 
         /**
-         * 🔹 Gestion du mot de passe
+         * Gestion du mot de passe
          */
         $oldPassword = $form->get('oldPassword')->getData();
         $newPassword = $form->get('newPassword')->getData();
@@ -111,7 +141,7 @@ class ProfilService
         }
 
         /**
-         * 🔹 Sauvegarde finale
+         * Sauvegarde finale
          */
         $this->saveProfil($user);
 

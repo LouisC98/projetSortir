@@ -21,6 +21,17 @@ class SortieFilterService
 
     /**
      * Traite les filtres de recherche depuis la requête et retourne les sorties filtrées
+     *
+     * Gère la soumission du formulaire de filtres ainsi que les paramètres d'URL
+     * pour maintenir les filtres lors de la pagination.
+     *
+     * @param Request $request La requête HTTP contenant les filtres
+     * @param User|null $user L'utilisateur connecté (null si non authentifié)
+     * @param int $limit Nombre maximum de sorties à retourner
+     * @param int $offset Décalage pour la pagination
+     *
+     * @return array{sorties: array, filterForm: FormInterface, currentFilters: array, totalSorties: int}
+     *               Tableau contenant les sorties filtrées, le formulaire, les filtres actifs et le total
      */
     public function processFilters(Request $request, ?User $user, int $limit, int $offset): array
     {
@@ -57,6 +68,15 @@ class SortieFilterService
 
     /**
      * Traite les données du formulaire soumis
+     *
+     * Extrait les données du formulaire et les transforme en filtres exploitables
+     * pour la recherche de sorties.
+     *
+     * @param FormInterface $filterForm Le formulaire de filtres soumis
+     * @param array $filters Tableau des filtres (passé par référence)
+     * @param array $currentFilters Tableau des filtres actuels pour l'affichage (passé par référence)
+     *
+     * @return void
      */
     private function processFormData(FormInterface $filterForm, array &$filters, array &$currentFilters): void
     {
@@ -98,6 +118,15 @@ class SortieFilterService
 
     /**
      * Traite les paramètres de l'URL (pour maintenir les filtres lors de la pagination)
+     *
+     * Récupère les paramètres GET de l'URL et les transforme en filtres pour maintenir
+     * l'état des filtres lors de la navigation entre pages.
+     *
+     * @param Request $request La requête HTTP
+     * @param array $filters Tableau des filtres (passé par référence)
+     * @param array $currentFilters Tableau des filtres actuels pour l'affichage (passé par référence)
+     *
+     * @return void
      */
     private function processQueryParams(Request $request, array &$filters, array &$currentFilters): void
     {
@@ -155,6 +184,14 @@ class SortieFilterService
 
     /**
      * Crée un formulaire pré-rempli avec les filtres existants
+     *
+     * Génère un nouveau formulaire avec les valeurs des filtres actuels
+     * pour maintenir l'état du formulaire.
+     *
+     * @param array $filters Les filtres à appliquer au formulaire
+     * @param bool $isAuthenticated Indique si l'utilisateur est authentifié
+     *
+     * @return FormInterface Le formulaire pré-rempli
      */
     private function createPrefilledForm(array $filters, bool $isAuthenticated): FormInterface
     {
@@ -175,6 +212,16 @@ class SortieFilterService
 
     /**
      * Calcule les informations de pagination
+     *
+     * Détermine le nombre total de pages, la page actuelle et la présence
+     * de pages suivantes/précédentes pour la navigation.
+     *
+     * @param int $page Numéro de la page actuelle
+     * @param int $totalSorties Nombre total de sorties
+     * @param int $limit Nombre de sorties par page
+     *
+     * @return array{currentPage: int, totalPages: int, totalItems: int, hasNext: bool, hasPrev: bool, limit: int}
+     *               Informations de pagination
      */
     public function calculatePagination(int $page, int $totalSorties, int $limit): array
     {

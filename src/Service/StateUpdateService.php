@@ -17,14 +17,17 @@ class StateUpdateService
 
     /**
      * Met à jour automatiquement les statuts de toutes les sorties
-     * en fonction des dates et des règles métier
+     *
+     * Parcourt toutes les sorties non annulées, non passées et non archivées
+     * pour mettre à jour leur état en fonction des dates actuelles.
+     *
+     * @return int Le nombre de sorties mises à jour
      */
     public function updateAllStates(): int
     {
         $now = new \DateTime();
         $updatedCount = 0;
 
-        // Récupérer toutes les sorties non annulées, non passées définitivement et non archivées
         $sorties = $this->sortieRepository->createQueryBuilder('s')
             ->where('s.state != :cancelled')
             ->andWhere('s.state != :passed')
@@ -54,12 +57,19 @@ class StateUpdateService
 
     /**
      * Calcule le nouvel état d'une sortie en fonction de ses dates
+     *
+     * Applique les règles métier pour déterminer l'état approprié d'une sortie
+     * selon la date actuelle et les différentes dates de la sortie (deadline, début, fin, archivage).
+     *
+     * @param Sortie $sortie La sortie à évaluer
+     * @param \DateTime $now La date/heure de référence
+     *
+     * @return State Le nouvel état calculé
      */
     private function calculateNewState(Sortie $sortie, \DateTime $now): State
     {
         $currentState = $sortie->getState();
 
-        // Si la sortie est annulée ou archivée, on ne change pas son état
         if ($currentState === State::CANCELLED || $currentState === State::ARCHIVED) {
             return $currentState;
         }
@@ -67,21 +77,17 @@ class StateUpdateService
         $registrationDeadline = $sortie->getRegistrationDeadline();
         $startDateTime = $sortie->getStartDateTime();
 
-        // Calculer la date de fin de la sortie
         $endDateTime = (clone $startDateTime)->modify('+' . $sortie->getDuration() . ' minutes');
 
-        // La sortie est archivée si la date de fin est dépassée + 1 mois
         $archiveDate = (clone $endDateTime)->modify('+1 month');
         if ($now >= $archiveDate) {
             return State::ARCHIVED;
         }
 
-        // La sortie est passée si la date de fin est dépassée
         if ($now >= $endDateTime) {
             return State::PASSED;
         }
 
-        // La sortie est en cours si on est entre la date de début et la date de fin
         if ($now >= $startDateTime && $now < $endDateTime) {
             return State::IN_PROGRESS;
         }
@@ -89,29 +95,29 @@ class StateUpdateService
         $nowDate = $now->format('Y-m-d');
         $deadlineDate = $registrationDeadline->format('Y-m-d');
 
-        // La sortie est clôturée si la date limite d'inscription est dépassée
-        // mais que la sortie n'a pas encore commencé
         if ($nowDate > $deadlineDate && $now < $startDateTime) {
             return State::CLOSED;
         }
 
-        // Si la sortie est créée (non publiée), elle reste créée
-        // L'organisateur doit la publier manuellement
         if ($currentState === State::CREATED && $now < $registrationDeadline) {
             return State::CREATED;
         }
 
-        // Si la sortie est ouverte ou si elle devrait l'être (avant la date limite d'inscription)
         if ($now < $registrationDeadline) {
             return State::OPEN;
         }
 
-        // Par défaut, retourner l'état actuel
         return $currentState;
     }
 
     /**
      * Met à jour le statut d'une sortie spécifique
+     *
+     * Vérifie et met à jour l'état d'une seule sortie si nécessaire.
+     *
+     * @param Sortie $sortie La sortie à mettre à jour
+     *
+     * @return bool True si l'état a changé, false sinon
      */
     public function updateSortieState(Sortie $sortie): bool
     {

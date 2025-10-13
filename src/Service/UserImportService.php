@@ -6,6 +6,8 @@ use App\Entity\User;
 use App\Repository\SiteRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Random\RandomException;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -20,11 +22,24 @@ class UserImportService
         private readonly ValidatorInterface $validator
     ) {}
 
+    /**
+     * Importe des utilisateurs depuis un fichier CSV
+     *
+     * Lit un fichier CSV ligne par ligne, valide les données, vérifie les doublons
+     * (email, pseudo) et crée les utilisateurs avec un mot de passe temporaire.
+     *
+     * @param File $file Le fichier CSV à importer
+     *
+     * @return array{successful: int, errors: array<string>}
+     *               Tableau contenant le nombre d'utilisateurs créés et la liste des erreurs
+     *
+     * @throws RuntimeException|RandomException Si le fichier ne peut pas être ouvert
+     */
     public function importUsers(File $file): array
     {
         $handle = fopen($file->getPathname(), 'r');
         if (!$handle) {
-            throw new \RuntimeException('Impossible d\'ouvrir le fichier CSV.');
+            throw new RuntimeException('Impossible d\'ouvrir le fichier CSV.');
         }
 
         // Lire l\'en-tête pour avoir des clés associatives

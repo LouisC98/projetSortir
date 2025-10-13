@@ -20,6 +20,13 @@ class UserRegistrationService
 
     /**
      * Valide les données d'inscription et retourne les erreurs éventuelles
+     *
+     * Vérifie que tous les champs requis sont présents, que l'email et le pseudo
+     * ne sont pas déjà utilisés, que les mots de passe correspondent et que le site existe.
+     *
+     * @param array $data Les données d'inscription à valider
+     *
+     * @return array<string> Tableau des erreurs de validation (vide si aucune erreur)
      */
     public function validateRegistrationData(array $data): array
     {
@@ -52,6 +59,14 @@ class UserRegistrationService
 
     /**
      * Crée un nouvel utilisateur avec les données fournies
+     *
+     * Instancie un nouvel utilisateur, hash le mot de passe et persiste en base de données.
+     *
+     * @param array $data Les données de l'utilisateur à créer
+     *
+     * @return User L'utilisateur créé
+     *
+     * @throws \Exception Si le site spécifié n'existe pas
      */
     public function createUser(array $data): User
     {
@@ -86,6 +101,13 @@ class UserRegistrationService
 
     /**
      * Extrait les données de la requête
+     *
+     * Normalise les données de la requête HTTP pour les rendre exploitables
+     * par les autres méthodes du service.
+     *
+     * @param array $requestData Les données brutes de la requête
+     *
+     * @return array Les données normalisées de l'inscription
      */
     public function extractRegistrationData(array $requestData): array
     {
@@ -102,4 +124,3 @@ class UserRegistrationService
         ];
     }
 }
-
