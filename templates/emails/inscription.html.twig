@@ -1,0 +1,30 @@
+{% extends 'emails/_base_email.html.twig' %}
+
+{% block email_title %}Confirmation d'inscription{% endblock %}
+
+{% block email_content %}
+    <h1>Confirmation d'inscription</h1>
+
+    <p>
+        Bonjour {{ user.firstname }},
+    </p>
+
+    <p>
+        Nous avons le plaisir de vous confirmer votre inscription à la sortie <strong>{{ sortie.name }}</strong> qui aura lieu le {{ sortie.startDateTime|date('d/m/Y à H:i') }}.
+    </p>
+
+    <p>
+        Vous pouvez consulter les détails de la sortie en cliquant sur le bouton ci-dessous.
+    </p>
+
+    <div class="button-container">
+        <a href="{{ url('app_sortie_show', {id: sortie.id}) }}" class="button button-green">
+            Voir la sortie
+        </a>
+    </div>
+
+    <p style="margin-top: 30px;">
+        Amusez-vous bien !<br>
+        L'équipe Sortir.com
+    </p>
+{% endblock %}

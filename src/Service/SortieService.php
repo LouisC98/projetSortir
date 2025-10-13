@@ -5,13 +5,17 @@ namespace App\Service;
 use App\Entity\Sortie;
 use App\Entity\User;
 use App\Enum\State;
+use App\Event\SortieRegistrationEvent;
 use App\Exception\SortieException;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class SortieService
 {
-    public function __construct(private readonly EntityManagerInterface $entityManager)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     /**
@@ -48,6 +52,9 @@ class SortieService
 
         $sortie->addParticipant($user);
         $this->entityManager->flush();
+
+        $event = new SortieRegistrationEvent($sortie, $user, 'inscription');
+        $this->eventDispatcher->dispatch($event, SortieRegistrationEvent::NAME);
     }
 
     /**
@@ -81,6 +88,9 @@ class SortieService
 
         $sortie->removeParticipant($user);
         $this->entityManager->flush();
+
+        $event = new SortieRegistrationEvent($sortie, $user, 'desistement');
+        $this->eventDispatcher->dispatch($event, SortieRegistrationEvent::NAME);
     }
 
     /**
