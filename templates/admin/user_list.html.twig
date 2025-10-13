@@ -77,17 +77,15 @@
                         <tr class="hover:bg-gray-50 transition-colors duration-150">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
-                                    <div >
+                                    <div class="flex-shrink-0 h-10 w-10">
                                         {% if user.photoFilename %}
-                                            <img src="{{ asset('uploads/photos/' ~ user.photoFilename) }}"
-                                                 alt="Photo actuelle"
-                                                 class="w-20 h-20 rounded-full object-cover shadow-lg border-2 border-white"
-                                                 id="preview-image">
+                                            <img class="h-10 w-10 rounded-full object-cover"
+                                                 src="{{ asset('uploads/photos/' ~ user.photoFilename) }}"
+                                                 alt="Photo de {{ user.pseudo }}">
                                         {% else %}
-                                            <img src="{{ asset('uploads/photos/Avatar.png') }}"
-                                                 alt="Avatar par défaut"
-                                                 class="w-20 h-20 rounded-full object-cover shadow-lg border-2 border-white"
-                                                 id="preview-image">
+                                            <img class="h-10 w-10 rounded-full object-cover"
+                                                 src="{{ asset('images/Avatar.png') }}"
+                                                 alt="Avatar par défaut">
                                         {% endif %}
                                     </div>
                                     <div class="ml-4">
