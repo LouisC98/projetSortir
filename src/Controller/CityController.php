@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Service\CityService;
+use App\Service\GeoApiService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,7 +13,8 @@ use Symfony\Component\Routing\Attribute\Route;
 class CityController extends AbstractController
 {
     public function __construct(
-        private CityService $cityService
+        private CityService $cityService,
+        private GeoApiService $geoApiService
     ) {}
 
     #[Route('/city/new', name: 'city_new', methods: ['POST'])]
@@ -45,6 +47,57 @@ class CityController extends AbstractController
         } catch (\Exception $e) {
             return $this->json([
                 'message' => 'Erreur lors de l\'ajout de la ville'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    #[Route('/api/cities/search', name: 'api_cities_search', methods: ['GET'])]
+    public function searchCities(Request $request): JsonResponse
+    {
+        $query = $request->query->get('q', '');
+        $limit = $request->query->getInt('limit', 10);
+
+        if (strlen($query) < 2) {
+            return $this->json([]);
+        }
+
+        try {
+            $cities = $this->geoApiService->searchCities($query, $limit);
+            $formattedCities = $this->geoApiService->formatCitiesForAutocomplete($cities);
+
+            return $this->json($formattedCities);
+        } catch (\Exception $e) {
+            return $this->json([
+                'error' => 'Erreur lors de la recherche de villes'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    #[Route('/api/cities/coordinates', name: 'api_cities_coordinates', methods: ['GET'])]
+    public function getCityCoordinates(Request $request): JsonResponse
+    {
+        $cityName = $request->query->get('city', '');
+        $postalCode = $request->query->get('postalCode', null);
+
+        if (empty($cityName)) {
+            return $this->json([
+                'error' => 'Le nom de la ville est requis'
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        try {
+            $coordinates = $this->geoApiService->getCityCoordinates($cityName, $postalCode);
+
+            if ($coordinates === null) {
+                return $this->json([
+                    'error' => 'Ville non trouvée'
+                ], Response::HTTP_NOT_FOUND);
+            }
+
+            return $this->json($coordinates);
+        } catch (\Exception $e) {
+            return $this->json([
+                'error' => 'Erreur lors de la récupération des coordonnées'
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

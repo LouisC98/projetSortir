@@ -1,2 +1,4 @@
 @import "tailwindcss";
+@import "./autocomplete.css";
+
 @source not "../../public";
