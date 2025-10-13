@@ -18,7 +18,7 @@ class StateUpdateService
     /**
      * Met à jour automatiquement les statuts de toutes les sorties
      *
-     * Parcourt toutes les sorties non annulées, non passées et non archivées
+     * Parcourt toutes les sorties non annulées et non archivées
      * pour mettre à jour leur état en fonction des dates actuelles.
      *
      * @return int Le nombre de sorties mises à jour
@@ -30,10 +30,8 @@ class StateUpdateService
 
         $sorties = $this->sortieRepository->createQueryBuilder('s')
             ->where('s.state != :cancelled')
-            ->andWhere('s.state != :passed')
             ->andWhere('s.state != :archived')
             ->setParameter('cancelled', State::CANCELLED)
-            ->setParameter('passed', State::PASSED)
             ->setParameter('archived', State::ARCHIVED)
             ->getQuery()
             ->getResult();
