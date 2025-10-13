@@ -18,6 +18,21 @@ class PlaceService
         private ValidationService $validationService
     ) {}
 
+    /**
+     * Crée un nouveau lieu après validation des données
+     *
+     * Vérifie que le lieu n'existe pas déjà (nom + rue + ville) et valide
+     * les contraintes métier avant la création.
+     *
+     * @param string $name Le nom du lieu
+     * @param string $street L'adresse de la rue
+     * @param string|null $latitude La latitude GPS (optionnelle, entre -90 et 90)
+     * @param string|null $longitude La longitude GPS (optionnelle, entre -180 et 180)
+     * @param int $cityId L'identifiant de la ville associée
+     *
+     * @return array{success: bool, message?: string, data?: array{id: int, name: string, street: string, latitude: ?float, longitude: ?float, cityName: string, postalCode: string}}
+     *               Tableau contenant le résultat de l'opération avec les données du lieu créé en cas de succès
+     */
     public function createPlace(
         string $name,
         string $street,
@@ -92,9 +107,16 @@ class PlaceService
         ];
     }
 
+    /**
+     * Récupère tous les lieux d'une ville donnée
+     *
+     * @param int $cityId L'identifiant de la ville
+     *
+     * @return array{success: bool, message?: string, data?: array<array{id: int, name: string, street: string, latitude: ?float, longitude: ?float}>}
+     *               Tableau contenant le résultat avec la liste des lieux en cas de succès
+     */
     public function getPlacesByCity(int $cityId): array
     {
-        // MODIFICATION FORCEE POUR FORCER LE RECHARGEMENT - 2025-10-09
         $city = $this->cityRepository->find($cityId);
         if (!$city) {
             return ['success' => false, 'message' => 'Ville introuvable'];

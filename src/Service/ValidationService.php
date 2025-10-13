@@ -4,6 +4,17 @@ namespace App\Service;
 
 class ValidationService
 {
+    /**
+     * Valide les données d'une ville
+     *
+     * Vérifie que le nom de la ville respecte les contraintes de longueur et de format,
+     * et que le code postal est valide (5 chiffres).
+     *
+     * @param string $name Le nom de la ville
+     * @param string $postalCode Le code postal
+     *
+     * @return string|null Message d'erreur si la validation échoue, null sinon
+     */
     public function validateCity(string $name, string $postalCode): ?string
     {
         if (strlen($name) < 2) {
@@ -25,6 +36,19 @@ class ValidationService
         return null;
     }
 
+    /**
+     * Valide les données d'un lieu
+     *
+     * Vérifie que le nom et l'adresse respectent les contraintes de longueur,
+     * et que les coordonnées GPS sont valides (latitude entre -90 et 90, longitude entre -180 et 180).
+     *
+     * @param string $name Le nom du lieu
+     * @param string $street L'adresse de la rue
+     * @param string|null $latitude La latitude GPS (optionnelle)
+     * @param string|null $longitude La longitude GPS (optionnelle)
+     *
+     * @return string|null Message d'erreur si la validation échoue, null sinon
+     */
     public function validatePlace(string $name, string $street, ?string $latitude, ?string $longitude): ?string
     {
         if (strlen($name) < 2) {
