@@ -1,0 +1,30 @@
+{% extends 'emails/_base_email.html.twig' %}
+
+{% block email_title %}Confirmation de désistement{% endblock %}
+
+{% block email_content %}
+    <h1>Confirmation de désistement</h1>
+
+    <p>
+        Bonjour {{ user.firstname }},
+    </p>
+
+    <p>
+        Nous vous confirmons votre désistement de la sortie <strong>{{ sortie.name }}</strong> qui devait avoir lieu le {{ sortie.startDateTime|date('d/m/Y à H:i') }}.
+    </p>
+
+    <p>
+        Vous pouvez toujours consulter la sortie ou vous réinscrire si les conditions le permettent.
+    </p>
+
+    <div class="button-container">
+        <a href="{{ url('app_sortie_show', {id: sortie.id}) }}" class="button button-blue">
+            Voir la sortie
+        </a>
+    </div>
+
+    <p style="margin-top: 30px;">
+        À bientôt pour de nouvelles aventures !<br>
+        L'équipe Sortir.com
+    </p>
+{% endblock %}

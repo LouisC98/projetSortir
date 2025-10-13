@@ -73,7 +73,9 @@
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-sm font-medium text-gray-600">Durée :</span>
-                                    <span class="text-sm text-gray-900">{{ sortie.duration }} minutes</span>
+                                    <span class="text-sm text-gray-900">
+                                        {{ (sortie.duration / 60)|round(0) }}h {{ sortie.duration % 60 }}min
+                                    </span>
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-sm font-medium text-gray-600">Date limite d'inscription :</span>
