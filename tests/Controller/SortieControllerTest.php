@@ -65,7 +65,13 @@ class SortieControllerTest extends WebTestCase
         $this->client->loginUser($testUser);
 
         $query = $this->entityManager->createQuery(
-            'SELECT s FROM App\Entity\Sortie s WHERE s.state = :state AND s.startDateTime > :now AND SIZE(s.participants) < s.maxRegistration AND s.organisateur != :user'
+            'SELECT s FROM App\Entity\Sortie s 
+                WHERE s.state = :state 
+                AND s.startDateTime > :now 
+                AND s.registrationDeadline > :now
+                AND SIZE(s.participants) < s.maxRegistration 
+                AND s.organisateur != :user 
+                AND :user NOT MEMBER OF s.participants'
         )->setParameters([
             'state' => \App\Enum\State::OPEN,
             'now' => new \DateTimeImmutable(),

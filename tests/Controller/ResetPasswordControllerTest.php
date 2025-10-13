@@ -35,7 +35,7 @@ class ResetPasswordControllerTest extends WebTestCase
         $this->assertSelectorExists('input[name="reset_password_request_form[email]"]');
     }
 
-    public function testRequestWithValidEmailGeneratesToken(): void
+    public function testRequestWithValidEmailShowsGenericMessage(): void
     {
         $this->client->request('GET', '/reset-password');
 
@@ -44,9 +44,9 @@ class ResetPasswordControllerTest extends WebTestCase
         ]);
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('a[href*="/reset-password/reset/"]');
-        // Texte exact du template
-        $this->assertSelectorTextContains('p', 'Le processus de réinitialisation a été initié');
+        $this->assertSelectorTextContains('h1', 'Vérifiez votre boîte de réception');
+        $this->assertSelectorTextContains('p', 'Si un compte correspondant à votre adresse e-mail existe');
+        $this->assertSelectorNotExists('a[href*="/reset-password/reset/"]');
     }
 
     public function testRequestWithNonExistentEmailShowsGenericMessage(): void
@@ -59,7 +59,8 @@ class ResetPasswordControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         // Message générique affiché dans les deux cas
-        $this->assertSelectorTextContains('p', 'Le processus de réinitialisation a été initié');
+        $this->assertSelectorTextContains('h1', 'Vérifiez votre boîte de réception');
+        $this->assertSelectorTextContains('p', 'Si un compte correspondant à votre adresse e-mail existe');
         $this->assertSelectorNotExists('a[href*="/reset-password/reset/"]');
     }
 
