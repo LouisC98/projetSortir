@@ -1,4 +1,8 @@
+import { Autocomplete } from './autocomplete.js';
+
 let sortieFormInitialized = false;
+let cityAutocomplete = null;
+let placeAutocomplete = null;
 
 function initializeSortieForm() {
     const citySelect = document.querySelector('#sortie_form_city');
@@ -30,6 +34,59 @@ function initializeSortieForm() {
     const placeError = document.getElementById('place-error');
     const placeErrorText = document.getElementById('place-error-text');
     const placeDetails = document.getElementById('place-details');
+
+    // Initialiser l'autocomplétion pour les villes dans le modal
+    const cityNameInput = document.getElementById('new-city-name');
+    if (cityNameInput && !cityAutocomplete) {
+        cityAutocomplete = new Autocomplete(cityNameInput, {
+            minLength: 2,
+            apiUrl: '/api/cities/search',
+            formatResult: (city) => {
+                return `<strong>${city.name}</strong><small>${city.label}</small>`;
+            },
+            onSelect: (city) => {
+                cityNameInput.value = city.name;
+                const postalInput = document.getElementById('new-city-postal');
+                if (postalInput) {
+                    postalInput.value = city.postalCode;
+                }
+                cityError.classList.add('hidden');
+            }
+        });
+    }
+
+    // Initialiser l'autocomplétion pour les lieux dans le modal
+    const placeStreetInput = document.getElementById('new-place-street');
+    if (placeStreetInput && !placeAutocomplete) {
+        placeAutocomplete = new Autocomplete(placeStreetInput, {
+            minLength: 3,
+            apiUrl: '/api/addresses/search',
+            formatResult: (address) => {
+                return `<strong>${address.name}</strong><small>${address.label}</small>`;
+            },
+            onSelect: (address) => {
+                const nameInput = document.getElementById('new-place-name');
+                const latInput = document.getElementById('new-place-latitude');
+                const lonInput = document.getElementById('new-place-longitude');
+
+                placeStreetInput.value = address.street;
+                if (nameInput && !nameInput.value) {
+                    nameInput.value = address.name;
+                }
+                if (latInput) {
+                    latInput.value = address.latitude || '';
+                }
+                if (lonInput) {
+                    lonInput.value = address.longitude || '';
+                }
+                placeError.classList.add('hidden');
+            },
+            extraParams: () => {
+                const selectedCity = citySelect.options[citySelect.selectedIndex];
+                return selectedCity ? { city: selectedCity.textContent } : {};
+            }
+        });
+    }
 
     // Validation pour la ville
     function validateCity(name, postalCode) {
@@ -130,7 +187,6 @@ function initializeSortieForm() {
         cityModalOverlay.addEventListener('click', closeCityModal);
 
         // Validation en temps réel pour la ville
-        const cityNameInput = document.getElementById('new-city-name');
         const cityPostalInput = document.getElementById('new-city-postal');
 
         cityNameInput?.addEventListener('input', () => {
@@ -165,7 +221,9 @@ function initializeSortieForm() {
 
                 if (!response.ok) {
                     const error = await response.json();
-                    throw new Error(error.message || 'Erreur lors de l\'ajout');
+                    cityErrorText.textContent = error.message || 'Erreur lors de l\'ajout de la ville';
+                    cityError.classList.remove('hidden');
+                    return;
                 }
 
                 const city = await response.json();
@@ -196,7 +254,6 @@ function initializeSortieForm() {
 
         // Validation en temps réel pour le lieu
         const placeNameInput = document.getElementById('new-place-name');
-        const placeStreetInput = document.getElementById('new-place-street');
         const placeLatInput = document.getElementById('new-place-latitude');
         const placeLonInput = document.getElementById('new-place-longitude');
 
@@ -246,7 +303,9 @@ function initializeSortieForm() {
 
                 if (!response.ok) {
                     const error = await response.json();
-                    throw new Error(error.message || 'Erreur lors de l\'ajout');
+                    placeErrorText.textContent = error.message || 'Erreur lors de l\'ajout du lieu';
+                    placeError.classList.remove('hidden');
+                    return;
                 }
 
                 const place = await response.json();
@@ -338,4 +397,13 @@ document.addEventListener('turbo:load', initializeSortieForm);
 document.addEventListener('turbo:render', initializeSortieForm);
 document.addEventListener('turbo:before-render', () => {
     sortieFormInitialized = false;
+    // Nettoyer les instances d'autocomplétion
+    if (cityAutocomplete) {
+        cityAutocomplete.destroy();
+        cityAutocomplete = null;
+    }
+    if (placeAutocomplete) {
+        placeAutocomplete.destroy();
+        placeAutocomplete = null;
+    }
 });
