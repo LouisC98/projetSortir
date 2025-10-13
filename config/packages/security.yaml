@@ -35,12 +35,9 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-      # exemple : les pages /inscription, /login sont publiques
       - { path: ^/inscription}
       - { path: ^/login}
-      # tout le reste requiert au moins ROLE_USER
       - { path: ^/}
-
 when@test:
     security:
         password_hashers:
