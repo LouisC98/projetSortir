@@ -25,9 +25,17 @@
             <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-6 border-b border-gray-200">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <div class="w-20 h-20 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
-                            {{ user.pseudo|slice(0, 1)|upper }}
-                        </div>
+                        {% if user.photoFilename %}
+                        <img src="{{ asset('uploads/photos/' ~ user.photoFilename) }}"
+                             alt="Photo de profil"
+                             class="w-20 h-20 rounded-full object-cover shadow-lg border-2 border-white">
+                        {% else %}
+                            <div class="w-20 h-20 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+                                <img src="{{ asset('images/Avatar.png') }}"
+                                     alt="Photo de profil"
+                                     class="w-20 h-20 rounded-full object-cover shadow-lg border-2 border-white">
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="ml-6">
                         <h1 class="text-3xl font-bold text-gray-900">{{ user.pseudo }}</h1>
