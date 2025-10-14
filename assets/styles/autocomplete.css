@@ -1,0 +1,72 @@
+/* Styles pour l'autocomplétion */
+.autocomplete-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    max-height: 300px;
+    overflow-y: auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-top: -1px;
+}
+
+.autocomplete-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s;
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-item:hover,
+.autocomplete-item.selected {
+    background-color: #f5f5f5;
+}
+
+.autocomplete-item strong {
+    color: #333;
+    font-weight: 600;
+}
+
+.autocomplete-item small {
+    display: block;
+    color: #666;
+    margin-top: 3px;
+    font-size: 0.85em;
+}
+
+/* Améliorer l'apparence des champs avec autocomplétion */
+.autocomplete-wrapper {
+    position: relative;
+}
+
+.autocomplete-wrapper input {
+    width: 100%;
+}
+
+.autocomplete-loading {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+}
+
+/* Animation de chargement */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.autocomplete-loading::after {
+    content: "⌛";
+    animation: spin 1s linear infinite;
+}
+

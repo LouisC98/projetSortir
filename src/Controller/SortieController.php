@@ -10,7 +10,7 @@ use App\Form\CancelSortieFormType;
 use App\Form\SortieFormType;
 use App\Service\SortieService;
 use App\Service\StateUpdateService;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\WeatherService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,7 +21,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_USER')]
 final class SortieController extends AbstractController
 {
-    public function __construct(private readonly SortieService $sortieService, private readonly EntityManagerInterface $entityManager)
+    public function __construct(private readonly SortieService $sortieService)
     {
     }
 
@@ -66,7 +66,7 @@ final class SortieController extends AbstractController
     }
 
     #[Route('/sortie/{id}', name: 'app_sortie_show', methods: ['GET'])]
-    public function show(Sortie $sortie, StateUpdateService $stateUpdateService): Response
+    public function show(Sortie $sortie, StateUpdateService $stateUpdateService, WeatherService $weatherService): Response
     {
         // Mise à jour automatique du statut de cette sortie
         $stateUpdateService->updateSortieState($sortie);
@@ -80,12 +80,26 @@ final class SortieController extends AbstractController
         $now = new \DateTime();
         $inscriptionsCloturees = $sortie->getRegistrationDeadline() < $now;
 
+        // Récupérer les données météo pour la ville de la sortie
+        $weather = null;
+        if ($sortie->getPlace() && $sortie->getPlace()->getCity()) {
+            try {
+                $cityName = $sortie->getPlace()->getCity()->getName();
+                $weather = $weatherService->getWeather($cityName, $sortie->getStartDateTime());
+            } catch (\Exception $e) {
+                // En cas d'erreur, on continue sans météo mais on affiche le message en dev
+                $this->addFlash('warning', 'Impossible de récupérer la météo : ' . $e->getMessage());
+                $weather = null;
+            }
+        }
+
         return $this->render('sortie/show.html.twig', [
             'sortie' => $sortie,
             'isParticipant' => $isParticipant,
             'isOrganisateur' => $isOrganisateur,
             'nombreParticipants' => $nombreParticipants,
             'inscriptionsCloturees' => $inscriptionsCloturees,
+            'weather' => $weather,
         ]);
     }
 
