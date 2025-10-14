@@ -7,6 +7,7 @@
         "@symfony/stimulus-bridge": "^3.2.0 || ^4.0.0",
         "@symfony/ux-turbo": "file:vendor/symfony/ux-turbo/assets",
         "@symfony/webpack-encore": "^5.0.0",
+        "@tailwindcss/postcss": "^4.1.14",
         "core-js": "^3.38.0",
         "regenerator-runtime": "^0.13.9",
         "webpack": "^5.74.0",
@@ -21,9 +22,9 @@
         "build": "encore production --progress"
     },
     "dependencies": {
-        "@tailwindcss/postcss": "^4.1.14",
         "postcss": "^8.5.6",
         "postcss-loader": "^8.2.0",
-        "tailwindcss": "^4.1.14"
+        "tailwindcss": "^4.1.14",
+        "tailwindcss-dark-mode": "^1.1.7"
     }
 }

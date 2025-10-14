@@ -1,6 +1,6 @@
 {{ form_start(editForm) }}
-{{ form_label(editForm.content, 'Modifier le commentaire') }}
-{{ form_widget(editForm.content, {'attr': {'class': 'w-full border border-gray-300 rounded p-2 h-25'}})}}
+{{ form_label(editForm.content, 'Modifier le commentaire', {'label_attr': {'class': 'dark:text-white'}}) }}
+{{ form_widget(editForm.content, {'attr': {'class': 'w-full border border-gray-300 rounded p-2 h-25 dark:bg-gray-700 dark:border-gray-600 dark:text-white'}})}}
 <div class="text-end mt-2">
     <button type="button" class="cancel-edit-btn px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700">Annuler</button>
     <button type="submit" class="px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700">Enregistrer</button>
