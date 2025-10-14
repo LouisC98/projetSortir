@@ -68,9 +68,16 @@ class Sortie
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
+    /**
+     * @var Collection<int, Rating>
+     */
+    #[ORM\OneToMany(targetEntity: Rating::class, mappedBy: 'sortie', cascade: ['remove'])]
+    private Collection $ratings;
+
     public function __construct()
     {
         $this->participants = new ArrayCollection();
+        $this->ratings = new ArrayCollection();
     }
 
     #[Assert\Callback]
@@ -236,6 +243,36 @@ class Sortie
     public function setDescription(?string $description): static
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Rating>
+     */
+    public function getRatings(): Collection
+    {
+        return $this->ratings;
+    }
+
+    public function addRating(Rating $rating): static
+    {
+        if (!$this->ratings->contains($rating)) {
+            $this->ratings->add($rating);
+            $rating->setSortie($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRating(Rating $rating): static
+    {
+        if ($this->ratings->removeElement($rating)) {
+            // set the owning side to null (unless already changed)
+            if ($rating->getSortie() === $this) {
+                $rating->setSortie(null);
+            }
+        }
 
         return $this;
     }
