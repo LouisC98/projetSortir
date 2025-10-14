@@ -27,6 +27,10 @@ final class CommentController extends AbstractController
             $this->commentService->delete($comment);
             $this->addFlash("success", "Commentaire supprimé");
         }
+        $redirect = $request->request->get('redirect');
+        if ($redirect) {
+            return $this->redirect($redirect);
+        }
         return $this->redirectToRoute('app_sortie_show', ['id' => $comment->getSortie()->getId()]);
     }
 

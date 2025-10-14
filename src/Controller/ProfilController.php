@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\EditProfilType;
+use App\Repository\CommentRepository;
 use App\Service\ProfilService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -19,15 +20,17 @@ class ProfilController extends AbstractController
      */
     #[Route('/profil', name: 'view_profil')]
     #[IsGranted('ROLE_USER')]
-    public function viewProfil(): Response
+    public function viewProfil(CommentRepository $commentRepository): Response
     {
         $user = $this->getUser();
         if (!$user) {
             return $this->redirectToRoute('app_login');
         }
+        $comments = $commentRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
 
         return $this->render('profil/view_profil.html.twig', [
             'user' => $user,
+            'comments' => $comments
         ]);
     }
 
@@ -74,10 +77,15 @@ class ProfilController extends AbstractController
      */
     #[Route('/profil/{id}', name: 'view_user_profil', requirements: ['id' => '\d+'])]
     #[IsGranted('ROLE_USER')]
-    public function viewUserProfil(User $user): Response
+    public function viewUserProfil(User $user, CommentRepository $commentRepository): Response
     {
+        if ($user === $this->getUser()) {
+            return  $this->redirectToRoute('view_profil');
+        }
+        $comments = $commentRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
         return $this->render('profil/view_user_profil.html.twig', [
             'user' => $user,
+            'comments' => $comments
         ]);
     }
 }

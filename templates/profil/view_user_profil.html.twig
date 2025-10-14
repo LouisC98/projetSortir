@@ -183,6 +183,61 @@
                 </div>
             </div>
         </div>
+        {% if comments is not empty %}
+            <div id="commentsContainer" class="bg-white shadow-lg rounded-lg mt-5">
+                <h2 class="font-semibold my-3 text-lg">Commentaires :</h2>
+                {% for comment in comments %}
+                    <div class="comment-container rounded shadow-lg border border-gray-200 p-2 mb-4">
+                        <div class="comment-display">
+                            {% set userPhoto = comment.user.photoFilename %}
+                            <div class="flex gap-2 items-center">
+                                <div class="h-10 w-10">
+                                    <img src="
+                                        {% if userPhoto %}
+                                            {{ asset('uploads/photos/'~userPhoto) }}
+                                        {% else %}
+                                            {{ asset('images/Avatar.png') }}
+                                        {% endif %}
+                                        "
+                                         alt="photo de profil de {{ comment.user.pseudo }}"
+                                         class="h-10 w-10 rounded-full object-cover">
+                                </div>
+                                <a href="{{ path('view_user_profil', {id: comment.user.id}) }}" class="font-semibold hover:text-blue-500">
+                                    {{ comment.user.pseudo }}
+                                </a>
+                                <div>
+                                    <span>sur la sortie </span>
+                                    <a class="font-semibold hover:text-blue-500" href="{{ path('app_sortie_show', {id: comment.sortie.id}) }}">{{ comment.sortie.name }}</a>
+                                </div>
+                            </div>
+                            <p class="p-3 whitespace-pre-wrap">{{ comment.content }}</p>
+                            <div class="text-end text-gray-500">
+                                {% if is_granted('COMMENT_EDIT', comment) %}
+                                    <button class="edit-comment-btn px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200" data-comment-id="{{ comment.id }}">Modifier</button>
+                                {% endif %}
+                                {% if is_granted('COMMENT_DELETE', comment) %}
+                                    <form action="{{ path('app_comment_delete', {id: comment.id}) }}" method="post" class="inline-flex" onsubmit="return confirm('Êtes vous sûr de vouloir supprimer le commentaire :\n{{ comment.content|escape('js') }}')">
+                                        <input type="hidden" name="redirect" value="{{ path('view_user_profil', {id: comment.user.id}) }}">
+                                        <button class="px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200" type="submit">Supprimer</button>
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete_'~comment.id) }}">
+                                    </form>
+                                {% endif %}
+                                <span class="italic">
+                                    {{ comment.createdAt|date('d/m/Y à H:i') }}
+                                    {% if comment.createdAt < comment.updatedAt %}
+                                        (modifié)
+                                    {% endif %}
+                                </span>
+
+                            </div>
+                        </div>
+
+                        <div class="comment-edit hidden">
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
