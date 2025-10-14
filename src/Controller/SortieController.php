@@ -8,6 +8,7 @@ use App\Entity\City;
 use App\Exception\SortieException;
 use App\Form\CancelSortieFormType;
 use App\Form\SortieFormType;
+use App\Repository\RatingRepository;
 use App\Service\SortieService;
 use App\Service\StateUpdateService;
 use App\Service\WeatherService;
@@ -66,7 +67,7 @@ final class SortieController extends AbstractController
     }
 
     #[Route('/sortie/{id}', name: 'app_sortie_show', methods: ['GET'])]
-    public function show(Sortie $sortie, StateUpdateService $stateUpdateService, WeatherService $weatherService): Response
+    public function show(Sortie $sortie, StateUpdateService $stateUpdateService, WeatherService $weatherService, RatingRepository $ratingRepository): Response
     {
         // Mise à jour automatique du statut de cette sortie
         $stateUpdateService->updateSortieState($sortie);
@@ -93,6 +94,23 @@ final class SortieController extends AbstractController
             }
         }
 
+        // Récupérer les données de notation si la sortie est passée
+        $averageRating = null;
+        $totalRatings = 0;
+        $userRating = null;
+        $recentRatings = [];
+
+        if ($sortie->getState()->value === 'Passée') {
+            $averageRating = $ratingRepository->getAverageRating($sortie);
+            $totalRatings = $ratingRepository->countRatings($sortie);
+
+            if ($user) {
+                $userRating = $ratingRepository->getUserRating($user, $sortie);
+            }
+
+            $recentRatings = $ratingRepository->findBySortieWithUsers($sortie);
+        }
+
         return $this->render('sortie/show.html.twig', [
             'sortie' => $sortie,
             'isParticipant' => $isParticipant,
@@ -100,6 +118,10 @@ final class SortieController extends AbstractController
             'nombreParticipants' => $nombreParticipants,
             'inscriptionsCloturees' => $inscriptionsCloturees,
             'weather' => $weather,
+            'averageRating' => $averageRating,
+            'totalRatings' => $totalRatings,
+            'userRating' => $userRating,
+            'recentRatings' => $recentRatings,
         ]);
     }
 
