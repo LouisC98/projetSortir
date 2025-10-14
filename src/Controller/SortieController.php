@@ -95,13 +95,11 @@ final class SortieController extends AbstractController
         // Mise à jour automatique du statut de cette sortie
         $stateUpdateService->updateSortieState($sortie);
 
+        // Utilisation du Voter pour vérifier les permissions
+        $this->denyAccessUnlessGranted('SORTIE_EDIT', $sortie);
+
         /** @var User $user */
         $user = $this->getUser();
-
-        if ($sortie->getOrganisateur() !== $user) {
-            $this->addFlash("error", "Vous n'êtes pas l'organisateur de cette sortie");
-            return $this->redirectToRoute('app_sortie_show', ['id' => $sortie->getId()]);
-        }
 
         $sortieForm = $this->createForm(SortieFormType::class, $sortie);
         if ($sortie->getPlace() && $sortie->getPlace()->getCity()) {
@@ -137,6 +135,9 @@ final class SortieController extends AbstractController
     #[Route('/sortie/{id}/cancel', name: 'app_sortie_cancel', methods: ['GET', 'POST'])]
     public function cancel(Sortie $sortie, Request $request): Response
     {
+        // Utilisation du Voter pour vérifier les permissions
+        $this->denyAccessUnlessGranted('SORTIE_CANCEL', $sortie);
+
         /** @var User $user */
         $user = $this->getUser();
         $isOrganisateur = $sortie->getOrganisateur() === $user;
@@ -174,6 +175,12 @@ final class SortieController extends AbstractController
             $this->addFlash('error', 'Token CSRF invalide');
         }
 
+        // Utilisation du Voter pour vérifier les permissions
+        if (!$this->isGranted('SORTIE_REGISTER', $sortie)) {
+            $this->addFlash('error', 'Vous ne pouvez pas vous inscrire à cette sortie');
+            return $this->redirectToRoute('app_sortie_show', ['id' => $sortie->getId()]);
+        }
+
         try {
             $this->sortieService->inscrire($sortie, $user);
             $this->addFlash('success', 'Vous êtes inscrit à la sortie : ' . $sortie->getName());
@@ -194,6 +201,12 @@ final class SortieController extends AbstractController
             $this->addFlash('error', 'Token CSRF invalide');
         }
 
+        // Utilisation du Voter pour vérifier les permissions
+        if (!$this->isGranted('SORTIE_UNREGISTER', $sortie)) {
+            $this->addFlash('error', 'Vous ne pouvez pas vous désinscrire de cette sortie');
+            return $this->redirectToRoute('app_sortie_show', ['id' => $sortie->getId()]);
+        }
+
         try {
             $this->sortieService->desinscrire($sortie, $user);
             $this->addFlash('success', 'Vous êtes désinscris de la sortie : ' . $sortie->getName());
@@ -207,6 +220,9 @@ final class SortieController extends AbstractController
     #[Route('/sortie/{id}/delete', name: 'app_sortie_delete', methods: ['POST'])]
     public function delete(Sortie $sortie, Request $request): Response
     {
+        // Utilisation du Voter pour vérifier les permissions
+        $this->denyAccessUnlessGranted('SORTIE_DELETE', $sortie);
+
         /** @var User $user */
         $user = $this->getUser();
 
@@ -228,6 +244,9 @@ final class SortieController extends AbstractController
     #[Route('/sortie/{id}/publier', name: 'app_sortie_publier', methods: ['POST'])]
     public function publier(Sortie $sortie, Request $request): Response
     {
+        // Utilisation du Voter pour vérifier les permissions
+        $this->denyAccessUnlessGranted('SORTIE_PUBLISH', $sortie);
+
         /** @var User $user */
         $user = $this->getUser();
 

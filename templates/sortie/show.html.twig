@@ -203,7 +203,7 @@
                             </form>
                         {% endif %}
 
-                        {% if isOrganisateur or is_granted('ROLE_ADMIN') and sortie.state.value in ['Créée', 'Ouverte'] %}
+                        {% if is_granted('SORTIE_CANCEL', sortie) %}
                             <a href="{{ path('app_sortie_cancel', {id: sortie.id}) }}"
                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
                                 <svg class="w-4 h-4 mr-2" stroke="currentColor" viewBox="0 0 24 24">
@@ -213,7 +213,7 @@
                             </a>
                         {% endif %}
 
-                        {% if isOrganisateur and sortie.state.value in ['Créée', 'Ouverte', 'Clôturée'] %}
+                        {% if is_granted('SORTIE_EDIT', sortie) %}
                             <a href="{{ path('app_sortie_edit', {id: sortie.id}) }}"
                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
                                 <svg class="w-4 h-4 mr-2"  stroke="currentColor" viewBox="0 0 24 24">
@@ -222,7 +222,7 @@
                                 Modifier la sortie
                             </a>
                         {% endif %}
-                        {% if isOrganisateur and sortie.state.value == 'Créée' %}
+                        {% if is_granted('SORTIE_DELETE', sortie) %}
                             <form action="{{ path('app_sortie_delete', {id: sortie.id}) }}" method="post" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette sortie ?');">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete_' ~ sortie.id) }}">
                                 <button type="submit" class="inline-flex h-full items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
@@ -234,7 +234,7 @@
                             </form>
                         {% endif %}
 
-                        {% if not isParticipant and not isOrganisateur and sortie.state.value == 'Ouverte' and nombreParticipants < sortie.maxRegistration and not inscriptionsCloturees %}
+                        {% if is_granted('SORTIE_REGISTER', sortie) %}
                             <form action="{{ path('app_sortie_inscription', {id: sortie.id}) }}" method="post" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
                                 <svg class="w-4 h-4 mr-2" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
