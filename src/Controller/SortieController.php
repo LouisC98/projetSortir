@@ -2,13 +2,17 @@
 
 namespace App\Controller;
 
+use App\Entity\Comment;
 use App\Entity\Sortie;
 use App\Entity\User;
 use App\Entity\City;
 use App\Exception\SortieException;
 use App\Form\CancelSortieFormType;
+use App\Form\CommentType;
 use App\Form\SortieFormType;
 use App\Repository\RatingRepository;
+use App\Repository\CommentRepository;
+use App\Service\CommentService;
 use App\Service\SortieService;
 use App\Service\StateUpdateService;
 use App\Service\WeatherService;
@@ -22,7 +26,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_USER')]
 final class SortieController extends AbstractController
 {
-    public function __construct(private readonly SortieService $sortieService)
+    public function __construct(private readonly SortieService $sortieService, private readonly CommentService $commentService, private readonly CommentRepository $commentRepository)
     {
     }
 
@@ -66,8 +70,8 @@ final class SortieController extends AbstractController
         ]);
     }
 
-    #[Route('/sortie/{id}', name: 'app_sortie_show', methods: ['GET'])]
-    public function show(Sortie $sortie, StateUpdateService $stateUpdateService, WeatherService $weatherService, RatingRepository $ratingRepository): Response
+    #[Route('/sortie/{id}', name: 'app_sortie_show', methods: ['GET', 'POST'])]
+    public function show(Sortie $sortie, StateUpdateService $stateUpdateService, WeatherService $weatherService, RatingRepository $ratingRepository , Request $request): Response
     {
         // Mise à jour automatique du statut de cette sortie
         $stateUpdateService->updateSortieState($sortie);
@@ -111,6 +115,21 @@ final class SortieController extends AbstractController
             $recentRatings = $ratingRepository->findBySortieWithUsers($sortie);
         }
 
+        $newComment = new Comment();
+        $newComment->setSortie($sortie);
+        $newComment->setUser($user);
+        $commentForm = $this->createForm(CommentType::class, $newComment);
+        $commentForm->handleRequest($request);
+
+        if ($commentForm->isSubmitted() && $commentForm->isValid()) {
+            $this->denyAccessUnlessGranted('COMMENT_CREATE', $newComment);
+            $this->commentService->add($newComment);
+
+            return $this->redirectToRoute('app_sortie_show', ['id' => $sortie->getId()]);
+        }
+
+        $comments = $this->commentRepository->findBy(['sortie' => $sortie], ['createdAt' => 'DESC']);
+
         return $this->render('sortie/show.html.twig', [
             'sortie' => $sortie,
             'isParticipant' => $isParticipant,
@@ -118,6 +137,9 @@ final class SortieController extends AbstractController
             'nombreParticipants' => $nombreParticipants,
             'inscriptionsCloturees' => $inscriptionsCloturees,
             'weather' => $weather,
+            'comments' => $comments,
+            'commentForm' => $commentForm->createView(),
+            'newComment' => $newComment,
             'averageRating' => $averageRating,
             'totalRatings' => $totalRatings,
             'userRating' => $userRating,
