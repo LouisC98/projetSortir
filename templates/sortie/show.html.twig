@@ -12,16 +12,6 @@
         {% endfor %}
     {% endfor %}
 
-    {# Debug temporaire - À RETIRER EN PRODUCTION #}
-    {% if app.environment == 'dev' %}
-        <div class="mb-4 px-4 py-3 rounded-lg bg-purple-100 border border-purple-400 text-purple-700">
-            <strong>DEBUG:</strong> Weather data present: {{ weather is not null ? 'OUI' : 'NON' }}
-            {% if weather %}
-                - Type: {{ weather.weather is defined ? 'weather' : (weather.list is defined ? 'forecast' : 'unknown') }}
-            {% endif %}
-        </div>
-    {% endif %}
-
     <div class="max-w-6xl mx-auto">
         <!-- En-tête avec bouton retour -->
         <div class="flex justify-between items-center mb-8">
