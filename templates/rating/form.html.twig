@@ -8,12 +8,12 @@
         <!-- En-tête -->
         <div class="flex justify-between items-center mb-8">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                     {{ isEdit ? 'Modifier votre note' : 'Noter la sortie' }}
                 </h1>
-                <p class="text-gray-600">{{ sortie.name }}</p>
+                <p class="text-gray-600 dark:text-gray-400">{{ sortie.name }}</p>
             </div>
-            <a href="{{ path('app_sortie_show', {id: sortie.id}) }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
+            <a href="{{ path('app_sortie_show', {id: sortie.id}) }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 dark:focus:ring-offset-gray-800">
                 <svg class="w-4 h-4 mr-2" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                 </svg>
@@ -21,9 +21,9 @@
             </a>
         </div>
 
-        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
-            <div class="bg-gradient-to-r from-yellow-50 to-orange-50 px-6 py-4 border-b border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
+            <div class="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-gray-700 dark:to-gray-800 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
                     <svg class="w-5 h-5 mr-2 text-yellow-600"  viewBox="0 0 20 20">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
                     </svg>
@@ -34,12 +34,12 @@
             <div class="p-8">
                 {{ form_start(form, {'attr': {'class': 'space-y-6'}}) }}
 
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <div class="bg-blue-50 dark:bg-gray-700 border border-blue-200 dark:border-blue-500 rounded-lg p-4 mb-6">
                     <div class="flex">
-                        <svg class="w-5 h-5 text-blue-500 mr-3 flex-shrink-0 mt-0.5" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5 text-blue-500 dark:text-blue-400 mr-3 flex-shrink-0 mt-0.5" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        <div class="text-sm text-blue-700">
+                        <div class="text-sm text-blue-700 dark:text-blue-300">
                             <p class="font-medium mb-1">À propos de cette note :</p>
                             <ul class="list-disc list-inside space-y-1">
                                 <li>Votre note aide les autres participants à choisir leurs futures sorties</li>
@@ -51,29 +51,29 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         <svg class="w-4 h-4 inline mr-1"  viewBox="0 0 20 20">
                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
                         </svg>
                         Note *
                     </label>
-                    {{ form_widget(form.score, {'attr': {'class': 'w-full rounded-lg border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 focus:ring-2 transition-all duration-200 py-3 px-4 text-base'}}) }}
+                    {{ form_widget(form.score, {'attr': {'class': 'w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-yellow-500 focus:ring-yellow-500 focus:ring-2 transition-all duration-200 py-3 px-4 text-base'}}) }}
                     {{ form_errors(form.score) }}
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         <svg class="w-4 h-4 inline mr-1" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
                         </svg>
                         Commentaire
                     </label>
-                    {{ form_widget(form.comment, {'attr': {'class': 'w-full rounded-lg border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 focus:ring-2 transition-all duration-200 py-3 px-4 text-base'}}) }}
+                    {{ form_widget(form.comment, {'attr': {'class': 'w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-yellow-500 focus:ring-yellow-500 focus:ring-2 transition-all duration-200 py-3 px-4 text-base'}}) }}
                     {{ form_errors(form.comment) }}
                 </div>
 
-                <div class="flex gap-4 justify-end pt-4 border-t border-gray-200">
-                    <a href="{{ path('app_sortie_show', {id: sortie.id}) }}" class="px-6 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-medium transition-colors">
+                <div class="flex gap-4 justify-end pt-4 border-t border-gray-200 dark:border-gray-600">
+                    <a href="{{ path('app_sortie_show', {id: sortie.id}) }}" class="px-6 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-medium transition-colors dark:bg-gray-600 dark:text-gray-300 dark:hover:bg-gray-500">
                         Annuler
                     </a>
                     <button type="submit" class="inline-flex items-center px-8 py-3 font-semibold text-base text-white bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg shadow-md hover:from-yellow-600 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transform hover:-translate-y-0.5 transition-all duration-200">

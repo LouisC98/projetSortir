@@ -1,5 +1,6 @@
 import './bootstrap.js';
 import './js/sortie_form.js';
+import './js/theme_switcher.js';
 
 /*
  * Welcome to your app's main JavaScript file!

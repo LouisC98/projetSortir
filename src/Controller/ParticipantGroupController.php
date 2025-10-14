@@ -61,9 +61,13 @@ class ParticipantGroupController extends AbstractController
             return $this->redirectToRoute('app_groups_index');
         }
 
+        // Récupérer tous les utilisateurs actifs pour la sélection
+        $allUsers = $em->getRepository(User::class)->findBy(['active' => true], ['pseudo' => 'ASC']);
+
         return $this->render('groups/form.html.twig', [
             'form' => $form,
             'group' => $group,
+            'allUsers' => $allUsers,
         ]);
     }
 
@@ -116,9 +120,13 @@ class ParticipantGroupController extends AbstractController
             array_map(fn($gm) => $gm->getUser(), $group->getMembers()->toArray())
         );
 
+        // Récupérer tous les utilisateurs actifs pour la sélection
+        $allUsers = $em->getRepository(User::class)->findBy(['active' => true], ['pseudo' => 'ASC']);
+
         return $this->render('groups/form.html.twig', [
             'form' => $form,
             'group' => $group,
+            'allUsers' => $allUsers,
         ]);
     }
 

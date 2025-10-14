@@ -1,22 +1,23 @@
-<nav class="bg-gradient-to-r from-blue-50 to-indigo-50 shadow-lg border-b border-blue-100">
+<nav class="bg-gradient-to-r from-blue-50 to-indigo-50 shadow-lg border-b border-blue-100 dark:bg-gradient-to-r dark:from-gray-800 dark:to-gray-900 dark:border-gray-700">
     <div class="container mx-auto px-4 py-4 flex justify-between items-center">
         <!-- Logo -->
         <a href="{{ path('home') }}" class="flex items-center space-x-3 hover:scale-105 transition-all duration-200 group">
             <div class="relative">
-                <img src="{{ asset('images/logo1.png') }}" alt="Sortir.com" class="h-12 w-auto drop-shadow-md group-hover:drop-shadow-lg transition-all duration-200">
+                <img id="logo-light" src="{{ asset('images/logo-light.png') }}" alt="Sortir.com" class="h-12 w-auto drop-shadow-md group-hover:drop-shadow-lg transition-all duration-200">
+                <img id="logo-dark" src="{{ asset('images/logo-dark1.png') }}" alt="Sortir.com" class="h-12 w-auto drop-shadow-md group-hover:drop-shadow-lg transition-all duration-200 hidden">
                 <div class="absolute -inset-2 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-200 blur-sm"></div>
             </div>
         </a>
 
         <!-- Menu principal (desktop) -->
         <div class="hidden md:flex items-center space-x-6">
-            <a href="{{ path('home') }}" class="relative text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 group">
+            <a href="{{ path('home') }}" class="relative text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 group dark:text-gray-300 dark:hover:text-white">
                 <span class="relative z-10">Accueil</span>
                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-600 rounded-md opacity-0 group-hover:opacity-10 transition-opacity duration-200"></div>
             </a>
 
             {% if is_granted('IS_AUTHENTICATED_FULLY') %}
-            <a href="{{ path('app_groups_index') }}" class="relative text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 group">
+            <a href="{{ path('app_groups_index') }}" class="relative text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 group dark:text-gray-300 dark:hover:text-white">
                 <span class="relative z-10">Mes groupes</span>
                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-600 rounded-md opacity-0 group-hover:opacity-10 transition-opacity duration-200"></div>
             </a>
@@ -24,29 +25,29 @@
 
             {% if is_granted('ROLE_ADMIN') %}
             <div class="relative group">
-                <button class="relative text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 flex items-center space-x-1 px-3 py-2 rounded-md group-hover:bg-blue-50">
+                <button class="relative text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 flex items-center space-x-1 px-3 py-2 rounded-md group-hover:bg-blue-50 dark:text-gray-300 dark:hover:text-white dark:group-hover:bg-gray-700">
                     <span class="relative z-10">Gestion des utilisateurs</span>
                     <svg class="w-4 h-4 transform group-hover:rotate-180 transition-transform duration-200" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
                 </button>
                 <!-- Dropdown menu -->
-                <div class="absolute left-0 mt-2 w-56 rounded-lg shadow-lg bg-white border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div class="absolute left-0 mt-2 w-56 rounded-lg shadow-lg bg-white border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 dark:bg-gray-800 dark:border-gray-700">
                     <div class="py-2">
-                        <a href="{{ path('admin_users_list') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-150">
+                        <a href="{{ path('admin_users_list') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-150 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white">
                             <svg class="w-4 h-4 mr-3" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                             </svg>
                             Liste des utilisateurs
                         </a>
-                        <a href="{{ path('admin_users_create') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-150">
+                        <a href="{{ path('admin_users_create') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-150 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white">
                             <svg class="w-4 h-4 mr-3" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
                             </svg>
                             Créer un utilisateur
                         </a>
-                        <div class="border-t border-gray-200 my-1"></div>
-                        <a href="{{ path('admin_users_import') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-150">
+                        <div class="border-t border-gray-200 my-1 dark:border-gray-700"></div>
+                        <a href="{{ path('admin_users_import') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-150 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white">
                             <svg class="w-4 h-4 mr-3" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
                             </svg>
@@ -55,7 +56,7 @@
                     </div>
                 </div>
             </div>
-            <a href="{{ path('app_site_list') }}" class="relative text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 group">
+            <a href="{{ path('app_site_list') }}" class="relative text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 group dark:text-gray-300 dark:hover:text-white">
                 <span class="relative z-10">Gestion des sites</span>
                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-600 rounded-md opacity-0 group-hover:opacity-10 transition-opacity duration-200"></div>
             </a>
@@ -64,13 +65,13 @@
             {% if is_granted('IS_AUTHENTICATED_FULLY') %}
                 <div class="flex items-center space-x-4">
                     <!-- Photo de profil + pseudo -->
-                    <a href="{{ path('view_profil') }}" class="flex items-center bg-white bg-opacity-70 backdrop-blur-sm rounded-full pl-2 pr-4 py-2 shadow-sm border border-blue-100 hover:bg-blue-50 hover:shadow-md transition-all duration-200 relative z-10">
+                    <a href="{{ path('view_profil') }}" class="flex items-center bg-white bg-opacity-70 backdrop-blur-sm rounded-full pl-2 pr-4 py-2 shadow-sm border border-blue-100 hover:bg-blue-50 hover:shadow-md transition-all duration-200 relative z-10 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
                         <img
                                 src="{{ app.user.photoFilename ? asset('uploads/photos/' ~ app.user.photoFilename) : asset('images/Avatar.png') }}"
                                 alt="Photo de profil"
-                                class="w-8 h-8 rounded-full object-cover border border-blue-200 mr-2"
+                                class="w-8 h-8 rounded-full object-cover border border-blue-200 mr-2 dark:border-gray-600"
                         >
-                        <span class="text-sm font-medium text-gray-700">{{ app.user.pseudo }}</span>
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ app.user.pseudo }}</span>
                     </a>
 
                     <!-- Déconnexion -->
@@ -78,7 +79,7 @@
                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
                         <svg class="w-4 h-4 mr-2" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                         </svg>
                         Déconnexion
                     </a>
@@ -90,17 +91,38 @@
                         Connexion
                     </a>
                     <a href="{{ path('app_register') }}"
-                       class="inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium rounded-lg text-blue-700 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 transition-all duration-200">
+                       class="inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium rounded-lg text-blue-700 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 transition-all duration-200 dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600">
                         Inscription
                     </a>
                 </div>
             {% endif %}
+
+            <!-- Theme Switcher -->
+            <div class="flex items-center ml-4">
+                <label for="theme-switcher" class="flex items-center cursor-pointer">
+                    <div class="relative">
+                        <input type="checkbox" id="theme-switcher" class="sr-only theme-switcher-input">
+                        <div class="block bg-gray-200  w-10 h-6 rounded-full"></div>
+                        <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform"></div>
+                    </div>
+                    <div class="ml-3 text-gray-700 dark:text-gray-300 relative w-6 h-6">
+                        <!-- Icône Soleil (visible en light mode) -->
+                        <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500 absolute inset-0 transition-all duration-500 transform" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path>
+                        </svg>
+                        <!-- Icône Lune (visible en dark mode) -->
+                        <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-400 absolute inset-0 transition-all duration-500 transform opacity-0 rotate-180 scale-0" viewBox="0 0 20 20">
+                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                        </svg>
+                    </div>
+                </label>
+            </div>
         </div>
 
         <!-- Bouton mobile -->
-        <button id="menu-toggle" class="md:hidden p-2 rounded-lg bg-white bg-opacity-70 backdrop-blur-sm border border-blue-200 hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm hover:shadow-md transition-all duration-200 group">
-            <svg class="w-6 h-6 text-gray-700 group-hover:text-blue-600 transition-colors duration-200" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        <button id="menu-toggle" class="md:hidden p-2 rounded-lg bg-white bg-opacity-70 backdrop-blur-sm border border-blue-200 hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm hover:shadow-md transition-all duration-200 group dark:bg-gray-700 dark:border-gray-600">
+            <svg class="w-6 h-6 text-gray-700 group-hover:text-blue-600 transition-colors duration-200 dark:text-gray-300" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
             </svg>
         </button>
     </div>
@@ -109,50 +131,58 @@
     <div id="mobile-overlay" class="fixed inset-0 bg-black opacity-50 z-40 hidden duration-300 md:hidden"></div>
 
     <!-- Menu mobile (slide depuis la droite) -->
-    <div id="mobile-menu" class="fixed top-0 right-0 h-full w-80 max-w-full bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out md:hidden overflow-y-auto">
+    <div id="mobile-menu" class="fixed top-0 right-0 h-full w-80 max-w-full bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out md:hidden overflow-y-auto dark:bg-gray-800">
         <div class="flex flex-col h-full">
             <!-- En-tête du menu mobile -->
-            <div class="flex justify-between items-center p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
-                <h2 class="text-lg font-semibold text-gray-800">Menu</h2>
-                <button id="menu-close" class="p-2 rounded-lg hover:bg-blue-100 transition-colors duration-200">
-                    <svg class="w-6 h-6 text-gray-700" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            <div class="flex justify-between items-center p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 dark:bg-gradient-to-r dark:from-gray-700 dark:to-gray-800 dark:border-gray-700">
+                <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Menu</h2>
+                <button id="menu-close" class="p-2 rounded-lg hover:bg-blue-100 transition-colors duration-200 dark:hover:bg-gray-600">
+                    <svg class="w-6 h-6 text-gray-700 dark:text-gray-300" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
 
             <!-- Contenu du menu -->
             <div class="flex-1 flex flex-col px-4 py-4 space-y-3 overflow-y-auto">
-                <a href="{{ path('home') }}" class="flex items-center text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-3 py-3 rounded-lg transition-all duration-200">
+                <a href="{{ path('home') }}" class="flex items-center text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-3 py-3 rounded-lg transition-all duration-200 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white">
                     <svg class="w-5 h-5 mr-3" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                     </svg>
                     Accueil
                 </a>
 
+                {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                <a href="{{ path('app_groups_index') }}" class="flex items-center text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-3 py-3 rounded-lg transition-all duration-200 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white">
+                    <svg class="w-5 h-5 mr-3" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                    Mes groupes
+                </a>
+                {% endif %}
 
                 {% if is_granted('ROLE_ADMIN') %}
-                <div class="border-t border-gray-200 pt-3 mt-2">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 mb-3">Administration</p>
-                    <a href="{{ path('admin_users_list') }}" class="flex items-center text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-3 py-3 rounded-lg transition-all duration-200">
+                <div class="border-t border-gray-200 pt-3 mt-2 dark:border-gray-700">
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 mb-3 dark:text-gray-400">Administration</p>
+                    <a href="{{ path('admin_users_list') }}" class="flex items-center text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-3 py-3 rounded-lg transition-all duration-200 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white">
                         <svg class="w-5 h-5 mr-3" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                         </svg>
                         Liste des utilisateurs
                     </a>
-                    <a href="{{ path('admin_users_create') }}" class="flex items-center text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-3 py-3 rounded-lg transition-all duration-200">
+                    <a href="{{ path('admin_users_create') }}" class="flex items-center text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-3 py-3 rounded-lg transition-all duration-200 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white">
                         <svg class="w-5 h-5 mr-3" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
                         </svg>
                         Créer un utilisateur
                     </a>
-                    <a href="{{ path('admin_users_import') }}" class="flex items-center text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-3 py-3 rounded-lg transition-all duration-200">
+                    <a href="{{ path('admin_users_import') }}" class="flex items-center text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-3 py-3 rounded-lg transition-all duration-200 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white">
                         <svg class="w-5 h-5 mr-3" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
                         </svg>
                         Importer des utilisateurs
                     </a>
-                    <a href="{{ path('app_site_list') }}" class="flex items-center text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-3 py-3 rounded-lg transition-all duration-200">
+                    <a href="{{ path('app_site_list') }}" class="flex items-center text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-3 py-3 rounded-lg transition-all duration-200 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white">
                         <svg class="w-5 h-5 mr-3" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m-1 4h1m5-4h1m-1 4h1m-1-4h1m-1-8h1"></path>
                         </svg>
@@ -162,26 +192,26 @@
                 {% endif %}
 
                 {% if is_granted('IS_AUTHENTICATED_FULLY') %}
-                    <div class="border-t border-gray-200 pt-3 mt-auto">
-                        <a href="{{ path('view_profil') }}" class="flex items-center bg-blue-50 border border-blue-200 rounded-lg p-3 hover:bg-blue-100 transition mb-3">
+                    <div class="border-t border-gray-200 pt-3 mt-auto dark:border-gray-700">
+                        <a href="{{ path('view_profil') }}" class="flex items-center bg-blue-50 border border-blue-200 rounded-lg p-3 hover:bg-blue-100 transition mb-3 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600">
                             <img
-                                    src="{{ app.user.photoFilename ? asset('uploads/photos/' ~ app.user.photoFilename) : asset('/uploads/photos/Avatar.png') }}"
+                                    src="{{ app.user.photoFilename ? asset('uploads/photos/' ~ app.user.photoFilename) : asset('images/Avatar.png') }}"
                                     alt="Photo de profil"
-                                    class="w-6 h-6 rounded-full object-cover border border-blue-200 mr-2"
+                                    class="w-6 h-6 rounded-full object-cover border border-blue-200 mr-2 dark:border-gray-600"
                             >
-                            <span class="font-medium text-gray-800">{{ app.user.pseudo }}</span>
+                            <span class="font-medium text-gray-800 dark:text-white">{{ app.user.pseudo }}</span>
                         </a>
                         <a href="{{ path('app_logout') }}"
                            class="flex items-center justify-center px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
                             <svg class="w-5 h-5 mr-2" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                             </svg>
                             Déconnexion
                         </a>
                     </div>
                 {% else %}
-                    <div class="border-t border-gray-200 pt-3 mt-auto space-y-3">
+                    <div class="border-t border-gray-200 pt-3 mt-auto space-y-3 dark:border-gray-700">
                         <a href="{{ path('app_login') }}"
                            class="flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
                             <svg class="w-5 h-5 mr-2" stroke="currentColor" viewBox="0 0 24 24">
@@ -190,7 +220,7 @@
                             Connexion
                         </a>
                         <a href="{{ path('app_register') }}"
-                           class="flex items-center justify-center px-4 py-3 border border-blue-300 text-blue-700 bg-white hover:bg-blue-50 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md">
+                           class="flex items-center justify-center px-4 py-3 border border-blue-300 text-blue-700 bg-white hover:bg-blue-50 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600">
                             <svg class="w-5 h-5 mr-2" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
                             </svg>
