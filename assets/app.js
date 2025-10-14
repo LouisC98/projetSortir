@@ -55,3 +55,5 @@ function initializeMobileMenu() {
 document.addEventListener('DOMContentLoaded', initializeMobileMenu);
 document.addEventListener('turbo:load', initializeMobileMenu);
 document.addEventListener('turbo:render', initializeMobileMenu);
+
+import './js/comment_manager.js';
