@@ -208,4 +208,22 @@ class SortieRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getSingleScalarResult();
     }
+
+    /**
+     * Trouve les sorties pour les rappels
+     * @return Sortie[]
+     */
+    public function findForReminders(\DateTime $from, \DateTime $to): array
+    {
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.startDateTime BETWEEN :from AND :to')
+            ->setParameter('from', $from)
+            ->setParameter('to', $to)
+            ->andWhere('s.state IN (:states)')
+            ->setParameter('states', [
+                State::OPEN->value,
+            ])
+            ->getQuery()
+            ->getResult();
+    }
 }

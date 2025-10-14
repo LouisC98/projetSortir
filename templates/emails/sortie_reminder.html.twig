@@ -1,0 +1,35 @@
+{% extends 'emails/_base_email.html.twig' %}
+
+{% block email_title %}Rappel pour votre sortie{% endblock %}
+
+{% block email_content %}
+    <h1>Rappel : la sortie approche !</h1>
+
+    <p>
+        Bonjour {{ user.firstname }},
+    </p>
+
+    <p>
+        Ceci est un simple rappel concernant votre inscription à la sortie <strong>{{ sortie.name }}</strong>.
+        Elle commencera dans moins de {{ reminderType }}.
+    </p>
+
+    <p>
+        <strong>Date et heure de début :</strong> {{ sortie.startDateTime|date('d/m/Y à H:i') }}
+    </p>
+
+    <p>
+        Vous pouvez consulter les derniers détails de la sortie, voir les autres participants ou laisser un commentaire en cliquant sur le bouton ci-dessous.
+    </p>
+
+    <div class="button-container">
+        <a href="{{ url('app_sortie_show', {id: sortie.id}) }}" class="button button-green">
+            Voir les détails de la sortie
+        </a>
+    </div>
+
+    <p style="margin-top: 30px;">
+        Nous vous souhaitons de bien vous amuser !<br>
+        L'équipe Sortir.com
+    </p>
+{% endblock %}
