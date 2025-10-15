@@ -62,12 +62,7 @@
                 <!-- Nom du groupe -->
                 <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 border border-gray-200 dark:border-gray-600">
                     <div class="space-y-2">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            <svg class="w-4 h-4 inline mr-1" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                            </svg>
-                            Nom du groupe *
-                        </label>
+                        {{ form_label(form.name, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'}}) }}
                         {{ form_widget(form.name, {'attr': {'class': 'w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:ring-2 transition-all duration-200 py-3 px-4 text-base', 'placeholder': 'Ex: Mes amis proches'}}) }}
                         {{ form_errors(form.name) }}
                     </div>
@@ -76,12 +71,10 @@
                 <!-- Sélection des participants -->
                 <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 border border-gray-200 dark:border-gray-600">
                     <div class="space-y-4">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            <svg class="w-4 h-4 inline mr-1" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                            </svg>
-                            Participants
-                        </label>
+                        <div class="flex items-center justify-between mb-4">
+                            {{ form_label(form.members, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 dark:text-gray-300'}}) }}
+                            <span id="selectedCount" class="text-sm text-blue-600 dark:text-blue-400 font-semibold">0 sélectionné(s)</span>
+                        </div>
 
                         <!-- Barre de recherche -->
                         <div class="mb-4">
@@ -91,54 +84,40 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                     </svg>
                                 </div>
-                                <label for="searchParticipants"></label>
                                 <input type="text"
                                        id="searchParticipants"
-                                       class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                       class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all"
                                        placeholder="Rechercher un participant...">
                             </div>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                                <span id="selectedCount">0</span> participant(s) sélectionné(s)
-                            </p>
                         </div>
 
-                        <!-- Actions rapides -->
-                        <div class="flex gap-2 mb-3">
+                        <!-- Boutons de sélection rapide -->
+                        <div class="flex gap-2 mb-4">
                             <button type="button"
                                     id="selectAll"
-                                    class="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors">
+                                    class="inline-flex items-center text-xs px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800">
+                                <svg class="w-3 h-3 mr-1"  stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
                                 Tout sélectionner
                             </button>
                             <button type="button"
                                     id="deselectAll"
-                                    class="text-xs px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors">
+                                    class="inline-flex items-center text-xs px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors dark:bg-gray-600 dark:text-gray-300 dark:hover:bg-gray-500">
+                                <svg class="w-3 h-3 mr-1"  stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
                                 Tout désélectionner
                             </button>
                         </div>
 
-                        <!-- Liste des participants avec checkboxes -->
-                        <div id="participantsList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-h-96 overflow-y-auto pr-2">
-                            {% for user in allUsers %}
-                                {% set isMember = false %}
-                                {% for member in group.members %}
-                                    {% if member.user.id == user.id %}
-                                        {% set isMember = true %}
-                                    {% endif %}
-                                {% endfor %}
-                                <label for="user_{{ user.id }}" class="participant-item flex items-center p-3 rounded-lg border border-gray-200 hover:bg-blue-50 cursor-pointer transition-all duration-200 dark:border-gray-600 dark:hover:bg-gray-600">
-                                    <input type="checkbox"
-                                           id="user_{{ user.id }}"
-                                           name="group[users][]"
-                                           value="{{ user.id }}"
-                                           class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mr-3"
-                                           {% if isMember %}checked{% endif %}>
-                                    <img src="{{ user.photoFilename ? asset('uploads/photos/' ~ user.photoFilename) : asset('images/Avatar.png') }}"
-                                         alt="Photo de {{ user.pseudo }}"
-                                         class="w-8 h-8 rounded-full object-cover mr-3 border border-gray-300">
-                                    <span class="text-sm font-medium text-gray-800 dark:text-gray-300">{{ user.pseudo }}</span>
-                                </label>
-                            {% endfor %}
+                        <!-- Liste des participants en grille -->
+                        <div id="participantsList" class="max-h-96 overflow-y-auto border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-white dark:bg-gray-800">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                {{ form_widget(form.members) }}
+                            </div>
                         </div>
+                        {{ form_errors(form.members) }}
                     </div>
                 </div>
 
@@ -155,12 +134,7 @@
                     </button>
                 </div>
 
-                {# Rendre le champ members de façon cachée pour la soumission du formulaire #}
-                <div style="display: none;">
-                    {{ form_widget(form.members) }}
-                </div>
-
-                {{ form_end(form, {'render_rest': false}) }}
+                {{ form_end(form) }}
             </div>
         </div>
     </div>
@@ -169,36 +143,168 @@
 
 {% block javascripts %}
     {{ parent() }}
+    <style>
+        /* Styles personnalisés pour les checkboxes */
+        #participantsList .grid > div {
+            display: flex;
+            align-items: center;
+        }
+
+        #participantsList input[type="checkbox"] {
+            width: 1.125rem;
+            height: 1.125rem;
+            margin-right: 0;
+            border-radius: 0.375rem;
+            border: 2px solid #D1D5DB;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            accent-color: #3B82F6;
+        }
+
+        #participantsList input[type="checkbox"]:hover {
+            border-color: #3B82F6;
+        }
+
+        #participantsList input[type="checkbox"]:checked {
+            background-color: #3B82F6;
+            border-color: #3B82F6;
+        }
+
+        #participantsList label {
+            display: flex;
+            align-items: center;
+            padding: 0.625rem 0.875rem;
+            border: 1px solid #E5E7EB;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background-color: #FFFFFF;
+            gap: 0.625rem;
+        }
+
+        #participantsList label:hover {
+            background-color: #EFF6FF;
+            border-color: #93C5FD;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        #participantsList input[type="checkbox"]:checked + label,
+        #participantsList label:has(input[type="checkbox"]:checked) {
+            background-color: #DBEAFE;
+            border-color: #3B82F6;
+            font-weight: 500;
+        }
+
+        /* Dark mode */
+        .dark #participantsList label {
+            background-color: #374151;
+            border-color: #4B5563;
+            color: #F3F4F6;
+        }
+
+        .dark #participantsList label:hover {
+            background-color: #4B5563;
+            border-color: #60A5FA;
+        }
+
+        .dark #participantsList input[type="checkbox"]:checked + label,
+        .dark #participantsList label:has(input[type="checkbox"]:checked) {
+            background-color: #1E3A8A;
+            border-color: #3B82F6;
+        }
+
+        .dark #participantsList input[type="checkbox"] {
+            border-color: #6B7280;
+        }
+
+        /* Animation du compteur */
+        #selectedCount {
+            animation: pulse-subtle 0.3s ease;
+        }
+
+        @keyframes pulse-subtle {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+    </style>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const selectedCount = document.getElementById('selectedCount');
             const searchInput = document.getElementById('searchParticipants');
             const participantsList = document.getElementById('participantsList');
-            const participantItems = Array.from(participantsList.getElementsByClassName('participant-item'));
+            const allCheckboxes = participantsList.querySelectorAll('input[type="checkbox"]');
+            const allLabels = participantsList.querySelectorAll('label');
 
+            // Fonction pour mettre à jour le compteur
             function updateSelectedCount() {
-                selectedCount.textContent = participantsList.querySelectorAll('input[type="checkbox"]:checked').length;
+                const count = Array.from(allCheckboxes).filter(cb => cb.checked).length;
+                selectedCount.textContent = count + ' sélectionné' + (count > 1 ? 's' : '');
+                selectedCount.style.animation = 'none';
+                setTimeout(() => {
+                    selectedCount.style.animation = 'pulse-subtle 0.3s ease';
+                }, 10);
             }
 
-            searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
-                participantItems.forEach(function(item) {
-                    const pseudo = item.querySelector('span').textContent.toLowerCase();
-                    if (pseudo.includes(searchTerm)) {
-                        item.style.display = 'flex';
-                    } else {
-                        item.style.display = 'none';
-                    }
-                });
-            });
-
+            // Écouter les changements de checkbox
             participantsList.addEventListener('change', function(e) {
                 if (e.target.type === 'checkbox') {
                     updateSelectedCount();
                 }
             });
 
-            // Initial count
+            // Fonction de recherche
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                let visibleCount = 0;
+
+                allLabels.forEach(function(label) {
+                    const text = label.textContent.toLowerCase();
+                    const parentDiv = label.parentElement;
+
+                    if (text.includes(searchTerm)) {
+                        parentDiv.style.display = 'flex';
+                        visibleCount++;
+                    } else {
+                        parentDiv.style.display = 'none';
+                    }
+                });
+
+                // Afficher un message si aucun résultat
+                let noResultMsg = document.getElementById('noResultMessage');
+                if (visibleCount === 0 && searchTerm !== '') {
+                    if (!noResultMsg) {
+                        noResultMsg = document.createElement('div');
+                        noResultMsg.id = 'noResultMessage';
+                        noResultMsg.className = 'col-span-full text-center py-8 text-gray-500 dark:text-gray-400';
+                        noResultMsg.innerHTML = '<svg class="w-12 h-12 mx-auto mb-2 text-gray-400"  stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><p>Aucun participant trouvé</p>';
+                        participantsList.querySelector('.grid').appendChild(noResultMsg);
+                    }
+                } else if (noResultMsg) {
+                    noResultMsg.remove();
+                }
+            });
+
+            // Bouton "Tout sélectionner"
+            document.getElementById('selectAll').addEventListener('click', function() {
+                allLabels.forEach(function(label) {
+                    const parentDiv = label.parentElement;
+                    if (parentDiv.style.display !== 'none') {
+                        const checkbox = label.querySelector('input[type="checkbox"]') || parentDiv.querySelector('input[type="checkbox"]');
+                        if (checkbox) checkbox.checked = true;
+                    }
+                });
+                updateSelectedCount();
+            });
+
+            // Bouton "Tout désélectionner"
+            document.getElementById('deselectAll').addEventListener('click', function() {
+                allCheckboxes.forEach(cb => cb.checked = false);
+                updateSelectedCount();
+            });
+
+            // Initialiser le compteur
             updateSelectedCount();
         });
     </script>
