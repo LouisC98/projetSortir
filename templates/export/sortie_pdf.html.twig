@@ -5,37 +5,35 @@
     <title>Détails de la sortie : {{ sortie.name }}</title>
     <style>
         @page {
-            margin: 0.5cm;
+            margin: 1cm;
         }
         body {
             font-family: DejaVu Sans, sans-serif;
             font-size: 9pt;
-            color: #374151; /* text-gray-700 */
-            /*background-color: #F3F4F6;*/
+            color: #374151;
+            padding-bottom: 30px;
         }
         .logo {
             text-align: center;
-            padding: 10px 0;
+            padding-bottom: 10px;
         }
         .logo img {
-            max-height: 60px;
+            max-height: 50px;
         }
         .card {
             background-color: #FFFFFF;
-            border: 1px solid #E5E7EB; /* gray-200 */
-            border-radius: 8px;
-            margin: 10px;
+            border: none;
+            margin: 0;
         }
         .card-header {
-            background-color: #EFF6FF; /* blue-50 */
+            background-color: #EFF6FF;
             padding: 12px 15px;
-            border-bottom: 1px solid #DBEAFE; /* blue-200 */
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
+            border-bottom: 1px solid #DBEAFE;
+            border-radius: 8px;
         }
         .card-header h1 {
             font-size: 18pt;
-            color: #111827; /* gray-900 */
+            color: #111827;
             margin: 0;
             padding: 0;
             width: 70%;
@@ -47,33 +45,37 @@
             text-align: right;
         }
         .card-body {
-            padding: 15px;
+            padding: 15px 0;
         }
-        .card-footer {
-            background-color: #F9FAFB; /* gray-50 */
-            padding: 10px 15px;
-            border-top: 1px solid #E5E7EB; /* gray-200 */
-            font-size: 8pt;
-            color: #6B7280; /* gray-500 */
+        .page-footer {
+            position: fixed;
+            bottom: -1rem; /* Aligné avec le bas de la marge de la page */
+            left: 0;
+            right: 0;
             text-align: center;
-            border-bottom-left-radius: 8px;
-            border-bottom-right-radius: 8px;
+            font-size: 8pt;
+            color: #6B7280;
+            border-top: 1px solid #E5E7EB;
+            padding-top: 5px;
+            background-color: #FFFFFF; /* Fond blanc pour ne pas être transparent */
         }
         h2 {
             font-size: 13pt;
-            color: #111827; /* gray-900 */
-            margin-top: 15px;
+            color: #111827;
+            margin-top: 0;
             margin-bottom: 10px;
-            border-bottom: 1px solid #E5E7EB; /* gray-200 */
+            border-bottom: 1px solid #E5E7EB;
             padding-bottom: 5px;
         }
+        .section-block {
+            page-break-inside: avoid;
+            margin-bottom: 15px;
+        }
         .info-section {
-            background-color: #F9FAFB; /* gray-50 */
-            border: 1px solid #E5E7EB; /* gray-200 */
+            background-color: #F9FAFB;
+            border: 1px solid #E5E7EB;
             border-radius: 6px;
             padding: 10px;
-            margin-bottom: 15px;
-            page-break-inside: avoid;
         }
         .info-table {
             width: 100%;
@@ -82,14 +84,14 @@
         .info-table td {
             padding: 4px 0;
             font-size: 9pt;
-            border-bottom: 1px solid #F3F4F6; /* gray-100 */
+            border-bottom: 1px solid #F3F4F6;
         }
         .info-table tr:last-child td {
             border-bottom: none;
         }
         .info-table .label {
             font-weight: bold;
-            color: #4B5563; /* gray-600 */
+            color: #4B5563;
             width: 40%;
         }
         .info-table .value {
@@ -112,12 +114,10 @@
         .badge-annulee { background-color: #FEE2E2; color: #991B1B; }
 
         .description-block {
-            background-color: #EFF6FF; /* blue-50 */
-            border: 1px solid #DBEAFE; /* blue-200 */
+            background-color: #EFF6FF;
+            border: 1px solid #DBEAFE;
             border-radius: 6px;
             padding: 12px;
-            page-break-inside: avoid;
-            margin-top: 10px;
         }
         .description-block p {
             white-space: pre-wrap;
@@ -130,19 +130,18 @@
             margin: 0;
         }
         .participants-list li {
-            background-color: #F9FAFB; /* gray-50 */
+            background-color: #F9FAFB;
             padding: 5px 8px;
             margin-bottom: 4px;
             border-radius: 4px;
-            border: 1px solid #E5E7EB; /* gray-200 */
+            border: 1px solid #E5E7EB;
             font-size: 8.5pt;
-            page-break-inside: avoid;
         }
         .participants-block strong {
-            color: #F59E0B; /* amber-500 */
+            color: #F59E0B;
         }
         .comments-block .comment {
-            border: 1px solid #E5E7EB; /* gray-200 */
+            border: 1px solid #E5E7EB;
             border-radius: 6px;
             padding: 8px;
             margin-bottom: 8px;
@@ -150,14 +149,14 @@
         }
         .comment-author {
             font-weight: bold;
-            color: #111827; /* gray-900 */
+            color: #111827;
         }
         .comment-date {
             font-size: 8pt;
-            color: #6B7280; /* gray-500 */
+            color: #6B7280;
         }
         .comment-content {
-            background-color: #F9FAFB; /* gray-50 */
+            background-color: #F9FAFB;
             border-radius: 4px;
             padding: 8px;
             margin-top: 5px;
@@ -184,7 +183,7 @@
     </div>
 
     <div class="card">
-        <div class="card-header">
+        <div class="card-header section-block">
             <h1>{{ sortie.name }}</h1>
             <div class="state-badge">
                 {% if sortie.state %}
@@ -205,153 +204,119 @@
         </div>
 
         <div class="card-body">
-            <table style="width:100%; border:0;">
-                <tr style="border:0;">
-                    <td class="w-half pr-2" style="border:0;">
-                        <h2>Informations générales</h2>
-                        <div class="info-section">
-                            <table class="info-table">
-                                <tr><td class="label">Date et heure</td><td class="value">{{ sortie.startDateTime|date('d/m/Y à H:i') }}</td></tr>
-                                <tr><td class="label">Durée</td><td class="value">{{ (sortie.duration / 60)|round(0) }}h {{ sortie.duration % 60 }}min</td></tr>
-                                <tr><td class="label">Date limite</td><td class="value">{{ sortie.registrationDeadline|date('d/m/Y') }}</td></tr>
-                                <tr><td class="label">Places</td><td class="value">{{ sortie.participants|length }} / {{ sortie.maxRegistration }}</td></tr>
-                                <tr><td class="label">Organisateur</td><td class="value">{{ sortie.organisateur.pseudo }}</td></tr>
-                                <tr><td class="label">Site</td><td class="value">{{ sortie.site.name }}</td></tr>
-                            </table>
-                        </div>
-                    </td>
-                    <td class="w-half pl-2" style="border:0;">
-                        <h2>Lieu</h2>
-                        <div class="info-section">
-                            <table class="info-table">
-                                <tr><td class="label">Lieu</td><td class="value">{{ sortie.place.name }}</td></tr>
-                                <tr><td class="label">Rue</td><td class="value">{{ sortie.place.street }}</td></tr>
-                                <tr><td class="label">Code postal</td><td class="value">{{ sortie.place.city.postalCode }}</td></tr>
-                                <tr><td class="label">Ville</td><td class="value">{{ sortie.place.city.name }}</td></tr>
-                                {% if sortie.place.latitude and sortie.place.longitude %}
-                                <tr><td class="label">Coordonnées</td><td class="value">{{ sortie.place.latitude }}, {{ sortie.place.longitude }}</td></tr>
-                                {% endif %}
-                            </table>
-                        </div>
-                    </td>
-                </tr>
-            </table>
+            <div class="section-block">
+                <table style="width:100%; border:0;">
+                    <tr style="border:0;">
+                        <td class="w-half pr-2" style="border:0;">
+                            <h2>Informations générales</h2>
+                            <div class="info-section">
+                                <table class="info-table">
+                                    <tr><td class="label">Date et heure</td><td class="value">{{ sortie.startDateTime|date('d/m/Y à H:i') }}</td></tr>
+                                    <tr><td class="label">Durée</td><td class="value">{{ (sortie.duration / 60)|round(0) }}h {{ sortie.duration % 60 }}min</td></tr>
+                                    <tr><td class="label">Date limite</td><td class="value">{{ sortie.registrationDeadline|date('d/m/Y') }}</td></tr>
+                                    <tr><td class="label">Places</td><td class="value">{{ sortie.participants|length }} / {{ sortie.maxRegistration }}</td></tr>
+                                    <tr><td class="label">Organisateur</td><td class="value">{{ sortie.organisateur.pseudo }}</td></tr>
+                                    <tr><td class="label">Site</td><td class="value">{{ sortie.site.name }}</td></tr>
+                                </table>
+                            </div>
+                        </td>
+                        <td class="w-half pl-2" style="border:0;">
+                            <h2>Lieu</h2>
+                            <div class="info-section">
+                                <table class="info-table">
+                                    <tr><td class="label">Lieu</td><td class="value">{{ sortie.place.name }}</td></tr>
+                                    <tr><td class="label">Rue</td><td class="value">{{ sortie.place.street }}</td></tr>
+                                    <tr><td class="label">Code postal</td><td class="value">{{ sortie.place.city.postalCode }}</td></tr>
+                                    <tr><td class="label">Ville</td><td class="value">{{ sortie.place.city.name }}</td></tr>
+                                    {% if sortie.place.latitude and sortie.place.longitude %}
+                                    <tr><td class="label">Coordonnées</td><td class="value">{{ sortie.place.latitude }}, {{ sortie.place.longitude }}</td></tr>
+                                    {% endif %}
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
 
             {% if weather is defined and weather %}
-            <h2>Météo prévue</h2>
-            <div class="info-section">
-                 {% if weather.weather is defined %}
-                    <p><strong>Météo :</strong> {{ weather.main.temp|round }}°C - {{ weather.weather[0].description|capitalize }}</p>
-                    <p><strong>Ressenti :</strong> {{ weather.main.feels_like|round }}°C | <strong>Humidité :</strong> {{ weather.main.humidity }}%</p>
-                {% elseif weather.list is defined %}
-                    <p><strong>Météo :</strong> {{ weather.list[0].main.temp|round }}°C - {{ weather.list[0].weather[0].description|capitalize }}</p>
-                    <p><strong>Ressenti :</strong> {{ weather.list[0].main.feels_like|round }}°C | <strong>Humidité :</strong> {{ weather.list[0].main.humidity }}%</p>
-                {% endif %}
+            <div class="section-block">
+                <h2>Météo prévue</h2>
+                <div class="info-section">
+                     {% if weather.weather is defined %}
+                        <p><strong>Météo :</strong> {{ weather.main.temp|round }}°C - {{ weather.weather[0].description|capitalize }}</p>
+                        <p><strong>Ressenti :</strong> {{ weather.main.feels_like|round }}°C | <strong>Humidité :</strong> {{ weather.main.humidity }}%</p>
+                    {% elseif weather.list is defined %}
+                        <p><strong>Météo :</strong> {{ weather.list[0].main.temp|round }}°C - {{ weather.list[0].weather[0].description|capitalize }}</p>
+                        <p><strong>Ressenti :</strong> {{ weather.list[0].main.feels_like|round }}°C | <strong>Humidité :</strong> {{ weather.list[0].main.humidity }}%</p>
+                    {% endif %}
+                </div>
             </div>
             {% endif %}
 
             {% if sortie.description %}
-            <h2>Description</h2>
-            <div class="description-block">
-                <p>{{ sortie.description|nl2br }}</p>
+            <div class="section-block">
+                <h2>Description</h2>
+                <div class="description-block">
+                    <p>{{ sortie.description|nl2br }}</p>
+                </div>
             </div>
             {% endif %}
 
             {% if sortie.state.value == 'Passée' and averageRating is defined and totalRatings is defined and totalRatings > 0 %}
-            <h2>Notes et Avis</h2>
-            <div class="info-section">
-                <p><strong>Note moyenne :</strong> {{ averageRating }} / 5 (basée sur {{ totalRatings }} avis)</p>
+            <div class="section-block">
+                <h2>Notes et Avis</h2>
+                <div class="info-section">
+                    <p><strong>Note moyenne :</strong> {{ averageRating }} / 5 (basée sur {{ totalRatings }} avis)</p>
+                </div>
             </div>
             {% endif %}
 
-                        {% if sortie.participants|length > 0 %}
+            {% if sortie.participants|length > 0 %}
+            <div class="participants-block section-block">
+                <h2>Liste des participants ({{ sortie.participants|length }})</h2>
+                {% set participants = sortie.participants %}
+                {% set count = participants|length %}
+                {% if count > 0 %}
+                    {% set items_per_column = (count / 3)|round(0, 'ceil') %}
+                    <table style="width: 100%; border-spacing: 0; border-collapse: collapse;">
+                        <tr style="vertical-align: top;">
+                            <td style="width: 33.3%; padding-right: 4px;">
+                                <ul class="participants-list">
+                                    {% for i in 0..(items_per_column - 1) %}
+                                        {% if participants[i] is defined %}
+                                            <li>{{ participants[i].pseudo }} {% if participants[i] == sortie.organisateur %}<strong>(Orga.)</strong>{% endif %}</li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                            <td style="width: 33.3%; padding-left: 2px; padding-right: 2px;">
+                                <ul class="participants-list">
+                                    {% for i in items_per_column..(items_per_column * 2 - 1) %}
+                                        {% if participants[i] is defined %}
+                                            <li>{{ participants[i].pseudo }} {% if participants[i] == sortie.organisateur %}<strong>(Orga.)</strong>{% endif %}</li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                            <td style="width: 33.3%; padding-left: 4px;">
+                                <ul class="participants-list">
+                                    {% for i in (items_per_column * 2)..(count - 1) %}
+                                         {% if participants[i] is defined %}
+                                            <li>{{ participants[i].pseudo }} {% if participants[i] == sortie.organisateur %}<strong>(Orga.)</strong>{% endif %}</li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                        </tr>
+                    </table>
+                {% endif %}
+            </div>
+            {% endif %}
 
-                        <div class="participants-block">
-
-                            <h2>Liste des participants ({{ sortie.participants|length }})</h2>
-
-            
-
-                            {% set participants = sortie.participants %}
-
-                            {% set count = participants|length %}
-
-                            {% if count > 0 %}
-
-                                {% set items_per_column = (count / 3)|round(0, 'ceil') %}
-
-                                <table style="width: 100%; border-spacing: 0; border-collapse: collapse;">
-
-                                    <tr style="vertical-align: top;">
-
-                                        <td style="width: 33.3%; padding-right: 4px;">
-
-                                            <ul class="participants-list">
-
-                                                {% for i in 0..(items_per_column - 1) %}
-
-                                                    {% if participants[i] is defined %}
-
-                                                        <li>{{ participants[i].pseudo }} {% if participants[i] == sortie.organisateur %}<strong>(Orga.)</strong>{% endif %}</li>
-
-                                                    {% endif %}
-
-                                                {% endfor %}
-
-                                            </ul>
-
-                                        </td>
-
-                                        <td style="width: 33.3%; padding-left: 2px; padding-right: 2px;">
-
-                                            <ul class="participants-list">
-
-                                                {% for i in items_per_column..(items_per_column * 2 - 1) %}
-
-                                                    {% if participants[i] is defined %}
-
-                                                        <li>{{ participants[i].pseudo }} {% if participants[i] == sortie.organisateur %}<strong>(Orga.)</strong>{% endif %}</li>
-
-                                                    {% endif %}
-
-                                                {% endfor %}
-
-                                            </ul>
-
-                                        </td>
-
-                                        <td style="width: 33.3%; padding-left: 4px;">
-
-                                            <ul class="participants-list">
-
-                                                {% for i in (items_per_column * 2)..(count - 1) %}
-
-                                                     {% if participants[i] is defined %}
-
-                                                        <li>{{ participants[i].pseudo }} {% if participants[i] == sortie.organisateur %}<strong>(Orga.)</strong>{% endif %}</li>
-
-                                                    {% endif %}
-
-                                                {% endfor %}
-
-                                            </ul>
-
-                                        </td>
-
-                                    </tr>
-
-                                </table>
-
-                            {% endif %}
-
-                        </div>
-
-                        {% endif %}
-
-            {% if comments is defined and comments is not empty %}
-            <div class="comments-block">
+            {% if sortie.comments is defined and sortie.comments is not empty %}
+            <div class="comments-block section-block">
                 <h2>Commentaires</h2>
-                {% for comment in comments %}
+                {% for comment in sortie.comments %}
                     <div class="comment">
                         <p class="comment-author">{{ comment.user.pseudo }} <span class="comment-date">- Le {{ comment.createdAt|date('d/m/Y à H:i') }}</span></p>
                         <div class="comment-content"><p>{{ comment.content|nl2br }}</p></div>
@@ -360,10 +325,10 @@
             </div>
             {% endif %}
         </div>
+    </div>
 
-        <div class="card-footer">
-            Généré par Sortir.com le {{ "now"|date('d/m/Y à H:i') }}
-        </div>
+    <div class="page-footer">
+        Généré par Sortir.com le {{ "now"|date('d/m/Y à H:i') }}
     </div>
 </body>
 </html>

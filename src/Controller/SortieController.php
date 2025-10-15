@@ -352,10 +352,7 @@ final class SortieController extends AbstractController
     public function export(Sortie $sortie): Response
     {
         try {
-            return $this->sortieService->generatePdf(
-                'export/sortie_pdf.html.twig',
-                $sortie
-            );
+            return $this->sortieService->generatePdf($sortie);
         } catch (LoaderError|RuntimeError|SyntaxError $e) {
             $this->addFlash('error', "Une erreur est survenu lors de la génération du pdf");
             return $this->redirectToRoute('app_sortie_show', ['id' => $sortie->getId()]);

@@ -9,8 +9,14 @@ use App\Event\SortieRegistrationEvent;
 use App\Exception\SortieException;
 use Doctrine\ORM\EntityManagerInterface;
 use Dompdf\Dompdf;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -22,7 +28,8 @@ class SortieService
         private readonly EntityManagerInterface   $entityManager,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly string                   $projectDir,
-        private readonly Environment              $twig
+        private readonly Environment              $twig,
+        private readonly WeatherService $weatherService,
     ) {
     }
 
@@ -255,15 +262,28 @@ class SortieService
      * @throws LoaderError
      * @throws RuntimeError
      * @throws SyntaxError
+     * @throws SortieException
      */
-    public function generatePdf(string $template, Sortie $sortie): Response
+    public function generatePdf(Sortie $sortie): Response
     {
         $fileName = $sortie->getName() . '_' . $sortie->getStartDateTime()->format('d-m-Y') . '.pdf';
         $logoPath = $this->projectDir . '/public/images/logo-dark1.png';
         $logoData = base64_encode(file_get_contents($logoPath));
+
+        try {
+            $weather = $this->weatherService->getWeather(
+                $sortie->getPlace()->getCity()->getName(),
+                $sortie->getStartDateTime()
+            );
+        } catch (ClientExceptionInterface|DecodingExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface|TransportExceptionInterface $e) {
+            throw new SortieException($e->getMessage());
+        }
+
+        $template = 'export/sortie_pdf.html.twig';
         $data = [
             'sortie' => $sortie,
             'logoSrc' => 'data:image/png;base64,' . $logoData,
+            'weather' => $weather
         ];
 
         $html = $this->twig->render($template, $data);
