@@ -1,0 +1,873 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Chat - Conversations{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white flex items-center">
+                <svg class="w-8 h-8 mr-3 text-blue-600 dark:text-blue-400"  stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                </svg>
+                Messagerie
+                {% if totalUnread > 0 %}
+                    <span class="ml-3 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+                        {{ totalUnread }}
+                    </span>
+                {% endif %}
+            </h1>
+
+            <button id="newChatBtn" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
+                <svg class="w-5 h-5 mr-2"  stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Nouvelle conversation
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Liste des conversations (gauche) -->
+            <div class="lg:col-span-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden" style="height: 700px;">
+                <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-800">
+                    <div class="relative">
+                        <input type="text" id="searchConversations" placeholder="Rechercher une conversation..."
+                               class="w-full pl-10 pr-4 py-2.5 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all duration-200">
+                        <svg class="w-5 h-5 absolute left-3 top-3 text-gray-400"  stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <div id="conversationsList" class="divide-y divide-gray-200 dark:divide-gray-700 overflow-y-auto custom-scrollbar" style="height: calc(700px - 81px);">
+                    {% if conversations is empty and groups is empty %}
+                        <div class="p-8 text-center text-gray-500 dark:text-gray-400">
+                            <svg class="w-16 h-16 mx-auto mb-4 opacity-50"  stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                            </svg>
+                            <p class="font-medium">Aucune conversation</p>
+                            <p class="text-sm mt-2">Créez-en une pour commencer !</p>
+                        </div>
+                    {% else %}
+                        <!-- Conversations privées -->
+                        {% for conv in conversations %}
+                            <div class="conversation-item p-4 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all duration-200 cursor-pointer border-l-4 border-transparent hover:border-blue-500 {% if conversation and conversation.id == conv.id %}bg-blue-50 dark:bg-gray-700 border-blue-500{% endif %}"
+                                 data-conversation-id="{{ conv.id }}"
+                                 onclick="loadConversation({{ conv.id }})">
+                                <div class="flex items-center gap-3">
+                                    {% if conv.type == 'private' %}
+                                        {% set otherUser = null %}
+                                        {% for participant in conv.participants %}
+                                            {% if participant.id != app.user.id %}
+                                                {% set otherUser = participant %}
+                                            {% endif %}
+                                        {% endfor %}
+
+                                        {% if otherUser %}
+                                            <div class="relative flex-shrink-0">
+                                                <img src="{% if otherUser.photoFilename %}{{ asset('uploads/photos/' ~ otherUser.photoFilename) }}{% else %}{{ asset('images/Avatar.png') }}{% endif %}"
+                                                     alt="Photo"
+                                                     class="w-14 h-14 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600 shadow-sm">
+                                                {% if unreadCounts[conv.id] is defined and unreadCounts[conv.id] > 0 %}
+                                                    <div class="absolute -top-1 -right-1 w-6 h-6 bg-red-600 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg animate-pulse">
+                                                        {{ unreadCounts[conv.id] }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="flex items-center justify-between mb-1">
+                                                    <p class="font-semibold text-gray-900 dark:text-white truncate text-base">{{ otherUser.pseudo }}</p>
+                                                    {% if conv.lastMessage %}
+                                                        <span class="text-xs text-gray-500 dark:text-gray-400 ml-2 flex-shrink-0">
+                                                            {{ conv.lastMessage.createdAt|date('H:i') }}
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                                {% if conv.lastMessage %}
+                                                    <p class="text-sm text-gray-600 dark:text-gray-400 truncate {% if unreadCounts[conv.id] is defined and unreadCounts[conv.id] > 0 %}font-semibold{% endif %}">
+                                                        {% if conv.lastMessage.sender.id == app.user.id %}
+                                                            <span class="text-blue-600 dark:text-blue-400">Vous: </span>
+                                                        {% endif %}
+                                                        {{ conv.lastMessage.content|length > 40 ? conv.lastMessage.content|slice(0, 40) ~ '...' : conv.lastMessage.content }}
+                                                    </p>
+                                                {% else %}
+                                                    <p class="text-sm text-gray-400 dark:text-gray-500 italic">Aucun message</p>
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    {% else %}
+                                        <div class="relative flex-shrink-0">
+                                            <div class="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 via-indigo-600 to-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
+                                                <svg class="w-7 h-7"  viewBox="0 0 20 20">
+                                                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path>
+                                                </svg>
+                                            </div>
+                                            {% if unreadCounts[conv.id] is defined and unreadCounts[conv.id] > 0 %}
+                                                <div class="absolute -top-1 -right-1 w-6 h-6 bg-red-600 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg animate-pulse">
+                                                    {{ unreadCounts[conv.id] }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center justify-between mb-1">
+                                                <p class="font-semibold text-gray-900 dark:text-white truncate text-base">{{ conv.name }}</p>
+                                            </div>
+                                            <p class="text-xs text-purple-600 dark:text-purple-400 font-medium flex items-center">
+                                                <svg class="w-3.5 h-3.5 mr-1"  viewBox="0 0 20 20">
+                                                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                                                </svg>
+                                                {{ conv.participants|length }} participants
+                                            </p>
+
+                                            <!-- Liste des membres du groupe -->
+                                            <div class="flex items-center gap-1 mt-2 flex-wrap">
+                                                {% for participant in conv.participants|slice(0, 5) %}
+                                                    <a href="{{ path('view_user_profil', {id: participant.id}) }}"
+                                                       class="group relative"
+                                                       title="{{ participant.pseudo }}">
+                                                        <img src="{% if participant.photoFilename %}{{ asset('uploads/photos/' ~ participant.photoFilename) }}{% else %}{{ asset('images/Avatar.png') }}{% endif %}"
+                                                             alt="{{ participant.pseudo }}"
+                                                             class="w-8 h-8 rounded-full object-cover border-2 border-white dark:border-gray-700 shadow-sm hover:scale-110 transition-transform duration-200">
+                                                        <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs font-medium text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                                                            {{ participant.pseudo }}
+                                                        </span>
+                                                    </a>
+                                                {% endfor %}
+                                                {% if conv.participants|length > 5 %}
+                                                    <div class="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-xs font-bold text-gray-700 dark:text-gray-300 border-2 border-white dark:border-gray-700 shadow-sm">
+                                                        +{{ conv.participants|length - 5 }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Zone de chat (droite) -->
+            <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden" style="height: 700px;" id="chatZone">
+                {% if conversation %}
+                    <!-- En-tête de la conversation -->
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-800 px-6 py-4 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                {% if conversation.type == 'private' %}
+                                    {% set otherUser = null %}
+                                    {% for participant in conversation.participants %}
+                                        {% if participant.id != app.user.id %}
+                                            {% set otherUser = participant %}
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% if otherUser %}
+                                        <a href="{{ path('view_user_profil', {id: otherUser.id}) }}" class="flex items-center gap-3 hover:opacity-80 transition-opacity group">
+                                            <div class="relative">
+                                                <img src="{% if otherUser.photoFilename %}{{ asset('uploads/photos/' ~ otherUser.photoFilename) }}{% else %}{{ asset('images/Avatar.png') }}{% endif %}"
+                                                     alt="Photo"
+                                                     class="w-14 h-14 rounded-full object-cover border-3 border-blue-300 dark:border-gray-600 shadow-md group-hover:border-blue-400 transition-all duration-200">
+                                                <div class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white dark:border-gray-700 rounded-full"></div>
+                                            </div>
+                                            <div>
+                                                <h2 class="text-xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{{ otherUser.pseudo }}</h2>
+                                                <p class="text-sm text-gray-600 dark:text-gray-400">{{ otherUser.firstName }} {{ otherUser.lastName }}</p>
+                                            </div>
+                                        </a>
+                                    {% endif %}
+                                {% else %}
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 via-indigo-600 to-blue-600 flex items-center justify-center text-white shadow-lg">
+                                            <svg class="w-7 h-7"  viewBox="0 0 20 20">
+                                                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ conversation.name }}</h2>
+                                            <p class="text-sm text-purple-600 dark:text-purple-400 font-medium">
+                                                <svg class="w-4 h-4 inline-block mr-1"  viewBox="0 0 20 20">
+                                                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                                                </svg>
+                                                {{ conversation.participants|length }} participants
+                                            </p>
+
+                                            <!-- Liste des membres du groupe -->
+                                            <div class="flex items-center gap-1 mt-2 flex-wrap">
+                                                {% for participant in conversation.participants|slice(0, 5) %}
+                                                    <a href="{{ path('view_user_profil', {id: participant.id}) }}"
+                                                       class="group relative"
+                                                       title="{{ participant.pseudo }}">
+                                                        <img src="{% if participant.photoFilename %}{{ asset('uploads/photos/' ~ participant.photoFilename) }}{% else %}{{ asset('images/Avatar.png') }}{% endif %}"
+                                                             alt="{{ participant.pseudo }}"
+                                                             class="w-8 h-8 rounded-full object-cover border-2 border-white dark:border-gray-700 shadow-sm hover:scale-110 transition-transform duration-200">
+                                                        <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs font-medium text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                                                            {{ participant.pseudo }}
+                                                        </span>
+                                                    </a>
+                                                {% endfor %}
+                                                {% if conversation.participants|length > 5 %}
+                                                    <div class="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-xs font-bold text-gray-700 dark:text-gray-300 border-2 border-white dark:border-gray-700 shadow-sm">
+                                                        +{{ conversation.participants|length - 5 }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Boutons d'action -->
+                            <div class="flex items-center gap-2">
+                                <button class="p-2 rounded-full hover:bg-blue-100 dark:hover:bg-gray-600 transition-colors duration-200" title="Rechercher dans la conversation">
+                                    <svg class="w-5 h-5 text-gray-600 dark:text-gray-300"  stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                </button>
+                                <button class="p-2 rounded-full hover:bg-blue-100 dark:hover:bg-gray-600 transition-colors duration-200" title="Informations">
+                                    <svg class="w-5 h-5 text-gray-600 dark:text-gray-300"  stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Zone de messages -->
+                    <div class="bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 px-6 py-4 overflow-y-auto scroll-smooth" style="height: calc(700px - 81px - 109px);" id="messagesContainer">
+                        <div id="messagesList" class="space-y-6">
+                            {% for message in conversation.messages %}
+                                <div class="flex {% if message.sender.id == app.user.id %}justify-end{% else %}justify-start{% endif %} message-item animate-fade-in" data-message-id="{{ message.id }}">
+                                    <div class="max-w-xs lg:max-w-md xl:max-w-lg">
+                                        {% if message.sender.id != app.user.id %}
+                                            <div class="flex items-center gap-2 mb-2">
+                                                <a href="{{ path('view_user_profil', {id: message.sender.id}) }}" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                                                    <img src="{% if message.sender.photoFilename %}{{ asset('uploads/photos/' ~ message.sender.photoFilename) }}{% else %}{{ asset('images/Avatar.png') }}{% endif %}"
+                                                         alt="Photo"
+                                                         class="w-8 h-8 rounded-full object-cover border-2 border-gray-300 dark:border-gray-600 shadow-sm">
+                                                    <span class="text-sm font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                                                        {{ message.sender.pseudo }}
+                                                    </span>
+                                                </a>
+                                            </div>
+                                        {% endif %}
+
+                                        <div class="message-content {% if message.sender.id == app.user.id %}bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-l-2xl rounded-br-2xl shadow-lg{% else %}bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-r-2xl rounded-bl-2xl shadow-md border border-gray-200 dark:border-gray-700{% endif %} px-4 py-3 hover:shadow-xl transition-all duration-200">
+                                            <p class="whitespace-pre-wrap break-words text-[15px] leading-relaxed">{{ message.content }}</p>
+                                        </div>
+
+                                        <div class="flex items-center gap-3 mt-1.5 {% if message.sender.id == app.user.id %}justify-end{% endif %}">
+                                            <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                                                {{ message.createdAt|date('H:i') }}
+                                                {% if message.isEdited %}
+                                                    <span class="italic ml-1">• modifié</span>
+                                                {% endif %}
+                                            </span>
+
+                                            {% if message.sender.id == app.user.id %}
+                                                <div class="message-actions flex items-center gap-2 opacity-0 transition-opacity">
+                                                    <button class="edit-message-btn text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors flex items-center gap-1" data-message-id="{{ message.id }}">
+                                                        <svg class="w-3 h-3"  stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                        </svg>
+                                                        Modifier
+                                                    </button>
+                                                    <button class="delete-message-btn text-xs text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-medium transition-colors flex items-center gap-1" data-message-id="{{ message.id }}">
+                                                        <svg class="w-3 h-3"  stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                        </svg>
+                                                        Supprimer
+                                                    </button>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Zone de saisie -->
+                    <div class="bg-white dark:bg-gray-800 px-6 py-4 border-t-2 border-gray-200 dark:border-gray-700 shadow-lg">
+                        <form id="messageForm" class="flex gap-3" data-turbo="false">
+                            <input type="hidden" id="conversationId" value="{{ conversation.id }}">
+                            <div class="flex-1 relative">
+                                <textarea id="messageInput"
+                                          rows="1"
+                                          placeholder="Tapez votre message... (Entrée pour envoyer, Maj+Entrée pour nouvelle ligne)"
+                                          class="w-full px-4 py-3 pr-12 border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white resize-none transition-all duration-200 hover:border-blue-400 dark:hover:border-blue-500"
+                                          style="max-height: 120px;"></textarea>
+                                <button type="button" class="absolute right-3 top-3 p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors" title="Ajouter un emoji">
+                                    <svg class="w-5 h-5 text-gray-500 dark:text-gray-400"  stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <button type="submit"
+                                    class="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-md hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all duration-200 flex items-center gap-2 font-medium">
+                                <span class="hidden sm:inline">Envoyer</span>
+                                <svg class="w-5 h-5"  stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                {% else %}
+                    <div class="h-full flex items-center justify-center">
+                        <div class="text-center text-gray-500 dark:text-gray-400">
+                            <svg class="w-24 h-24 mx-auto mb-4 opacity-30"  stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                            </svg>
+                            <p class="text-lg font-medium">Sélectionnez une conversation</p>
+                            <p class="text-sm mt-2">Ou créez-en une nouvelle pour commencer à discuter</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nouvelle conversation -->
+<div id="newChatModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-lg bg-white dark:bg-gray-800">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Nouvelle conversation</h3>
+            <button id="closeModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                <svg class="w-6 h-6"  stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Rechercher un utilisateur</label>
+            <input type="text" id="userSearch" placeholder="Nom ou pseudo..."
+                   class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+        </div>
+
+        <div id="userResults" class="space-y-2 max-h-60 overflow-y-auto"></div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // Fonction pour échapper le HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Attach message handlers (edit/delete) - Fonction globale
+        function attachMessageHandlers(messageElement) {
+            const editBtn = messageElement.querySelector('.edit-message-btn');
+            const deleteBtn = messageElement.querySelector('.delete-message-btn');
+
+            if (editBtn && !editBtn.dataset.listenerAttached) {
+                editBtn.dataset.listenerAttached = 'true';
+                editBtn.addEventListener('click', async () => {
+                    const messageId = editBtn.dataset.messageId;
+                    const messageContentDiv = messageElement.querySelector('.message-content');
+                    const contentElement = messageContentDiv.querySelector('p');
+                    const currentContent = contentElement.textContent;
+
+                    // Créer le textarea d'édition
+                    const editArea = document.createElement('textarea');
+                    editArea.value = currentContent;
+                    editArea.className = 'w-full px-3 py-2 border-2 border-blue-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-gray-700 dark:text-white resize-none';
+                    editArea.style.minHeight = '60px';
+                    editArea.rows = 3;
+
+                    // Auto-resize le textarea
+                    editArea.style.height = 'auto';
+                    editArea.style.height = (editArea.scrollHeight) + 'px';
+
+                    // Créer les boutons de validation/annulation
+                    const buttonsDiv = document.createElement('div');
+                    buttonsDiv.className = 'flex gap-2 mt-2';
+                    buttonsDiv.innerHTML = `
+                        <button class="save-edit-btn px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-sm rounded-lg font-medium transition-colors flex items-center gap-1">
+                            <svg class="w-4 h-4"  stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Enregistrer
+                        </button>
+                        <button class="cancel-edit-btn px-3 py-1.5 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded-lg font-medium transition-colors flex items-center gap-1">
+                            <svg class="w-4 h-4"  stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            Annuler
+                        </button>
+                    `;
+
+                    // Sauvegarder le contenu original
+                    const originalHTML = messageContentDiv.innerHTML;
+
+                    // Remplacer le contenu par le formulaire d'édition
+                    messageContentDiv.innerHTML = '';
+                    messageContentDiv.appendChild(editArea);
+                    messageContentDiv.appendChild(buttonsDiv);
+
+                    // Focus sur le textarea
+                    editArea.focus();
+                    editArea.setSelectionRange(editArea.value.length, editArea.value.length);
+
+                    // Auto-resize pendant la saisie
+                    editArea.addEventListener('input', function() {
+                        this.style.height = 'auto';
+                        this.style.height = (this.scrollHeight) + 'px';
+                    });
+
+                    // Fonction pour restaurer l'affichage original
+                    const restoreOriginal = () => {
+                        messageContentDiv.innerHTML = originalHTML;
+                        attachMessageHandlers(messageElement);
+                    };
+
+                    // Gestion du bouton Annuler
+                    buttonsDiv.querySelector('.cancel-edit-btn').addEventListener('click', restoreOriginal);
+
+                    // Gestion de la touche Échap
+                    editArea.addEventListener('keydown', (e) => {
+                        if (e.key === 'Escape') {
+                            restoreOriginal();
+                        } else if (e.key === 'Enter' && e.ctrlKey) {
+                            buttonsDiv.querySelector('.save-edit-btn').click();
+                        }
+                    });
+
+                    // Gestion du bouton Enregistrer
+                    buttonsDiv.querySelector('.save-edit-btn').addEventListener('click', async () => {
+                        const newContent = editArea.value.trim();
+
+                        if (!newContent) {
+                            alert('Le message ne peut pas être vide');
+                            return;
+                        }
+
+                        if (newContent === currentContent) {
+                            restoreOriginal();
+                            return;
+                        }
+
+                        try {
+                            const response = await fetch(`/chat/message/edit/${messageId}`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                                body: `content=${encodeURIComponent(newContent)}`
+                            });
+                            const data = await response.json();
+
+                            if (data.success) {
+                                // Restaurer l'affichage avec le nouveau contenu
+                                messageContentDiv.innerHTML = `<p class="whitespace-pre-wrap break-words text-[15px] leading-relaxed">${escapeHtml(data.message.content)}</p>`;
+
+                                // Ajouter l'indicateur "modifié"
+                                const timeElement = messageElement.querySelector('.text-xs.text-gray-500');
+                                if (timeElement && !timeElement.querySelector('.italic')) {
+                                    timeElement.innerHTML += ' <span class="italic ml-1">• modifié</span>';
+                                }
+
+                                // Réattacher les handlers
+                                attachMessageHandlers(messageElement);
+                            } else {
+                                alert('Erreur lors de la modification du message');
+                                restoreOriginal();
+                            }
+                        } catch (error) {
+                            console.error('Error:', error);
+                            alert('Erreur lors de la modification du message');
+                            restoreOriginal();
+                        }
+                    });
+                });
+            }
+
+            if (deleteBtn && !deleteBtn.dataset.listenerAttached) {
+                deleteBtn.dataset.listenerAttached = 'true';
+                deleteBtn.addEventListener('click', async () => {
+                    const messageId = deleteBtn.dataset.messageId;
+                    if (confirm('Êtes-vous sûr de vouloir supprimer ce message ?')) {
+                        try {
+                            const response = await fetch(`/chat/message/delete/${messageId}`, { method: 'POST' });
+                            const data = await response.json();
+                            if (data.success) {
+                                messageElement.remove();
+                            }
+                        } catch (error) {
+                            console.error('Error:', error);
+                        }
+                    }
+                });
+            }
+        }
+
+        // Fonction pour initialiser le chat
+        function initializeChat() {
+            const conversationId = document.getElementById('conversationId')?.value;
+            if (!conversationId) return;
+
+            const messagesContainer = document.getElementById('messagesContainer');
+            const messagesList = document.getElementById('messagesList');
+            const messageForm = document.getElementById('messageForm');
+            const messageInput = document.getElementById('messageInput');
+
+            if (!messageForm || !messageInput) return;
+
+            // Gestion de la touche Entrée pour envoyer le message
+            messageInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    messageForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+                }
+            });
+
+            // Auto-resize textarea
+            messageInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+
+            // Scroll to bottom
+            function scrollToBottom() {
+                if (messagesContainer) {
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }
+            }
+            scrollToBottom();
+
+            // Send message
+            messageForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const content = messageInput.value.trim();
+                if (!content) return;
+
+                fetch(`/chat/message/send/${conversationId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `content=${encodeURIComponent(content)}`
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        messageInput.value = '';
+                        messageInput.style.height = 'auto';
+                        addMessageToList(data.message);
+                        scrollToBottom();
+                    } else if (data.error) {
+                        alert('Erreur: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    alert('Erreur lors de l\'envoi du message');
+                });
+            });
+
+            // Add message to list
+            function addMessageToList(message) {
+                const isOwn = message.sender.id === {{ app.user.id }};
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `flex ${isOwn ? 'justify-end' : 'justify-start'} message-item animate-fade-in`;
+                messageDiv.dataset.messageId = message.id;
+
+                const photoSrc = message.sender.photo ? `/uploads/photos/${message.sender.photo}` : '/images/Avatar.png';
+
+                messageDiv.innerHTML = `
+                    <div class="max-w-xs lg:max-w-md xl:max-w-lg">
+                        ${!isOwn ? `
+                            <div class="flex items-center gap-2 mb-2">
+                                <a href="/profil/${message.sender.id}" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                                    <img src="${photoSrc}" alt="Photo" class="w-8 h-8 rounded-full object-cover border-2 border-gray-300 dark:border-gray-600 shadow-sm">
+                                    <span class="text-sm font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                                        ${escapeHtml(message.sender.pseudo)}
+                                    </span>
+                                </a>
+                            </div>
+                        ` : ''}
+
+                        <div class="message-content ${isOwn ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-l-2xl rounded-br-2xl shadow-lg' : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-r-2xl rounded-bl-2xl shadow-md border border-gray-200 dark:border-gray-700'} px-4 py-3 hover:shadow-xl transition-all duration-200">
+                            <p class="whitespace-pre-wrap break-words text-[15px] leading-relaxed">${escapeHtml(message.content)}</p>
+                        </div>
+
+                        <div class="flex items-center gap-3 mt-1.5 ${isOwn ? 'justify-end' : ''}">
+                            <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                                ${message.createdAt}
+                            </span>
+                            ${isOwn ? `
+                                <div class="message-actions flex items-center gap-2 opacity-0 transition-opacity">
+                                    <button class="edit-message-btn text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 font-medium transition-colors" data-message-id="${message.id}">Modifier</button>
+                                    <button class="delete-message-btn text-xs text-red-600 dark:text-red-400 hover:text-red-700 font-medium transition-colors" data-message-id="${message.id}">Supprimer</button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+
+                messagesList.appendChild(messageDiv);
+                attachMessageHandlers(messageDiv);
+            }
+
+            // Attach handlers to existing messages
+            const existingMessages = document.querySelectorAll('.message-item');
+            console.log('Attaching handlers to', existingMessages.length, 'messages');
+            existingMessages.forEach(attachMessageHandlers);
+        }
+
+        // Initialiser le chat au chargement de la page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeChat();
+        });
+
+        // Pour Turbo (si la page est déjà chargée via Turbo)
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeChat);
+        } else {
+            // DOMContentLoaded already fired
+            initializeChat();
+        }
+
+        // Fonction pour mettre à jour les badges de messages non lus
+        function updateUnreadBadges(conversationId) {
+            fetch(`/chat/conversation/${conversationId}/mark-read`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const conversationBadge = document.querySelector(`[data-conversation-id="${conversationId}"] .bg-red-600`);
+                    if (conversationBadge) {
+                        conversationBadge.remove();
+                    }
+
+                    const titleBadge = document.querySelector('h1 .bg-red-600');
+                    if (data.totalUnread > 0) {
+                        if (titleBadge) {
+                            titleBadge.textContent = data.totalUnread;
+                        }
+                    } else {
+                        if (titleBadge) {
+                            titleBadge.remove();
+                        }
+                    }
+
+                    const navBadge = document.querySelector('nav a[href*="chat"] .bg-red-600');
+                    if (data.totalUnread > 0) {
+                        if (navBadge) {
+                            navBadge.textContent = data.totalUnread;
+                        }
+                    } else {
+                        if (navBadge) {
+                            navBadge.remove();
+                        }
+                    }
+                }
+            })
+            .catch(err => console.error('Erreur mise à jour badges:', err));
+        }
+
+        // Fonction pour charger une conversation
+        function loadConversation(conversationId) {
+            fetch(`/chat/conversation/${conversationId}/content`)
+                .then(res => res.text())
+                .then(html => {
+                    document.getElementById('chatZone').innerHTML = html;
+
+                    if (typeof initializeChat === 'function') {
+                        initializeChat();
+                    }
+
+                    document.querySelectorAll('.conversation-item').forEach(item => {
+                        item.classList.remove('bg-blue-50', 'dark:bg-gray-700');
+                    });
+                    document.querySelector(`[data-conversation-id="${conversationId}"]`)?.classList.add('bg-blue-50', 'dark:bg-gray-700');
+
+                    updateUnreadBadges(conversationId);
+
+                    window.history.pushState({}, '', `/chat/conversation/${conversationId}`);
+                })
+                .catch(err => console.error('Erreur chargement conversation:', err));
+        }
+
+        // Fonction pour charger une conversation de groupe
+        function loadGroupConversation(groupId) {
+            fetch(`/chat/group/${groupId}/content`)
+                .then(res => res.text())
+                .then(html => {
+                    document.getElementById('chatZone').innerHTML = html;
+
+                    if (typeof initializeChat === 'function') {
+                        initializeChat();
+                    }
+
+                    document.querySelectorAll('.conversation-item').forEach(item => {
+                        item.classList.remove('bg-blue-50', 'dark:bg-gray-700');
+                    });
+                    document.querySelector(`[data-group-id="${groupId}"]`)?.classList.add('bg-blue-50', 'dark:bg-gray-700');
+
+                    window.history.pushState({}, '', `/chat/group/${groupId}`);
+                })
+                .catch(err => console.error('Erreur chargement conversation de groupe:', err));
+        }
+
+        // Modal nouvelle conversation
+        const newChatBtn = document.getElementById('newChatBtn');
+        const newChatModal = document.getElementById('newChatModal');
+        const closeModal = document.getElementById('closeModal');
+        const userSearch = document.getElementById('userSearch');
+        const userResults = document.getElementById('userResults');
+
+        newChatBtn?.addEventListener('click', () => {
+            newChatModal.classList.remove('hidden');
+        });
+
+        closeModal?.addEventListener('click', () => {
+            newChatModal.classList.add('hidden');
+        });
+
+        // Recherche d'utilisateurs
+        let searchTimeout;
+        userSearch?.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            const query = e.target.value;
+
+            if (query.length < 2) {
+                userResults.innerHTML = '';
+                return;
+            }
+
+            searchTimeout = setTimeout(() => {
+                fetch(`{{ path('app_chat_search_users') }}?q=${encodeURIComponent(query)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        userResults.innerHTML = '';
+
+                        if (data.users.length === 0) {
+                            userResults.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 text-center py-4">Aucun utilisateur trouvé</p>';
+                            return;
+                        }
+
+                        data.users.forEach(user => {
+                            const userDiv = document.createElement('a');
+                            userDiv.href = '#';
+                            userDiv.onclick = (e) => {
+                                e.preventDefault();
+                                fetch(`/chat/new/user/${user.id}`)
+                                    .then(() => {
+                                        window.location.reload();
+                                    });
+                            };
+                            userDiv.className = 'flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200';
+
+                            const photoSrc = user.photo ? `/uploads/photos/${user.photo}` : '/images/Avatar.png';
+
+                            userDiv.innerHTML = `
+                                <img src="${photoSrc}" alt="Photo" class="w-10 h-10 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600">
+                                <div>
+                                    <p class="font-medium text-gray-900 dark:text-white">${user.pseudo}</p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">${user.firstName} ${user.lastName}</p>
+                                </div>
+                            `;
+
+                            userResults.appendChild(userDiv);
+                        });
+                    });
+            }, 300);
+        });
+    </script>
+
+    <style>
+        /* Scrollbar personnalisée pour la liste des conversations */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.4);
+            border-radius: 3px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(156, 163, 175, 0.6);
+        }
+
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(75, 85, 99, 0.4);
+        }
+
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(75, 85, 99, 0.6);
+        }
+
+        /* Animation pour les conversations */
+        .conversation-item {
+            transition: all 0.2s ease-in-out;
+        }
+
+        .conversation-item:active {
+            transform: scale(0.98);
+        }
+
+        /* Animation pour les messages */
+        @keyframes fade-in {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fade-in 0.3s ease-out;
+        }
+
+        .message-item:hover .message-actions {
+            opacity: 1;
+        }
+
+        /* Scrollbar pour les messages */
+        #messagesContainer::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #messagesContainer::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #messagesContainer::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.5);
+            border-radius: 4px;
+        }
+
+        #messagesContainer::-webkit-scrollbar-thumb:hover {
+            background: rgba(156, 163, 175, 0.7);
+        }
+
+        .dark #messagesContainer::-webkit-scrollbar-thumb {
+            background: rgba(75, 85, 99, 0.5);
+        }
+
+        .dark #messagesContainer::-webkit-scrollbar-thumb:hover {
+            background: rgba(75, 85, 99, 0.7);
+        }
+    </style>
+{% endblock %}
+

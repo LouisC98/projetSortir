@@ -23,7 +23,6 @@ function initializeThemeSwitcher() {
                 moonIcon.classList.add('rotate-0', 'scale-100');
             }
 
-            console.log('dark mode enabled');
         } else {
             html.classList.remove('dark');
             
@@ -41,7 +40,6 @@ function initializeThemeSwitcher() {
                 moonIcon.classList.remove('rotate-0', 'scale-100');
             }
 
-            console.log('light mode enabled');
         }
         themeSwitchers.forEach(switcher => {
             switcher.checked = (theme === 'dark');

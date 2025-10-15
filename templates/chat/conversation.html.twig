@@ -1,0 +1,392 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ conversation.type == 'group' ? conversation.name : 'Chat' }}{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-5xl mx-auto">
+        <!-- En-tête -->
+        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-t-lg px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <a href="{{ path('app_chat_index') }}" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="w-6 h-6"  stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </a>
+
+                    {% if conversation.type == 'private' %}
+                        {% set otherUser = null %}
+                        {% for participant in conversation.participants %}
+                            {% if participant.id != app.user.id %}
+                                {% set otherUser = participant %}
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if otherUser %}
+                            <a href="{{ path('view_user_profil', {id: otherUser.id}) }}" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                                <img src="{% if otherUser.photoFilename %}{{ asset('uploads/photos/' ~ otherUser.photoFilename) }}{% else %}{{ asset('images/Avatar.png') }}{% endif %}"
+                                     alt="Photo"
+                                     class="w-12 h-12 rounded-full object-cover border-2 border-blue-200 dark:border-gray-600">
+                                <div>
+                                    <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ otherUser.pseudo }}</h1>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ otherUser.firstName }} {{ otherUser.lastName }}</p>
+                                </div>
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 flex items-center justify-center text-white">
+                                <svg class="w-6 h-6"  viewBox="0 0 20 20">
+                                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ conversation.name }}</h1>
+                                <p class="text-sm text-purple-600 dark:text-purple-400">{{ conversation.participants|length }} participants</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Zone de messages -->
+        <div class="bg-gray-50 dark:bg-gray-900 px-6 py-4" style="height: 500px; overflow-y: auto;" id="messagesContainer">
+            <div id="messagesList" class="space-y-4">
+                {% for message in messages %}
+                    <div class="flex {% if message.sender.id == app.user.id %}justify-end{% else %}justify-start{% endif %} message-item" data-message-id="{{ message.id }}">
+                        <div class="max-w-xs lg:max-w-md">
+                            {% if message.sender.id != app.user.id %}
+                                <div class="flex items-start gap-2 mb-1">
+                                    <a href="{{ path('view_user_profil', {id: message.sender.id}) }}">
+                                        <img src="{% if message.sender.photoFilename %}{{ asset('uploads/photos/' ~ message.sender.photoFilename) }}{% else %}{{ asset('images/Avatar.png') }}{% endif %}"
+                                             alt="Photo"
+                                             class="w-8 h-8 rounded-full object-cover border border-gray-300 dark:border-gray-600">
+                                    </a>
+                                    <a href="{{ path('view_user_profil', {id: message.sender.id}) }}" class="text-sm font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400">
+                                        {{ message.sender.pseudo }}
+                                    </a>
+                                </div>
+                            {% endif %}
+
+                            <div class="message-content {% if message.sender.id == app.user.id %}bg-blue-500 text-white rounded-l-lg rounded-br-lg{% else %}bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-r-lg rounded-bl-lg{% endif %} px-4 py-2 shadow">
+                                <p class="whitespace-pre-wrap break-words">{{ message.content }}</p>
+                            </div>
+
+                            <div class="flex items-center gap-2 mt-1 {% if message.sender.id == app.user.id %}justify-end{% endif %}">
+                                <span class="text-xs text-gray-500 dark:text-gray-400">
+                                    {{ message.createdAt|date('d/m/Y H:i') }}
+                                    {% if message.isEdited %}
+                                        <span class="italic">(modifié)</span>
+                                    {% endif %}
+                                </span>
+
+                                {% if message.sender.id == app.user.id %}
+                                    <button class="edit-message-btn text-xs text-blue-600 dark:text-blue-400 hover:underline" data-message-id="{{ message.id }}">
+                                        Modifier
+                                    </button>
+                                    <button class="delete-message-btn text-xs text-red-600 dark:text-red-400 hover:underline" data-message-id="{{ message.id }}">
+                                        Supprimer
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Zone de saisie -->
+        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-b-lg px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+            <form id="messageForm" class="flex gap-3" data-turbo="false">
+                <textarea id="messageInput"
+                          rows="1"
+                          placeholder="Tapez votre message..."
+                          class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white resize-none"
+                          style="max-height: 150px;"></textarea>
+                <button type="submit"
+                        class="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-md hover:shadow-lg transition-all duration-200">
+                    <svg class="w-6 h-6"  stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        function initializeChat() {
+
+            const conversationId = {{ conversation.id }};
+            const messagesContainer = document.getElementById('messagesContainer');
+            const messagesList = document.getElementById('messagesList');
+            const messageForm = document.getElementById('messageForm');
+            const messageInput = document.getElementById('messageInput');
+
+            if (!messageForm || !messageInput) {
+                console.error('❌ Formulaire ou input non trouvé!');
+                return;
+            }
+
+            // Gestion de la touche Entrée
+            messageInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    messageForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+                }
+            });
+
+            // Auto-resize textarea
+            messageInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+
+            // Scroll to bottom
+            function scrollToBottom() {
+                if (messagesContainer) {
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }
+            }
+            scrollToBottom();
+
+            // Supprimer l'ancien listener s'il existe
+            const oldSubmitHandler = messageForm.submitHandler;
+            if (oldSubmitHandler) {
+                messageForm.removeEventListener('submit', oldSubmitHandler);
+            }
+
+            // Send message
+            const submitHandler = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const content = messageInput.value.trim();
+
+                if (!content) {
+                    return false;
+                }
+
+                fetch(`/chat/message/send/${conversationId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `content=${encodeURIComponent(content)}`
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        messageInput.value = '';
+                        messageInput.style.height = 'auto';
+                        addMessageToList(data.message, true);
+                        scrollToBottom();
+                    } else if (data.error) {
+                        alert('Erreur: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur lors de l\'envoi du message:', error);
+                    alert('Erreur lors de l\'envoi du message: ' + error.message);
+                });
+
+                return false;
+            };
+
+            messageForm.submitHandler = submitHandler;
+            messageForm.addEventListener('submit', submitHandler);
+
+            // Add message to list
+            function addMessageToList(message, isOwn) {
+
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `flex ${isOwn ? 'justify-end' : 'justify-start'} message-item`;
+                messageDiv.dataset.messageId = message.id;
+
+                const photoSrc = message.sender.photo ? `/uploads/photos/${message.sender.photo}` : '/images/Avatar.png';
+
+                messageDiv.innerHTML = `
+                    <div class="max-w-xs lg:max-w-md">
+                        ${!isOwn ? `
+                            <div class="flex items-start gap-2 mb-1">
+                                <a href="/profil/${message.sender.id}">
+                                    <img src="${photoSrc}" alt="Photo" class="w-8 h-8 rounded-full object-cover border border-gray-300 dark:border-gray-600">
+                                </a>
+                                <a href="/profil/${message.sender.id}" class="text-sm font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400">
+                                    ${escapeHtml(message.sender.pseudo)}
+                                </a>
+                            </div>
+                        ` : ''}
+
+                        <div class="message-content ${isOwn ? 'bg-blue-500 text-white rounded-l-lg rounded-br-lg' : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-r-lg rounded-bl-lg'} px-4 py-2 shadow">
+                            <p class="whitespace-pre-wrap break-words">${escapeHtml(message.content)}</p>
+                        </div>
+
+                        <div class="flex items-center gap-2 mt-1 ${isOwn ? 'justify-end' : ''}">
+                            <span class="text-xs text-gray-500 dark:text-gray-400">
+                                ${message.createdAt}
+                                ${message.isEdited ? '<span class="italic">(modifié)</span>' : ''}
+                            </span>
+
+                            ${isOwn ? `
+                                <button class="edit-message-btn text-xs text-blue-600 dark:text-blue-400 hover:underline" data-message-id="${message.id}">
+                                    Modifier
+                                </button>
+                                <button class="delete-message-btn text-xs text-red-600 dark:text-red-400 hover:underline" data-message-id="${message.id}">
+                                    Supprimer
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+
+                messagesList.appendChild(messageDiv);
+                attachMessageHandlers(messageDiv);
+            }
+
+            // Edit message
+            function attachMessageHandlers(messageElement) {
+                const editBtn = messageElement.querySelector('.edit-message-btn');
+                const deleteBtn = messageElement.querySelector('.delete-message-btn');
+
+                if (editBtn) {
+                    editBtn.addEventListener('click', async () => {
+                        const messageId = editBtn.dataset.messageId;
+                        const messageContentDiv = messageElement.querySelector('.message-content');
+                        const contentElement = messageElement.querySelector('.message-content p');
+                        const currentContent = contentElement.textContent;
+
+                        // Créer le mode édition inline
+                        const editForm = document.createElement('div');
+                        editForm.className = `message-content ${messageContentDiv.className}`;
+                        editForm.innerHTML = `
+                            <textarea class="w-full bg-transparent border-2 border-blue-300 dark:border-blue-500 rounded-lg px-2 py-1 text-inherit focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                                      style="min-height: 60px;">${escapeHtml(currentContent)}</textarea>
+                            <div class="flex gap-2 mt-2">
+                                <button class="save-edit-btn px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded-lg text-xs font-medium transition-colors flex items-center gap-1">
+                                    <svg class="w-3 h-3"  stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    Enregistrer
+                                </button>
+                                <button class="cancel-edit-btn px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded-lg text-xs font-medium transition-colors">
+                                    Annuler
+                                </button>
+                            </div>
+                        `;
+
+                        // Remplacer le contenu par le formulaire
+                        const originalContent = messageContentDiv.cloneNode(true);
+                        messageContentDiv.replaceWith(editForm);
+
+                        const textarea = editForm.querySelector('textarea');
+                        const saveBtn = editForm.querySelector('.save-edit-btn');
+                        const cancelBtn = editForm.querySelector('.cancel-edit-btn');
+
+                        // Auto-focus et sélection
+                        textarea.focus();
+                        textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+
+                        // Auto-resize textarea
+                        textarea.style.height = 'auto';
+                        textarea.style.height = (textarea.scrollHeight) + 'px';
+                        textarea.addEventListener('input', function() {
+                            this.style.height = 'auto';
+                            this.style.height = (this.scrollHeight) + 'px';
+                        });
+
+                        // Enregistrer les modifications
+                        saveBtn.addEventListener('click', async () => {
+                            const newContent = textarea.value.trim();
+                            if (newContent && newContent !== currentContent) {
+                                try {
+                                    const response = await fetch(`/chat/message/edit/${messageId}`, {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                                        body: `content=${encodeURIComponent(newContent)}`
+                                    });
+                                    const data = await response.json();
+                                    if (data.success) {
+                                        originalContent.querySelector('p').textContent = data.message.content;
+                                        editForm.replaceWith(originalContent);
+                                        const timeElement = messageElement.querySelector('.text-xs');
+                                        if (timeElement && !timeElement.querySelector('.italic')) {
+                                            timeElement.innerHTML += ' <span class="italic">(modifié)</span>';
+                                        }
+                                    }
+                                } catch (error) {
+                                    console.error('Error:', error);
+                                    alert('Erreur lors de la modification du message');
+                                }
+                            } else if (!newContent) {
+                                alert('Le message ne peut pas être vide');
+                            } else {
+                                editForm.replaceWith(originalContent);
+                            }
+                        });
+
+                        // Annuler l'édition
+                        cancelBtn.addEventListener('click', () => {
+                            editForm.replaceWith(originalContent);
+                        });
+
+                        // Enregistrer avec Ctrl+Enter ou Cmd+Enter, Annuler avec Escape
+                        textarea.addEventListener('keydown', (e) => {
+                            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                                e.preventDefault();
+                                saveBtn.click();
+                            } else if (e.key === 'Escape') {
+                                e.preventDefault();
+                                cancelBtn.click();
+                            }
+                        });
+                    });
+                }
+
+                if (deleteBtn) {
+                    deleteBtn.addEventListener('click', async () => {
+                        const messageId = deleteBtn.dataset.messageId;
+
+                        if (confirm('Êtes-vous sûr de vouloir supprimer ce message ?')) {
+                            try {
+                                const response = await fetch(`/chat/message/delete/${messageId}`, {
+                                    method: 'POST'
+                                });
+
+                                const data = await response.json();
+                                if (data.success) {
+                                    messageElement.remove();
+                                }
+                            } catch (error) {
+                                console.error('Error deleting message:', error);
+                            }
+                        }
+                    });
+                }
+            }
+
+            // Attach handlers to existing messages
+            document.querySelectorAll('.message-item').forEach(attachMessageHandlers);
+
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+        }
+
+        // Initialiser pour DOMContentLoaded, turbo:load et turbo:render
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeChat);
+        } else {
+            initializeChat();
+        }
+        document.addEventListener('turbo:load', initializeChat);
+        document.addEventListener('turbo:render', initializeChat);
+    </script>
+{% endblock %}

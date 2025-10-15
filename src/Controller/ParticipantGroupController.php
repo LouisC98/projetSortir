@@ -47,14 +47,18 @@ class ParticipantGroupController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Persister le groupe d'abord pour obtenir un ID
+            $em->persist($group);
+            $em->flush();
+
+            // Ensuite ajouter les membres
             $selectedUsers = $form->get('members')->getData();
-            foreach ($selectedUsers as $user) {
+            foreach ($selectedUsers as $selectedUser) {
                 $member = new ParticipantGroupMember();
-                $member->setUser($user);
+                $member->setUser($selectedUser);
                 $group->addMember($member);
             }
 
-            $em->persist($group);
             $em->flush();
 
             $this->addFlash('success', 'Groupe privé créé.');
