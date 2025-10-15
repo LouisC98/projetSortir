@@ -47,6 +47,9 @@ class Sortie
     #[ORM\Column(enumType: State::class)]
     private ?State $state = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imageFilename = null;
+
     /**
      * @var Collection<int, User>
      */
@@ -250,6 +253,18 @@ class Sortie
     public function setDescription(?string $description): static
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function getImageFilename(): ?string
+    {
+        return $this->imageFilename;
+    }
+
+    public function setImageFilename(?string $imageFilename): static
+    {
+        $this->imageFilename = $imageFilename;
 
         return $this;
     }
