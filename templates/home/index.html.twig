@@ -114,89 +114,108 @@
     </div>
 
     <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead class="bg-gray-50 dark:bg-gray-700">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Nom</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Date début</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Durée</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Clôture inscriptions</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Max</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">État</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Organisateur</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Site</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Lieu</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Participants</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {% for sortie in sorties %}
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a href="{{ path('app_sortie_show', {id: sortie.id}) }}"
-                               class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline transition-colors duration-200">
-                                {{ sortie.name }}
-                            </a>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ sortie.startDateTime ? sortie.startDateTime|date('d/m/Y H:i') : '' }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ sortie.duration ? sortie.duration|date('H:i') ~ ' h' : '' }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ sortie.registrationDeadline ? sortie.registrationDeadline|date('d/m/Y') : '' }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ sortie.maxRegistration }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            {% if sortie.state %}
-                                {% set stateClass = '' %}
-                                {% if sortie.state.value == 'Ouverte' %}
-                                    {% set stateClass = 'bg-green-100 text-green-800' %}
-                                {% elseif sortie.state.value == 'Créée' %}
-                                    {% set stateClass = 'bg-blue-100 text-blue-800' %}
-                                {% elseif sortie.state.value == 'Clôturée' %}
-                                    {% set stateClass = 'bg-orange-100 text-orange-800' %}
-                                {% elseif sortie.state.value == 'Activité en cours' %}
-                                    {% set stateClass = 'bg-purple-100 text-purple-800' %}
-                                {% elseif sortie.state.value == 'Passée' %}
-                                    {% set stateClass = 'bg-gray-100 text-gray-800' %}
-                                {% elseif sortie.state.value == 'Annulée' %}
-                                    {% set stateClass = 'bg-red-100 text-red-800' %}
+        <!-- Affichage en grille avec cartes -->
+        <div class="p-6">
+            {% if sorties|length > 0 %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {% for sortie in sorties %}
+                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-200 dark:border-gray-700">
+                            <!-- Image de la sortie -->
+                            <a href="{{ path('app_sortie_show', {id: sortie.id}) }}" class="block">
+                                {% if sortie.imageFilename %}
+                                    <img src="{{ asset('uploads/sorties/' ~ sortie.imageFilename) }}"
+                                         alt="{{ sortie.name }}"
+                                         class="w-full h-48 object-cover">
+                                {% else %}
+                                    <div class="w-full h-48 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
+                                        <svg class="w-16 h-16 text-gray-400 dark:text-gray-500" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                    </div>
                                 {% endif %}
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ stateClass }}">
-                                    {{ sortie.state.value }}
-                                </span>
-                            {% endif %}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                            <a href="{{ path('view_user_profil', {id: sortie.organisateur.id}) }}"
-                               class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline transition-colors duration-200">
-                                {{ sortie.organisateur ? sortie.organisateur.pseudo : '' }}
                             </a>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ sortie.site ? sortie.site.name : '' }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                            {% if sortie.place %}
-                                {{ sortie.place.name }}{% if sortie.place.city %} ({{ sortie.place.city.name }}){% endif %}
-                            {% endif %}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200">
-                                {{ sortie.participants|length }} personne(s)
-                            </span>
-                        </td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="11" class="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400">
-                            <div class="flex flex-col items-center">
-                                <svg class="w-12 h-12 text-gray-300 dark:text-gray-600 mb-4" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                                </svg>
-                                <p class="text-lg font-medium">Aucune sortie pour le moment</p>
-                                <p class="text-sm">Les sorties apparaîtront ici une fois créées</p>
+
+                            <!-- Contenu de la carte -->
+                            <div class="p-4">
+                                <!-- Titre et état -->
+                                <div class="flex items-start justify-between mb-2">
+                                    <a href="{{ path('app_sortie_show', {id: sortie.id}) }}"
+                                       class="text-lg font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors line-clamp-2 flex-1">
+                                        {{ sortie.name }}
+                                    </a>
+                                    {% if sortie.state %}
+                                        {% set stateClass = '' %}
+                                        {% if sortie.state.value == 'Ouverte' %}
+                                            {% set stateClass = 'bg-green-100 text-green-800' %}
+                                        {% elseif sortie.state.value == 'Créée' %}
+                                            {% set stateClass = 'bg-blue-100 text-blue-800' %}
+                                        {% elseif sortie.state.value == 'Clôturée' %}
+                                            {% set stateClass = 'bg-orange-100 text-orange-800' %}
+                                        {% elseif sortie.state.value == 'Activité en cours' %}
+                                            {% set stateClass = 'bg-purple-100 text-purple-800' %}
+                                        {% elseif sortie.state.value == 'Passée' %}
+                                            {% set stateClass = 'bg-gray-100 text-gray-800' %}
+                                        {% elseif sortie.state.value == 'Annulée' %}
+                                            {% set stateClass = 'bg-red-100 text-red-800' %}
+                                        {% endif %}
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ stateClass }} ml-2 whitespace-nowrap">
+                                            {{ sortie.state.value }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Date et durée -->
+                                <div class="space-y-2 mb-3 text-sm text-gray-600 dark:text-gray-400">
+                                    <div class="flex items-center">
+                                        <svg class="w-4 h-4 mr-2 flex-shrink-0" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                        <span class="truncate">{{ sortie.startDateTime ? sortie.startDateTime|date('d/m/Y à H:i') : '' }}</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <svg class="w-4 h-4 mr-2 flex-shrink-0" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <span>{{ sortie.duration ? ((sortie.duration / 60)|round(0) ~ 'h ' ~ (sortie.duration % 60) ~ 'min') : '' }}</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <svg class="w-4 h-4 mr-2 flex-shrink-0" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        </svg>
+                                        <span class="truncate">
+                                            {% if sortie.place %}
+                                                {{ sortie.place.name }}{% if sortie.place.city %} ({{ sortie.place.city.name }}){% endif %}
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Organisateur et participants -->
+                                <div class="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
+                                    <div class="text-xs text-gray-500 dark:text-gray-400 truncate flex-1">
+                                        Par <a href="{{ path('view_user_profil', {id: sortie.organisateur.id}) }}"
+                                             class="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+                                            {{ sortie.organisateur ? sortie.organisateur.pseudo : '' }}
+                                        </a>
+                                    </div>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 ml-2 whitespace-nowrap">
+                                        {{ sortie.participants|length }}/{{ sortie.maxRegistration }}
+                                    </span>
+                                </div>
                             </div>
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-12">
+                    <svg class="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    </svg>
+                    <p class="text-lg font-medium text-gray-900 dark:text-white mb-2">Aucune sortie pour le moment</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Les sorties apparaîtront ici une fois créées</p>
+                </div>
+            {% endif %}
         </div>
 
         <!-- Pagination -->
@@ -259,13 +278,13 @@
                             <a href="{{ path('home', currentFilters|merge({page: pagination.currentPage - 1})) }}"
                                class="relative inline-flex items-center px-4 py-3 bg-white dark:bg-gray-800 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 group">
                                 <span class="sr-only">Précédent</span>
-                                <svg class="h-5 w-5 group-hover:animate-pulse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <svg class="h-5 w-5 group-hover:animate-pulse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" >
                                     <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                                 </svg>
                             </a>
                         {% else %}
                             <span class="relative inline-flex items-center px-4 py-3 bg-gray-100 dark:bg-gray-900 text-sm font-medium text-gray-400 dark:text-gray-600 cursor-not-allowed">
-                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" >
                                     <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                                 </svg>
                             </span>
@@ -317,13 +336,13 @@
                             <a href="{{ path('home', currentFilters|merge({page: pagination.currentPage + 1})) }}"
                                class="relative inline-flex items-center px-4 py-3 border-l border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 group">
                                 <span class="sr-only">Suivant</span>
-                                <svg class="h-5 w-5 group-hover:animate-pulse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <svg class="h-5 w-5 group-hover:animate-pulse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" >
                                     <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
                                 </svg>
                             </a>
                         {% else %}
                             <span class="relative inline-flex items-center px-4 py-3 border-l border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-900 text-sm font-medium text-gray-400 dark:text-gray-600 cursor-not-allowed">
-                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" >
                                     <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
                                 </svg>
                             </span>

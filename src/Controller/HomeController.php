@@ -21,7 +21,7 @@ final class HomeController extends AbstractController
         $stateUpdateService->updateAllStates();
 
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 10;
+        $limit = 12;
         $offset = ($page - 1) * $limit;
 
         $user = $this->getUser();

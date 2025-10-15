@@ -17,11 +17,13 @@ use App\Service\SortieService;
 use App\Service\StateUpdateService;
 use App\Service\WeatherService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\String\Slugger\SluggerInterface;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
@@ -29,8 +31,12 @@ use Twig\Error\SyntaxError;
 #[IsGranted('ROLE_USER')]
 final class SortieController extends AbstractController
 {
-    public function __construct(private readonly SortieService $sortieService, private readonly CommentService $commentService, private readonly CommentRepository $commentRepository)
-    {
+    public function __construct(
+        private readonly SortieService $sortieService,
+        private readonly CommentService $commentService,
+        private readonly CommentRepository $commentRepository,
+        private readonly SluggerInterface $slugger
+    ) {
     }
 
     #[Route('/sortie/new', name: 'app_sortie_new', methods: ['GET', 'POST'])]
@@ -56,6 +62,24 @@ final class SortieController extends AbstractController
                 }
             } else {
                 try {
+                    // Gestion de l'upload d'image
+                    $imageFile = $sortieForm->get('imageFile')->getData();
+                    if ($imageFile) {
+                        $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                        $safeFilename = $this->slugger->slug($originalFilename);
+                        $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+
+                        try {
+                            $imageFile->move(
+                                $this->getParameter('kernel.project_dir').'/public/uploads/sorties',
+                                $newFilename
+                            );
+                            $sortie->setImageFilename($newFilename);
+                        } catch (FileException $e) {
+                            $this->addFlash('error', 'Erreur lors de l\'upload de l\'image');
+                        }
+                    }
+
                     $isActionPublish = $request->request->get('action') === 'publier';
                     $this->sortieService->createSortie($sortie, $user, $isActionPublish);
                     $message = $isActionPublish ? "Sortie publiée avec succès !" : "Sortie enregistrée !";
@@ -177,6 +201,32 @@ final class SortieController extends AbstractController
                 }
             } else {
                 try {
+                    // Gestion de l'upload d'image
+                    $imageFile = $sortieForm->get('imageFile')->getData();
+                    if ($imageFile) {
+                        // Supprimer l'ancienne image si elle existe
+                        if ($sortie->getImageFilename()) {
+                            $oldImagePath = $this->getParameter('kernel.project_dir').'/public/uploads/sorties/'.$sortie->getImageFilename();
+                            if (file_exists($oldImagePath)) {
+                                unlink($oldImagePath);
+                            }
+                        }
+
+                        $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                        $safeFilename = $this->slugger->slug($originalFilename);
+                        $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+
+                        try {
+                            $imageFile->move(
+                                $this->getParameter('kernel.project_dir').'/public/uploads/sorties',
+                                $newFilename
+                            );
+                            $sortie->setImageFilename($newFilename);
+                        } catch (FileException $e) {
+                            $this->addFlash('error', 'Erreur lors de l\'upload de l\'image');
+                        }
+                    }
+
                     $this->sortieService->edit($sortie, $user);
                     $this->addFlash("success", "Sortie modifié avec succès");
                     return $this->redirectToRoute('app_sortie_show', ['id' => $sortie->getId()]);
