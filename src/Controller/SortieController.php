@@ -22,6 +22,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 #[IsGranted('ROLE_USER')]
 final class SortieController extends AbstractController
@@ -345,4 +348,18 @@ final class SortieController extends AbstractController
         return $this->json($data);
     }
 
+    #[Route('/sortie/{id}/export-pdf', name: 'app_sortie_export_pdf', methods: ['GET'])]
+    public function export(Sortie $sortie): Response
+    {
+        try {
+            return $this->sortieService->generatePdf(
+                'export/sortie_pdf.html.twig',
+                $sortie
+            );
+        } catch (LoaderError|RuntimeError|SyntaxError $e) {
+            $this->addFlash('error', "Une erreur est survenu lors de la génération du pdf");
+            return $this->redirectToRoute('app_sortie_show', ['id' => $sortie->getId()]);
+        }
+
+    }
 }

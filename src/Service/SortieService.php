@@ -8,13 +8,21 @@ use App\Enum\State;
 use App\Event\SortieRegistrationEvent;
 use App\Exception\SortieException;
 use Doctrine\ORM\EntityManagerInterface;
+use Dompdf\Dompdf;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 class SortieService
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EntityManagerInterface   $entityManager,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly string                   $projectDir,
+        private readonly Environment              $twig
     ) {
     }
 
@@ -233,5 +241,45 @@ class SortieService
         }
 
         $this->entityManager->flush();
+    }
+
+    /**
+     * Génère le pdf récapitulatif de la sortie dans son état actuel.
+     * Retourne un objet Response à utiliser dans un controller.
+     * Utilise le package dompdf
+     *
+     * @param string $template Le template twig utilisé pour la génération du pdf
+     * @param Sortie $sortie
+     *
+     * @return Response
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     */
+    public function generatePdf(string $template, Sortie $sortie): Response
+    {
+        $fileName = $sortie->getName() . '_' . $sortie->getStartDateTime()->format('d-m-Y') . '.pdf';
+        $logoPath = $this->projectDir . '/public/images/logo-dark1.png';
+        $logoData = base64_encode(file_get_contents($logoPath));
+        $data = [
+            'sortie' => $sortie,
+            'logoSrc' => 'data:image/png;base64,' . $logoData,
+        ];
+
+        $html = $this->twig->render($template, $data);
+
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4');
+        $dompdf->render();
+
+        return new Response(
+            $dompdf->output(),
+            Response::HTTP_OK,
+            [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="' . $fileName . '"'
+            ]
+        );
     }
 }
