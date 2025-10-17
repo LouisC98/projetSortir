@@ -13,7 +13,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 #[AsCommand(
     name: 'app:send-reminders',
-    description: 'Finds sorties starting in 24h or 48h and sends a reminder to participants.',
+    description: 'Trouve les sorties qui commence dans 48 et 24h pour envoyer un rappel aux participants',
 )]
 class SendReminderCommand extends Command
 {
@@ -43,18 +43,18 @@ class SendReminderCommand extends Command
         $allSorties = array_merge($sorties48h, $sorties24h);
 
         if (empty($allSorties)) {
-            $io->info('No sorties found for reminders.');
+            $io->info('Pas de sortie trouvé pour rappels');
             return Command::SUCCESS;
         }
 
-        $io->info('Found ' . count($allSorties) . ' sorties for reminders.');
+        $io->info(count($allSorties) . ' sorties trouvée(s) pour rappels');
 
         foreach ($allSorties as $sortie) {
             $this->bus->dispatch(new SendSortieReminderEmailMessage($sortie->getId()));
-            $io->text('Dispatched reminder for sortie #' . $sortie->getId() . ' - ' . $sortie->getName());
+            $io->text('Dispatch rappel pour sortie #' . $sortie->getId() . ' - ' . $sortie->getName());
         }
 
-        $io->success('All reminder messages have been dispatched.');
+        $io->success('Tout les rappels ont été dispatch');
 
         return Command::SUCCESS;
     }
