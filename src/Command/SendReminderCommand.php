@@ -30,12 +30,10 @@ class SendReminderCommand extends Command
 
         $now = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
         
-        // Reminders for 48h (we take a 1h window to be safe with cron execution time)
         $from48h = (clone $now)->modify('+47 hours');
         $to48h = (clone $now)->modify('+48 hours');
         $sorties48h = $this->sortieRepository->findForReminders($from48h, $to48h);
 
-        // Reminders for 24h (we take a 1h window to be safe with cron execution time)
         $from24h = (clone $now)->modify('+23 hours');
         $to24h = (clone $now)->modify('+24 hours');
         $sorties24h = $this->sortieRepository->findForReminders($from24h, $to24h);
