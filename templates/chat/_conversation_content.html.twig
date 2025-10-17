@@ -171,8 +171,17 @@
     const messagesList = document.getElementById('messagesList');
     const messageForm = document.getElementById('messageForm');
     const messageInput = document.getElementById('messageInput');
+    const submitBtn = messageForm ? messageForm.querySelector('button[type="submit"]') : null;
 
     if (!messageForm || !messageInput) return;
+
+    // Empêche l'initialisation multiple lorsque le partial est réinséré (Turbo, fetch, etc.)
+    if (messageForm.dataset.chatInit === 'true') {
+        // S'assure simplement de scroller en bas si nécessaire et on quitte
+        if (messagesContainer) messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        return;
+    }
+    messageForm.dataset.chatInit = 'true';
 
     // Gestion de la touche Entrée
     messageInput.addEventListener('keydown', function(e) {
@@ -200,8 +209,17 @@
     messageForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
+        // Si un envoi est déjà en cours, on ignore
+        if (submitBtn && submitBtn.disabled) return;
+
         const content = messageInput.value.trim();
         if (!content) return;
+
+        // Désactive le bouton pour éviter les envois multiples
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-60', 'cursor-not-allowed');
+        }
 
         fetch(`/chat/message/send/${conversationId}`, {
             method: 'POST',
@@ -224,6 +242,13 @@
         .catch(error => {
             console.error('Erreur:', error);
             alert('Erreur lors de l\'envoi du message');
+        })
+        .finally(() => {
+            // Réactive le bouton après fin de la requête
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+            }
         });
     });
 
@@ -283,6 +308,9 @@
 
     // Attach message handlers (edit/delete)
     function attachMessageHandlers(messageElement) {
+        // Empêche le rattachement multiple des écouteurs sur le même élément
+        if (messageElement.dataset.handlersAttached === 'true') return;
+
         const editBtn = messageElement.querySelector('.edit-message-btn');
         const deleteBtn = messageElement.querySelector('.delete-message-btn');
 
@@ -396,6 +424,9 @@
                 }
             });
         }
+
+        // Marque l'élément comme initialisé pour éviter de rattacher plusieurs fois
+        messageElement.dataset.handlersAttached = 'true';
     }
 
     // Attach handlers to existing messages
