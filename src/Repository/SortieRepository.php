@@ -222,6 +222,7 @@ class SortieRepository extends ServiceEntityRepository
             ->andWhere('s.state IN (:states)')
             ->setParameter('states', [
                 State::OPEN->value,
+                State::CLOSED->value,
             ])
             ->getQuery()
             ->getResult();
